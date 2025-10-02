@@ -15,16 +15,24 @@ body, button, input, select, textarea {
 }
 
 /* 2) Keep icons using their proper icon fonts (so they render correctly) */
-.fa, .fas, .far, .fal { /* Font Awesome (Free/Pro) */
-  font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "Font Awesome 4",
+/* Legacy FA4 (fa fa-*) */
+.fa {
+  font-family: "FontAwesome", "Font Awesome 4",
+               "Font Awesome 5 Free", "Font Awesome 6 Free",
                "Font Awesome 6 Pro", "Font Awesome 5 Pro" !important;
+  font-style: normal !important;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-.fab { /* Font Awesome Brands */
-  font-family: "Font Awesome 6 Brands", "Font Awesome 5 Brands" !important;
-}
-.glyphicon { /* Bootstrap 3 */
-  font-family: "Glyphicons Halflings" !important;
-}
+
+/* FA5/6 (fas/far/fal) keep their families/weights */
+.fas { font-family:"Font Awesome 6 Free","Font Awesome 5 Free" !important; font-weight:900 !important; }
+.far { font-family:"Font Awesome 6 Free","Font Awesome 5 Free" !important; font-weight:400 !important; }
+.fal { font-family:"Font Awesome 6 Pro","Font Awesome 5 Pro"  !important; font-weight:300 !important; } /* Pro only; falls back */
+.fab { font-family:"Font Awesome 6 Brands","Font Awesome 5 Brands" !important; font-weight:400 !important; }
+.glyphicon { font-family:"Glyphicons Halflings" !important; }
+
 
 /* 3) Icon weights + fine-tuning for legibility */
 .fas { font-weight: 900 !important; }   /* solid */
@@ -38,3 +46,4 @@ body, button, input, select, textarea {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
