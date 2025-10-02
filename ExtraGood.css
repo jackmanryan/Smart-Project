@@ -890,5 +890,967 @@ nav.navbar.navbar-default.navbar-static-top::after{
 }
 /* Hotfix: force legacy FA4 for .fa classes so old codepoints render */
 .fa { font-family:"FontAwesome","Font Awesome 4" !important; font-style:normal!important; line-height:1; }
+/* Extranet Dark Theme — DevTools stylesheet (pinned, wide coverage) */
+:root{
+  --bg-0:#0F1319; --bg-1:#111822;
+  --surface-0:#131B26; --surface-1:#1A2432; --surface-2:#223043;
+  --border-0:#2A394E; --border-1:#33465F;
+  --text-0:#E6EAF2; --text-1:#B9C2D2; --muted-0:#7D8AA1;
+  --primary-300:#8CBABC; --primary-400:#7CB2B4; --primary-500:#6EA6A8; --primary-600:#5E9193; --primary-700:#4E7A7C;
+  --accent-good:#7ED3B2; --accent-warn:#F3C979; --accent-bad:#F19999; --link:var(--primary-400);
+  --space-0:0; --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:20px; --space-6:24px; --space-7:32px;
+  --radius-1:8px; --radius-2:12px; --shadow-1:0 1px 1px rgba(0,0,0,.25); --shadow-2:0 6px 16px rgba(0,0,0,.25);
+  --font-sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  --fs-1:13px; --fs-2:14px; --fs-3:16px; --ctl-h:36px; --ctl-pad-x:12px;
+}
+
+/* GLOBAL */
+html,body{background:var(--bg-0)!important;color:var(--text-0);font-family:var(--font-sans);}
+a{color:var(--link);} a:hover,a:focus{color:var(--primary-300);text-decoration:none;}
+h1,h2,h3,h4,h5,h6{margin:var(--space-4) 0 var(--space-3);color:var(--text-0);}
+p,.lead{margin:0 0 var(--space-4);color:var(--text-1);}
+
+/* NAVBAR */
+.navbar.navbar-default{background:var(--surface-0)!important;border-color:var(--border-0)!important;}
+.navbar .navbar-brand,.navbar .navbar-nav>li>a{color:var(--text-1)!important;}
+.navbar .navbar-nav>li>a:hover{color:var(--text-0)!important;}
+
+/* PANELS / CARDS */
+.panel,.panel.panel-default{
+  background:var(--surface-0)!important;border:1px solid var(--border-0)!important;
+  border-radius:var(--radius-2);box-shadow:var(--shadow-1);margin-bottom:var(--space-6);
+}
+.panel>.panel-heading,.panel-default>.panel-heading{
+  background:var(--surface-1)!important;color:var(--text-0)!important;
+  border-bottom:1px solid var(--border-0)!important;border-top-left-radius:var(--radius-2);border-top-right-radius:var(--radius-2);
+  padding:var(--space-4) var(--space-5);
+}
+.panel .panel-body{padding:var(--space-5);color: #ffffff !important;}
+.panel .panel-footer{
+  background:var(--surface-1)!important;border-top:1px solid var(--border-0)!important;color:var(--text-1);
+  border-bottom-left-radius:var(--radius-2);border-bottom-right-radius:var(--radius-2);
+}
+.panel-primary{border-color:var(--primary-600)!important;}
+.panel-primary>.panel-heading{background:var(--primary-700)!important;border-color:var(--primary-700)!important;}
+/* soften success/info/warn/danger panels on dark */
+.panel-success{border-color:#3f7a63!important;} .panel-success>.panel-heading{background:#285e49!important;}
+.panel-info{border-color:#4c6b86!important;} .panel-info>.panel-heading{background:#2e485f!important;}
+.panel-warning{border-color:#7b6437!important;} .panel-warning>.panel-heading{background:#55421f!important;}
+.panel-danger{border-color:#7a3f3f!important;} .panel-danger>.panel-heading{background:#5e2a2a!important;}
+
+/* TABLES */
+.table{color:var(--text-0);background:transparent;}
+.panel .table{background:transparent!important;}
+.table>thead>tr>th{background:var(--surface-1)!important;color:var(--text-0);border-color:var(--border-1)!important;}
+.table>tbody>tr>td,.table>tfoot>tr>td,.table>thead>tr>th{border-color:var(--border-0)!important;}
+.table-striped>tbody>tr:nth-of-type(odd){background:rgba(255,255,255,.02)!important;}
+.table-hover>tbody>tr:hover{background:rgba(110,166,168,.12)!important;}
+.table-responsive{background:transparent!important;}
+
+/* FORMS */
+.form-control,input[type="text"],input[type="number"],input[type="search"],select,textarea{
+  background:var(--surface-0)!important;border:1px solid var(--border-0)!important;color:var(--text-0)!important;
+  height:var(--ctl-h);padding:0 var(--ctl-pad-x);border-radius:var(--radius-1);
+}
+.form-control:focus{outline:none;border-color:var(--primary-500)!important;box-shadow:0 0 0 3px rgba(110,166,168,.25)!important;}
+::placeholder{color:var(--muted-0);}
+
+/* BUTTONS */
+.btn{
+  border-radius:var(--radius-1);border:1px solid var(--border-0)!important;background:var(--surface-1)!important;
+  color:var(--text-0)!important;height:var(--ctl-h);padding:0 var(--ctl-pad-x);
+}
+.btn:hover{filter:brightness(1.1);}
+.btn-primary{background:var(--primary-600)!important;border-color:var(--primary-700)!important;}
+.btn-primary:hover{background:var(--primary-500)!important;}
+.btn-default.active,.btn-default:active,.open>.dropdown-toggle.btn-default{
+  background:var(--surface-2)!important;border-color:var(--border-1)!important;color:var(--text-0)!important;
+}
+
+/* LISTS / NAV / TABS */
+.list-group,.list-group-item{background:var(--surface-0)!important;color:var(--text-0)!important;border-color:var(--border-0)!important;}
+.nav-tabs>li>a,.nav-pills>li>a{background:var(--surface-1)!important;border:1px solid var(--border-0)!important;color:var(--text-1)!important;}
+.nav-tabs>li.active>a,.nav-tabs>li.active>a:focus,.nav-tabs>li.active>a:hover{
+  background:var(--surface-0)!important;color:var(--text-0)!important;border-color:var(--border-1)!important;
+}
+.tab-content,.tab-pane{background:var(--surface-0)!important;}
+
+/* DROPDOWNS / MODALS / POPOVERS / TOOLTIPS */
+.dropdown-menu{background:var(--surface-0)!important;border:1px solid var(--border-0)!important;}
+.dropdown-menu>li>a{color:var(--text-0)!important;}
+.dropdown-menu>li>a:hover{background:var(--surface-2)!important;}
+.modal-content{background:var(--surface-0)!important;border:1px solid var(--border-0)!important;color:var(--text-0)!important;border-radius:var(--radius-2);}
+.popover{background:var(--surface-0)!important;border-color:var(--border-0)!important;color:var(--text-0)!important;}
+.popover-title{background:var(--surface-1)!important;border-bottom-color:var(--border-0)!important;color:var(--text-0)!important;}
+.tooltip-inner{background:var(--surface-1)!important;color:var(--text-0)!important;border:1px solid var(--border-0)!important;}
+
+/* BADGES / LABELS / ALERTS */
+.label,.badge{background:var(--surface-1)!important;color:var(--text-0)!important;border:1px solid var(--border-0)!important;}
+.alert{border-radius:var(--radius-1);border:1px solid var(--border-0)!important;}
+.alert-success{background:rgba(126,211,178,.12)!important;color:#9be0c6!important;}
+.alert-info{background:rgba(124,178,180,.10)!important;color:var(--primary-300)!important;}
+.alert-warning{background:rgba(243,201,121,.12)!important;color:#f3d49a!important;}
+.alert-danger{background:rgba(241,153,153,.12)!important;color:#f7bbbb!important;}
+
+/* SIDEBAR-ish containers */
+[class*="sidebar"], .side, .side-panel, .side-nav, .left-panel { background:var(--surface-0)!important; }
+
+/* UTILITIES */
+.stack>*+*{margin-top:var(--space-4);} .stack-sm>*+*{margin-top:var(--space-2);} .stack-lg>*+*{margin-top:var(--space-6);}
+.pad-3{padding:var(--space-3);} .pad-4{padding:var(--space-4);} .pad-5{padding:var(--space-5);}
+.radius-1{border-radius:var(--radius-1);} .radius-2{border-radius:var(--radius-2);}
+.shadow-1{box-shadow:var(--shadow-1);} .shadow-2{box-shadow:var(--shadow-2);}
+.density--compact .table>tbody>tr>td{padding:6px 8px;font-size:var(--fs-1);}
 
 
+/* ===== SB Admin 2 — DARK OVERRIDES (place AFTER your theme vars) ===== */
+
+/* body + wrappers */
+body{ background:var(--bg-0)!important; }
+#wrapper{ width:100%; }
+#page-wrapper{
+  padding:0 15px; min-height:568px;
+  background:var(--surface-0)!important;
+}
+
+/* top nav links + dropdowns */
+.navbar-top-links{ margin-right:0; }
+.navbar-top-links li{ display:inline-block; }
+.navbar-top-links li:last-child{ margin-right:15px; }
+.navbar-top-links li a{
+  padding:15px; min-height:50px;
+  color:var(--text-1)!important;
+}
+.navbar-top-links li a:hover{ color:var(--text-0)!important; }
+
+.navbar-top-links .dropdown-menu{
+  background:var(--surface-0)!important;
+  border:1px solid var(--border-0)!important;
+}
+.navbar-top-links .dropdown-menu li{ display:block; }
+.navbar-top-links .dropdown-menu li a{
+  padding:3px 20px; min-height:0; color:var(--text-0)!important;
+}
+.navbar-top-links .dropdown-menu li a:hover{ background:var(--surface-2)!important; }
+.navbar-top-links .dropdown-user{ right:0; left:auto; }
+
+/* sidebar */
+.sidebar .sidebar-nav.navbar-collapse{ padding-left:0; padding-right:0; }
+.sidebar{ background:var(--surface-0)!important; }
+.sidebar .sidebar-search{ padding:15px; }
+.sidebar ul li{ border-bottom:1px solid var(--border-0)!important; }
+.sidebar ul li a{ color:var(--text-1)!important; }
+.sidebar ul li a:hover{ background:var(--surface-1)!important; color:var(--text-0)!important; }
+.sidebar ul li a.active{ background:var(--surface-2)!important; color:var(--text-0)!important; }
+.sidebar .arrow{ float:right; }
+.sidebar .fa.arrow:before{ content:"\f104"; }
+.sidebar .active>a>.fa.arrow:before{ content:"\f107"; }
+.sidebar .nav-second-level li,
+.sidebar .nav-third-level li{ border-bottom:none!important; }
+.sidebar .nav-second-level li a{ padding-left:37px; }
+.sidebar .nav-third-level li a{ padding-left:52px; }
+
+/* outline buttons (stay readable on dark) */
+.btn-outline{
+  color:var(--text-0)!important; background:transparent!important;
+  border:1px solid var(--border-0)!important; transition:all .2s ease;
+}
+.btn-primary.btn-outline{ color:var(--primary-400)!important; border-color:var(--primary-600)!important; }
+.btn-success.btn-outline{ color:var(--accent-good)!important; }
+.btn-info.btn-outline{ color:var(--primary-300)!important; }
+.btn-warning.btn-outline{ color:var(--accent-warn)!important; }
+.btn-danger.btn-outline{ color:var(--accent-bad)!important; }
+.btn-outline:hover{ background:var(--surface-2)!important; color:var(--text-0)!important; }
+
+/* chat */
+.chat{ margin:0; padding:0; list-style:none; }
+.chat li{ margin-bottom:10px; padding-bottom:5px; border-bottom:1px dotted var(--border-1)!important; }
+.chat li .chat-body p{ margin:0; }
+
+/* flot chart container sizing (visuals handled globally) */
+.flot-chart{ display:block; height:400px; }
+.flot-chart-content{ width:100%; height:100%; }
+
+/* DataTables sort icons (FontAwesome arrows) */
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled{
+  background:transparent!important; color:var(--text-0)!important;
+}
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting:after{
+  float:right; font-family:"FontAwesome";
+  color:var(--text-1)!important; opacity:.85;
+}
+table.dataTable thead .sorting_asc:after{ content:"\f0de"; }
+table.dataTable thead .sorting_desc:after{ content:"\f0dd"; }
+table.dataTable thead .sorting:after{ content:"\f0dc"; color:var(--muted-0)!important; }
+
+/* circle buttons */
+.btn-circle{
+  width:30px; height:30px; padding:6px 0; border-radius:15px; text-align:center;
+  font-size:12px; line-height:1.4286;
+  background:var(--surface-1)!important; color:var(--text-0)!important; border:1px solid var(--border-0)!important;
+}
+.btn-circle.btn-lg{ width:50px; height:50px; padding:10px 16px; border-radius:25px; font-size:18px; line-height:1.33; }
+.btn-circle.btn-xl{ width:70px; height:70px; padding:10px 16px; border-radius:35px; font-size:24px; line-height:1.33; }
+
+/* demo “show-grid” blocks */
+.show-grid [class^="col-"]{
+  padding-top:10px; padding-bottom:10px; border:1px solid var(--border-1)!important;
+  background:rgba(255,255,255,.04)!important;
+}
+.show-grid{ margin:15px 0; }
+
+/* colored panels re-skinned for dark */
+.panel-green{
+  border-color:rgba(126,211,178,.35)!important;
+}
+.panel-green>.panel-heading{
+  border-color:rgba(126,211,178,.35)!important; color:#0b1a16!important;
+  background:rgba(126,211,178,.25)!important;
+}
+.panel-green>a{ color:var(--accent-good)!important; }
+.panel-green>a:hover{ color:#4ac79e!important; }
+
+.panel-red{
+  border-color:rgba(241,153,153,.35)!important;
+}
+.panel-red>.panel-heading{
+  border-color:rgba(241,153,153,.35)!important; color:#1b0a0a!important;
+  background:rgba(241,153,153,.22)!important;
+}
+.panel-red>a{ color:var(--accent-bad)!important; }
+.panel-red>a:hover{ color:#ffb3b3!important; }
+
+.panel-yellow{
+  border-color:rgba(243,201,121,.35)!important;
+}
+.panel-yellow>.panel-heading{
+  border-color:rgba(243,201,121,.35)!important; color:#1b1305!important;
+  background:rgba(243,201,121,.22)!important;
+}
+.panel-yellow>a{ color:var(--accent-warn)!important; }
+.panel-yellow>a:hover{ color:#f6d792!important; }
+
+/* timeline */
+.timeline{ position:relative; padding:20px 0; list-style:none; }
+.timeline:before{
+  content:" "; position:absolute; top:0; bottom:0; left:50%;
+  width:3px; margin-left:-1.5px; background:var(--border-1)!important;
+}
+.timeline>li{ position:relative; margin-bottom:20px; }
+.timeline>li>.timeline-panel{
+  float:left; position:relative; width:46%; padding:20px;
+  background:var(--surface-0)!important; color:var(--text-0)!important;
+  border:1px solid var(--border-0)!important; border-radius:8px; box-shadow:var(--shadow-1);
+}
+.timeline>li>.timeline-panel:before{
+  content:" "; display:inline-block; position:absolute; top:26px; right:-15px;
+  border-top:15px solid transparent; border-right:0 solid transparent; border-bottom:15px solid transparent; border-left:15px solid var(--border-0)!important;
+}
+.timeline>li>.timeline-panel:after{
+  content:" "; display:inline-block; position:absolute; top:27px; right:-14px;
+  border-top:14px solid transparent; border-right:0 solid transparent; border-bottom:14px solid transparent; border-left:14px solid var(--surface-0)!important;
+}
+.timeline>li.timeline-inverted>.timeline-panel{ float:right; }
+.timeline>li.timeline-inverted>.timeline-panel:before{
+  right:auto; left:-15px; border-right-width:15px; border-left-width:0; border-right-color:var(--border-0)!important;
+}
+.timeline>li.timeline-inverted>.timeline-panel:after{
+  right:auto; left:-14px; border-right-width:14px; border-left-width:0; border-right-color:var(--surface-0)!important;
+}
+.timeline-badge{
+  z-index:100; position:absolute; top:16px; left:50%; width:50px; height:50px; margin-left:-25px; border-radius:50%;
+  text-align:center; font-size:1.4em; line-height:50px; color:#fff;
+  background:var(--surface-2)!important; border:1px solid var(--border-1)!important;
+}
+.timeline-badge.primary{ background:#2e6da4!important; }
+.timeline-badge.success{ background:#3f903f!important; }
+.timeline-badge.warning{ background:#f0ad4e!important; }
+.timeline-badge.danger{ background:#d9534f!important; }
+.timeline-badge.info{ background:#5bc0de!important; }
+.timeline-title{ margin-top:0; color:var(--text-0)!important; }
+.timeline-body>p, .timeline-body>ul{ margin-bottom:0; color:var(--text-1)!important; }
+.timeline-body>p+p{ margin-top:5px; }
+
+@media (max-width:767px){
+  ul.timeline:before{ left:40px; }
+  ul.timeline>li>.timeline-panel{ width:calc(100% - 90px); }
+  ul.timeline>li>.timeline-badge{ top:16px; left:15px; margin-left:0; }
+  ul.timeline>li>.timeline-panel{ float:right; }
+  ul.timeline>li>.timeline-panel:before{
+    right:auto; left:-15px; border-right-width:15px; border-left-width:0; border-right-color:var(--border-0)!important;
+  }
+  ul.timeline>li>.timeline-panel:after{
+    right:auto; left:-14px; border-right-width:14px; border-left-width:0; border-right-color:var(--surface-0)!important;
+  }
+}
+
+/* misc */
+.huge{ font-size:40px; color:var(--text-0); }
+.error{ color:var(--accent-bad)!important; }
+.error i{ color:var(--accent-warn)!important; }
+.functionsTable a{ margin-right:10px!important; float:left!important; }
+
+/* ===== Last-mile DARK fixes for legacy/inline rules ===== */
+
+/* micro text */
+.smalltitle{ font-size:10px; color:var(--text-1)!important; }
+
+/* bottom message bar */
+#messagebox{
+  position:fixed; left:0; right:0; bottom:0; width:100%; z-index:99999999;
+  padding:10px; margin:0; line-height:20px; font-size:20px; text-align:center;
+  background:rgba(110,166,168,.12)!important; color:var(--text-0)!important;
+  border-top:1px solid var(--border-0)!important; box-shadow:0 -6px 16px rgba(0,0,0,.25);
+}
+.warningIcon{ color:var(--accent-bad)!important; float:left; font-size:42px; margin:0 10px 0 0; }
+
+/* “black” panel -> dark surfaces */
+.panel-black{ border-color:var(--border-1)!important; }
+.panel-black>.panel-heading{
+  background:var(--surface-1)!important; border-color:var(--border-1)!important; color:var(--text-0)!important;
+}
+
+/* shipping options */
+.shippingoptions{ padding:5px 0; border-bottom:1px solid var(--border-0)!important; }
+.shippingoptions label{ font-weight:600; color:var(--text-1)!important; }
+.markedshipoption{
+  background:var(--surface-2)!important; font-weight:700; color:var(--text-0)!important; border-radius:6px;
+}
+
+/* RingCentral widgets */
+#ringcentral_callmonitor{ background:transparent!important; border:none!important; }
+#ringcentral_notifier{
+  width:300px; height:450px; margin:10px; padding:20px; border-radius:10px 0 0 10px;
+  background:var(--surface-0)!important; color:var(--text-0)!important;
+  border:2px solid var(--accent-warn)!important;
+}
+
+/* files list */
+#list-files{ list-style:none; padding:0; margin:0; }
+#list-files li{
+  float:left; width:100%; margin:2px 0 0; padding:5px;
+  background:var(--surface-1)!important; border:1px solid var(--border-0)!important; color:var(--text-0)!important;
+}
+
+/* signature / preview blocks */
+.showSignature{
+  padding:10px; max-height:300px; overflow:auto; margin:0;
+  border:1px solid var(--border-0)!important; background:var(--surface-0)!important; color:var(--text-0)!important;
+}
+
+/* configurator columns & chips */
+#sideA,#sideB,#sideC,#sideD{ border-bottom:1px dotted var(--border-1)!important; float:left; height:286px; padding:20px 0 0; width:327px; }
+.indsizes,
+.ColorInches,
+#sideah1,#sideah2,#sidebh1,#sidebh2,#sidech1,#sidech2,#sidedh1,#sidedh2{
+  background:var(--surface-1)!important; border:1px solid var(--border-0)!important; color:var(--text-0)!important; border-radius:5px;
+}
+.colorRow{ border-bottom:1px dotted var(--border-1)!important; }
+.colorpickcurtain option:hover,
+.colorpickcurtain option:checked,
+.colorpickcurtain:focus>option:checked{ color:var(--text-0)!important; }
+
+/* stepbar */
+.stepbar{ background:var(--primary-700)!important; color:var(--text-0)!important; border-radius:10px; height:35px; padding:10px; line-height:14px; }
+.stepbar span{ background:var(--accent-warn)!important; color:#000!important; border-radius:6px 0 0 6px; }
+.stepbar span::after{ border-left-color:var(--accent-warn)!important; }
+
+/* small cards & quote widgets */
+.curtainlayout{
+  max-width:150px; float:left; margin:10px 10px 0 0; padding:10px; border-radius:10px;
+  background:var(--surface-0)!important; border:1px solid var(--border-0)!important;
+}
+.quote_hard_type{
+  width:134px; height:192px; float:left; padding:5px; margin:0 5px 0 0;
+  background:var(--surface-1)!important; border:1px solid var(--border-0)!important; color:var(--text-0)!important;
+}
+
+/* status highlights (was neon greens) */
+.linemarked{ background:rgba(126,211,178,.18)!important; }
+.stickerprintedcolor{ background:rgba(126,211,178,.28)!important; }
+
+/* instructions bar (was #ffff99) */
+.instructionsOrderView{
+  width:900px; padding:10px; margin:10px;
+  background:rgba(243,201,121,.18)!important; color:var(--text-0)!important;
+  border:1px solid var(--border-0)!important; box-shadow:var(--shadow-1);
+}
+
+/* CS list menu */
+.cs_menu{ margin:0; padding:0; list-style:none; }
+.cs_menu li{ width:100%; padding:10px 0 10px 10px; border-top:1px solid var(--border-0)!important; color:var(--text-1)!important; }
+
+/* result boxes */
+.errorBox{
+  border-radius:5px; text-align:center;
+  border:1px solid rgba(241,153,153,.6)!important; background:rgba(241,153,153,.15)!important; color:#ffbdbd!important;
+}
+.successBox{
+  border-radius:5px; text-align:center;
+  border:1px solid rgba(126,211,178,.6)!important; background:rgba(126,211,178,.12)!important; color:#b7ead6!important;
+}
+
+/* search fields */
+.searchfields{ margin:5px 0!important; }
+.searchfields label{ min-width:100px; color:var(--text-1)!important; }
+.searchfields input,
+.searchfields select{
+  max-width:170px; background:var(--surface-0)!important; color:var(--text-0)!important; border:1px solid var(--border-0)!important;
+}
+
+/* order timeline */
+#orderTimeline ul{
+  background:var(--border-1)!important; height:2px; margin-top:50px; width:100%;
+  list-style:none; padding:0;
+}
+#orderTimeline li{
+  position:relative; float:left; width:170px; height:140px; left:20px; top:-51px; margin-right:20px;
+  text-align:center; padding:10px;
+  background:var(--surface-1)!important; color:var(--text-0)!important;
+  border:2px solid var(--border-0)!important; border-radius:5px;
+}
+
+/* panel header hover */
+.panel-heading.sc-hover{ transition:all .1s; }
+.panel-heading.sc-hover:hover{ background:var(--surface-2)!important; color:var(--text-0)!important; }
+.panel-success>.panel-heading.sc-hover:hover{ background:rgba(126,211,178,.22)!important; }
+
+/* ---- Inline “paper” colors → dark surfaces ---- */
+[style*="#f2f2f2"],[style*="#F2F2F2"],.paper-gray{ background:var(--surface-1)!important; }
+[style*="#dfdfdf"],[style*="#eeeeee"],[style*="#EEE"]{ background:var(--surface-1)!important; }
+
+/* Light-green inline cards (Delivered/Picked etc.) */
+[style*="#E5FFCC"],[style*="#e5ffcc"],.light-green,.delivered-box{
+  background:rgba(126,211,178,.18)!important;
+  border-color:rgba(126,211,178,.35)!important;
+  color:var(--text-0)!important;
+}
+
+/* Hardcoded green borders (e.g., element{border:2px solid #336600}) */
+[style*="#336600"]{ border-color:rgba(126,211,178,.55)!important; }
+/* ===== Bootstrap v3 + legacy light → dark remap (append LAST) ===== */
+
+/* Global light surfaces */
+hr{border-top:1px solid var(--border-0)!important;}
+legend{color:var(--text-0)!important;border-bottom:1px solid var(--border-0)!important;}
+mark,.mark{background:rgba(243,201,121,.28)!important;color:#1b1305!important;}
+pre,code,kbd,samp{
+  background:var(--surface-1)!important;color:var(--text-0)!important;
+  border:1px solid var(--border-0)!important;
+}
+blockquote{border-left:5px solid var(--border-1)!important;color:var(--text-1)!important;}
+
+/* “paper” components */
+.well,.jumbotron,.thumbnail,.breadcrumb{
+  background:var(--surface-0)!important;color:var(--text-0)!important;
+  border:1px solid var(--border-0)!important;
+}
+
+/* Lists */
+.list-group,.list-group-item{
+  background:var(--surface-0)!important;color:var(--text-0)!important;border-color:var(--border-0)!important;
+}
+.list-group-item:hover{background:var(--surface-1)!important;}
+.list-group-item.active,
+.list-group-item.active:hover,
+.list-group-item.active:focus{
+  background:var(--primary-600)!important;border-color:var(--primary-700)!important;color:var(--text-0)!important;
+}
+.list-group-item.disabled,
+.list-group-item.disabled:hover,
+.list-group-item.disabled:focus{
+  background:var(--surface-0)!important;color:var(--muted-0)!important;
+}
+
+/* Forms & inputs */
+.input-group-addon{
+  background:var(--surface-1)!important;border:1px solid var(--border-0)!important;color:var(--text-0)!important;
+}
+.form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control{
+  background:rgba(255,255,255,.04)!important;color:var(--muted-0)!important;border-color:var(--border-0)!important;
+}
+.help-block{color:var(--muted-0)!important;}
+
+/* Buttons */
+.btn-default{
+  background:var(--surface-1)!important;border-color:var(--border-0)!important;color:var(--text-0)!important;
+}
+.btn-default:hover{background:var(--surface-2)!important;}
+.btn-outline{color:var(--text-0)!important;border:1px solid var(--border-0)!important;}
+.close{color:var(--text-0)!important;text-shadow:none!important;opacity:.7;}
+.close:hover{opacity:1;}
+.caret{border-top-color:var(--text-0)!important;border-bottom-color:var(--text-0)!important;}
+
+/* Dropdowns */
+.dropdown-menu{background:var(--surface-0)!important;border:1px solid var(--border-0)!important;}
+.dropdown-menu>li>a{color:var(--text-0)!important;}
+.dropdown-menu>li>a:hover{background:var(--surface-2)!important;}
+.dropdown-menu .divider{background-color:var(--border-0)!important;}
+
+/* Tables (context rows & “active” state) */
+.table>tbody>tr.active>td,
+.table>tbody>tr.active>th,
+.table>tbody>tr>td.active,
+.table>tbody>tr>th.active{background:var(--surface-1)!important;color:var(--text-0)!important;}
+
+.table>tbody>tr.success>td,.table>tbody>tr.success>th,
+.table>tbody>tr>td.success,.table>tbody>tr>th.success{
+  background:rgba(126,211,178,.18)!important;color:var(--text-0)!important;
+}
+.table>tbody>tr.info>td,.table>tbody>tr.info>th,
+.table>tbody>tr>td.info,.table>tbody>tr>th.info{
+  background:rgba(124,178,180,.12)!important;color:var(--text-0)!important;
+}
+.table>tbody>tr.warning>td,.table>tbody>tr.warning>th,
+.table>tbody>tr>td.warning,.table>tbody>tr>th.warning{
+  background:rgba(243,201,121,.18)!important;color:var(--text-0)!important;
+}
+.table>tbody>tr.danger>td,.table>tbody>tr.danger>th,
+.table>tbody>tr>td.danger,.table>tbody>tr>th.danger{
+  background:rgba(241,153,153,.18)!important;color:var(--text-0)!important;
+}
+.table-bordered>tbody>tr>td,.table-bordered>thead>tr>th{border-color:var(--border-0)!important;}
+
+/* Progress */
+.progress{background:var(--surface-1)!important;border:1px solid var(--border-0)!important;}
+.progress-bar{background:var(--primary-600)!important;}
+.progress-bar-success{background:rgba(126,211,178,.7)!important;}
+.progress-bar-info{background:rgba(124,178,180,.7)!important;}
+.progress-bar-warning{background:rgba(243,201,121,.75)!important;color:#1b1305;}
+.progress-bar-danger{background:rgba(241,153,153,.75)!important;}
+
+/* Pagination */
+.pagination>li>a,.pagination>li>span{
+  background:var(--surface-1)!important;border-color:var(--border-0)!important;color:var(--text-1)!important;
+}
+.pagination>li>a:hover{background:var(--surface-2)!important;color:var(--text-0)!important;}
+.pagination>.active>a,.pagination>.active>span,
+.pagination>.active>a:hover,.pagination>.active>span:hover{
+  background:var(--primary-600)!important;border-color:var(--primary-700)!important;color:var(--text-0)!important;
+}
+
+/* Popovers & tooltips: arrow colors to match dark surfaces */
+.popover{background:var(--surface-0)!important;border-color:var(--border-0)!important;color:var(--text-0)!important;}
+.popover>.arrow{border-color:transparent!important;}
+.popover.top>.arrow{border-top-color:var(--border-0)!important;}
+.popover.top>.arrow:after{border-top-color:var(--surface-0)!important;}
+.popover.right>.arrow{border-right-color:var(--border-0)!important;}
+.popover.right>.arrow:after{border-right-color:var(--surface-0)!important;}
+.popover.bottom>.arrow{border-bottom-color:var(--border-0)!important;}
+.popover.bottom>.arrow:after{border-bottom-color:var(--surface-0)!important;}
+.popover.left>.arrow{border-left-color:var(--border-0)!important;}
+.popover.left>.arrow:after{border-left-color:var(--surface-0)!important;}
+
+/* Modal backdrop */
+.modal-backdrop.in{opacity:.6!important;}
+
+/* Context bg helpers */
+.bg-primary{background:rgba(108,164,166,.28)!important;color:var(--text-0)!important;}
+.bg-success{background:rgba(126,211,178,.18)!important;color:var(--text-0)!important;}
+.bg-info{background:rgba(124,178,180,.12)!important;color:var(--text-0)!important;}
+.bg-warning{background:rgba(243,201,121,.18)!important;color:var(--text-0)!important;}
+.bg-danger{background:rgba(241,153,153,.18)!important;color:var(--text-0)!important;}
+
+/* Breadcrumb arrows, thumbnails borders, etc. */
+.thumbnail .caption{color:var(--text-1)!important;}
+.breadcrumb>li+li:before{color:var(--muted-0)!important;}
+
+/* Data “paper gray” & inline whites/greens from legacy styles */
+*[style*="background:#fff"],*[style*="background: #fff"],
+*[style*="background:white"],*[style*="background: white"],
+*[style*="background-color:#fff"],*[style*="background-color: #fff"],
+*[style*="background-color:white"],*[style*="background-color: white"],
+*[style*="#f5f5f5"],*[style*="#F5F5F5"],*[style*="#f2f2f2"],*[style*="#F2F2F2"],
+*[style*="#eee"],*[style*="#EEE"],*[style*="#dfdfdf"]{
+  background:var(--surface-0)!important; background-color:var(--surface-0)!important; color:var(--text-0)!important;
+}
+
+/* Light-green inline cards (Delivered/Active boxes, tracking panes, etc.) */
+[style*="#E5FFCC"],[style*="#e5ffcc"],.light-green,.delivered-box{
+  background:rgba(126,211,178,.18)!important;
+  border-color:rgba(126,211,178,.35)!important;
+  color:var(--text-0)!important;
+}
+/* Hardcoded green borders (e.g., 2px solid #336600) */
+[style*="#336600"]{border-color:rgba(126,211,178,.55)!important;}
+
+/* ===== CSS-ONLY HORIZONTAL TOP MENU (no JS required) ===== */
+:root{ --nav-offset:51px; } /* height of the purple Bootstrap navbar */
+
+/* kill the old left-rail positioning + gap */
+#page-wrapper{ margin-left:0 !important; padding-top:8px !important; }
+@media (min-width:768px){
+  .sidebar{ position:static !important; width:100% !important; margin-top:0 !important; border-right:0 !important; }
+}
+
+/* slimScroll wrappers sometimes surround the menu — neutralize them */
+.slimScrollDiv{ position:static !important; overflow:visible !important; height:auto !important; width:auto !important; }
+.navbar-default.sidebar .slimScrollBar,
+.navbar-default.sidebar .slimScrollRail{ display:none !important; }
+
+/* Sidebar becomes a sticky, in-flow horizontal bar */
+.navbar-default.sidebar{
+  position:sticky !important; top:var(--nav-offset) !important; z-index:1002 !important;
+  width:100% !important; background:var(--surface-0) !important; border:0 !important;
+  border-bottom:1px solid var(--border-0) !important; overflow:visible !important;
+}
+.navbar-default.sidebar .sidebar-nav.navbar-collapse{ padding:6px 8px !important; overflow:visible !important; }
+
+/* Turn the UL into a wrapped row */
+.navbar-default.sidebar #side-menu{
+  display:flex !important; flex-wrap:wrap !important; gap:6px 10px !important;
+  margin:0 !important; padding:0 !important;
+}
+
+/* Chips */
+.navbar-default.sidebar #side-menu>li{
+  position:relative !important; float:none !important; border:0 !important; margin:0 !important;
+  padding-bottom:8px !important;              /* overlaps dropdown to remove hover gap */
+}
+.navbar-default.sidebar #side-menu>li>a{
+  display:inline-flex !important; align-items:center; white-space:nowrap !important;
+  height:34px !important; padding:0 12px !important; border-radius:999px !important;
+  color:var(--text-1) !important; background:transparent !important; border:1px solid transparent !important;
+}
+.navbar-default.sidebar #side-menu>li>a:hover{
+  background:var(--surface-1) !important; color:var(--text-0) !important; border-color:var(--border-0) !important;
+}
+
+/* Dropdowns open on hover (no click) and sit flush under the chip */
+.navbar-default.sidebar .nav-second-level,
+.navbar-default.sidebar .nav-third-level{
+  position:absolute !important; top:calc(100% - 8px) !important; left:0 !important; display:none !important;
+  min-width:260px !important; max-height:70vh !important; overflow:auto !important; z-index:2000 !important;
+  background:var(--surface-0) !important; border:1px solid var(--border-0) !important; border-radius:10px !important;
+  box-shadow:0 10px 24px rgba(0,0,0,.35);
+}
+.navbar-default.sidebar #side-menu>li:hover  > .nav-second-level,
+.navbar-default.sidebar #side-menu>li:focus-within > .nav-second-level{ display:block !important; }
+.navbar-default.sidebar .nav-second-level li a{
+  height:32px !important; padding:0 12px !important; display:flex; align-items:center;
+}
+
+/* Hide unwanted menu items (CSS only) */
+#side-menu li:has(> a[href*="credit"]) { display:none !important; }  /* Credit Application */
+#side-menu li:has(> a[href*="nafta"])  { display:none !important; }  /* Nafta */
+#side-menu li:has(> a[href*="tax"])    { display:none !important; }  /* Taxes */
+
+/* Fallback for very old browsers without :has(): hides the link (leaves a tiny gap) */
+#side-menu a[href*="credit"], #side-menu a[href*="nafta"], #side-menu a[href*="tax"]{ display:none !important; }
+
+
+/* tighten space between the sticky top menu and first heading */
+.navbar-default.sidebar{ margin-bottom:6px !important; }
+#page-wrapper{ padding-top:8px !important; }                 /* already present, keep it small */
+#page-wrapper > hr:first-child{ display:none !important; }   /* hide any stray hr spacer */
+#page-wrapper > .row:first-child,
+#page-wrapper > .container-fluid:first-child{ margin-top:0 !important; }
+#page-wrapper h1:first-of-type{ margin-top:6px !important; }
+
+
+#side-menu li:has(> a[href*="credit"]) { display:none !important; }  /* Credit Application */
+#side-menu li:has(> a[href*="nafta"])  { display:none !important; }  /* Nafta */
+#side-menu li:has(> a[href*="tax"])    { display:none !important; }  /* Taxes */
+
+/* fallback for older browsers that lack :has() */
+#side-menu a[href*="credit"], #side-menu a[href*="nafta"], #side-menu a[href*="tax"]{ display:none !important; }
+/* ===== HORIZONTAL TOP MENU — CSS ONLY (append at end) ===== */
+:root{ --topnav-h: 64px; } /* adjust if your purple top bar is taller/shorter */
+
+/* stop using left rail spacing */
+#page-wrapper{ margin-left:0 !important; padding-top:8px !important; }
+
+/* put the sidebar in-flow, sticky, and *under* the top navbar */
+.navbar-default.sidebar{
+  position: sticky !important;
+  top: var(--topnav-h) !important;
+  z-index: 900 !important;             /* below the main purple navbar */
+  width: 100% !important;
+  margin: 0 0 8px !important;
+  background: var(--surface-0) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--border-0) !important;
+  overflow: visible !important;
+}
+.navbar-default.sidebar .sidebar-nav.navbar-collapse{
+  padding: 6px 8px !important; overflow: visible !important;
+}
+
+/* chips in a wrapped row */
+.navbar-default.sidebar #side-menu{
+  display: flex !important; flex-wrap: wrap !important; align-items: center !important;
+  gap: 6px 12px !important; margin: 0 !important; padding: 0 !important;
+}
+.navbar-default.sidebar #side-menu > li{
+  position: relative !important; float: none !important; border: 0 !important; margin: 0 !important;
+  padding: 0 0 8px !important; /* small buffer so you don’t “fall off” while hovering */
+}
+.navbar-default.sidebar #side-menu > li > a{
+  display: inline-flex !important; align-items: center; white-space: nowrap !important;
+  height: 34px !important; padding: 0 12px !important; border-radius: 999px !important;
+  background: transparent !important; border: 1px solid transparent !important; color: var(--text-1) !important;
+}
+.navbar-default.sidebar #side-menu > li > a:hover{
+  background: var(--surface-1) !important; color: var(--text-0) !important; border-color: var(--border-0) !important;
+}
+
+/* dropdowns open on hover; sit tight under the chip; overlay page content */
+.navbar-default.sidebar .nav-second-level,
+.navbar-default.sidebar .nav-third-level{
+  position: absolute !important; top: calc(100% - 6px) !important; left: 0 !important; display: none !important;
+  min-width: 260px !important; max-height: 70vh !important; overflow: auto !important; z-index: 2000 !important;
+  background: var(--surface-0) !important; border: 1px solid var(--border-0) !important; border-radius: 10px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+.navbar-default.sidebar #side-menu > li:hover > .nav-second-level,
+.navbar-default.sidebar #side-menu > li:focus-within > .nav-second-level{
+  display: block !important;
+}
+.navbar-default.sidebar .nav-second-level li a{
+  height: 32px !important; padding: 0 12px !important; display: flex !important; align-items: center !important;
+}
+
+/* kill the old "click-to-toggle" feeling (prevents the 'click twice' issue) */
+#side-menu > li:has(> ul.nav-second-level) > a { pointer-events: none !important; }
+#side-menu > li > a .fa.arrow { display:none !important; } /* optional: hide chevron */
+
+/* tighten the space directly under the bar */
+hr:first-of-type{ margin-top:8px !important; }
+
+/* keep the purple navbar above everything */
+.navbar-static-top{ position: sticky; top: 0; z-index: 1000; }
+
+/* Reserve space ONLY for the real emails pane */
+#emailsPane{ min-height: 320px !important; overflow-anchor: none !important; }
+
+/* Reset any broad catch-alls so they don't affect other sections */
+[id*="email"], [class*="email"]{ min-height: 0 !important; }
+/* === Fix: keep sticky menu inside #page-wrapper and stop overlapping content === */
+
+/* scope the sticky behavior to the instance inside #page-wrapper */
+#page-wrapper > .navbar-default.sidebar{
+  position: sticky !important;
+  top: var(--topnav-h, 51px) !important;   /* under the purple navbar */
+  z-index: 900 !important;                 /* below purple nav (1000), above page content */
+  width: 100% !important;
+  margin: 0 0 8px !important;
+}
+
+/* always leave room right below the menu so it never covers the next section */
+#page-wrapper > .navbar-default.sidebar + *{
+  /* adjust if your chip row is taller/shorter (≈34px chips + a little breathing room) */
+  padding-top: 44px !important;
+}
+
+/* undo any earlier “remove the gap” rule */
+.navbar-default.sidebar + *{ margin-top: initial !important; }
+
+/* dropdowns should overlay page content, but stay under the purple navbar */
+#page-wrapper .navbar-default.sidebar .nav-second-level,
+#page-wrapper .navbar-default.sidebar .nav-third-level{
+  z-index: 2000 !important;
+}
+
+/* optional: push the two search boxes below the chip row so the bar stays short */
+#page-wrapper .navbar-default.sidebar .sidebar-search{
+  order: 99;           /* send to the end of the flex row */
+  flex-basis: 100%;    /* force onto a new line under the chips */
+}
+/* ---------- HORIZONTAL TOP MENU: robust for both DOM placements ---------- */
+
+/* 0) The purple top bar can host a second row (the menu) when it's nested */
+nav.navbar.navbar-default.navbar-static-top{
+  position: sticky; top: 0; z-index: 1000;        /* keep it above content */
+  display: flex; flex-direction: column;          /* stack brand row + menu row */
+  align-items: stretch;
+  overflow: visible !important;
+}
+
+/* 1) If the menu is INSIDE <nav>, treat it like a second navbar row (no overlap) */
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu{
+  position: static !important;                    /* not sticky when inside <nav> */
+  width: 100%; margin: 0;
+  border: 0; border-top: 1px solid var(--border-0);
+  background: var(--surface-0);
+}
+
+/* 2) Cancel the old vertical sidebar look for this header version */
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu ul{
+  margin: 0; padding: 6px 8px;
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu{
+  display: flex !important; flex-wrap: wrap !important; align-items: center !important;
+  gap: 6px 12px !important; list-style: none; margin: 0 !important; padding: 0 !important;
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li{
+  float: none !important; border: 0 !important; padding: 0 0 6px !important;
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li > a{
+  display: inline-flex !important; align-items: center;
+  height: 34px; padding: 0 12px !important; border-radius: 999px;
+  background: transparent !important; border: 1px solid transparent !important;
+  color: var(--text-1) !important; white-space: nowrap !important;
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li > a:hover{
+  background: var(--surface-1) !important; color: var(--text-0) !important; border-color: var(--border-0) !important;
+}
+
+/* dropdowns under chips (hover to open) */
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu .nav-second-level,
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu .nav-third-level{
+  position: absolute !important; top: calc(100% - 6px) !important; left: 0 !important; display: none !important;
+  min-width: 260px !important; max-height: 70vh !important; overflow: auto !important; z-index: 2000 !important;
+  background: var(--surface-0) !important; border: 1px solid var(--border-0) !important; border-radius: 10px !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li:hover > .nav-second-level,
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li:focus-within > .nav-second-level{
+  display: block !important;
+}
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu .nav-second-level li a{
+  height: 32px !important; padding: 0 12px !important; display: flex !important; align-items: center !important;
+}
+
+/* search boxes move to a new wrapped line so the chip row stays short */
+nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu .sidebar-search{
+  order: 99; flex-basis: 100%; padding: 6px 8px !important;
+}
+
+/* 3) If the menu is UNDER #page-wrapper (original layout), keep it sticky under the purple bar */
+#page-wrapper > .navbar-default.sidebar{
+  position: sticky !important;
+  top: var(--topnav-h, 64px) !important;          /* sits right below the purple bar */
+  z-index: 900 !important;                        /* below purple nav, above content */
+  width: 100% !important; margin: 0 0 8px !important;
+  border-bottom: 1px solid var(--border-0) !important;
+}
+/* neutralize sticky when nested in <nav> */
+nav.navbar .navbar-default.sidebar{ position: static !important; }
+
+/* 4) Make anchors scroll to visible area below the two-row header */
+#page-wrapper{ scroll-margin-top: calc(var(--topnav-h,64px) + 46px); }
+
+/* 5) Compact the chips a bit on narrow screens */
+@media (max-width: 1100px){
+  nav.navbar.navbar-default.navbar-static-top > .navbar-default.sidebar.mainmenu #side-menu > li > a{
+    height: 30px; padding: 0 10px !important; font-size: 12px;
+  }
+}
+
+/* === Hover-to-reveal subnav (chips + both search boxes) === */
+
+/* collapsed by default */
+.navbar-default.sidebar.mainmenu{
+  max-height:0 !important;
+  overflow:hidden !important;
+  opacity:0;
+  transform:translateY(-6px);
+  pointer-events:none;
+  border-top-color:transparent !important;
+  transition:max-height .25s ease, opacity .15s ease, transform .15s ease, border-color .2s ease;
+}
+
+/* reveal when the purple navbar is hovered/focused, or when JS adds .sc-show-subnav */
+.sc-show-subnav .navbar-default.sidebar.mainmenu,
+nav.navbar.navbar-default.navbar-static-top:hover > .navbar-default.sidebar.mainmenu,
+nav.navbar.navbar-default.navbar-static-top:focus-within > .navbar-default.sidebar.mainmenu{
+  max-height:600px !important;           /* tall enough for 2 lines + dropdowns */
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+  border-top-color:var(--border-0) !important;
+}
+
+/* keep dropdowns above page content while open */
+.navbar-default.sidebar.mainmenu .nav-second-level,
+.navbar-default.sidebar.mainmenu .nav-third-level{
+  z-index:2000 !important;
+}
+
+/* (optional) make the hover target a little easier to catch */
+nav.navbar.navbar-default.navbar-static-top{
+  position:sticky; top:0; z-index:1000;
+}
+nav.navbar.navbar-default.navbar-static-top::after{
+  content:""; position:absolute; left:0; right:0; bottom:-6px; height:6px;
+}
+/* Hotfix: force legacy FA4 for .fa classes so old codepoints render */
+.fa { font-family:"FontAwesome","Font Awesome 4" !important; font-style:normal!important; line-height:1; }
+
+/* ================================
+   Light tokens (as requested)
+   ================================ */
+:root,
+[data-theme="light"]{
+  color-scheme: light;
+
+  /* Backgrounds */
+  --bg-0:#F5F5EC;
+  --bg-1:#EFF4E9;
+
+  /* Surfaces */
+  --surface-0:#e9ecf4;
+  --surface-1:#BFD4FE;
+  --surface-2:#BFD4FE;
+
+  /* Borders */
+  --border-0:hsl(0 0% 100%); /* pure white hairline */
+  --border-1:#000000;        /* strong black border */
+
+  /* Text */
+  --text-0:#2A2A2A;
+  --text-1:#525859;
+  --muted-0:#7B837D;
+
+  /* Primary blues */
+  --primary-300:#E7F0FF;
+  --primary-400:#BFD4FE;
+  --primary-500:#2A7DFA;
+  --primary-600:#2369D9;
+  --primary-700:#1C56B3;
+
+  /* Accents */
+  --accent-good:#7DE888;
+  --accent-warn:#F6FF91;
+  --accent-bad:#FF2244;
+
+  /* Links */
+  --link: var(--primary-500);
+
+  /* RGB helpers */
+  --accent-good-rgb:125,232,136;
+  --accent-warn-rgb:246,255,145;
+  --accent-bad-rgb:255,34,68;
+  --primary-500-rgb:42,125,250;
+
+  /* Updated to match your new tokens */
+  --border-0-rgb:255,255,255;   /* hsl(0 0% 100%) */
+  --surface-1-rgb:191,212,254;  /* #BFD4FE */
+}
+
+/* Optional: soften borders (avoids pure black lines) 
+   Enable with <html data-borders="soft"> */
+:root[data-borders="soft"]{
+  --border-0: color-mix(in oklab, var(--surface-0) 85%, #000);
+  --border-1: color-mix(in oklab, #000 35%, var(--surface-1));
+}
+
+/* Minimal base wiring (keeps things readable with the new tokens) */
+body{ background:var(--bg-0); color:var(--text-0); }
+a{ color:var(--link); }
+
+.panel,.card{ background:var(--surface-0); border:1px solid var(--border-0); }
+.panel-heading,.card-header{ background:var(--surface-1); border-bottom:1px solid var(--border-0); color:var(--text-1); }
+.table>thead>tr>th{ background:var(--surface-1); color:var(--text-1); border-bottom:1px solid var(--border-1); }
+.table>tbody>tr>td{ border-bottom:1px solid var(--border-0); }
+
+/* Status tints mapped to your accent RGBs */
+.bg-success{ background:rgba(var(--accent-good-rgb),.18) !important; }
+.bg-warning{ background:rgba(var(--accent-warn-rgb),.18) !important; }
+.bg-danger { background:rgba(var(--accent-bad-rgb), .18) !important; }
