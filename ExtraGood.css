@@ -850,3 +850,41 @@ nav.navbar .navbar-default.sidebar{ position: static !important; }
     height: 30px; padding: 0 10px !important; font-size: 12px;
   }
 }
+
+/* === Hover-to-reveal subnav (chips + both search boxes) === */
+
+/* collapsed by default */
+.navbar-default.sidebar.mainmenu{
+  max-height:0 !important;
+  overflow:hidden !important;
+  opacity:0;
+  transform:translateY(-6px);
+  pointer-events:none;
+  border-top-color:transparent !important;
+  transition:max-height .25s ease, opacity .15s ease, transform .15s ease, border-color .2s ease;
+}
+
+/* reveal when the purple navbar is hovered/focused, or when JS adds .sc-show-subnav */
+.sc-show-subnav .navbar-default.sidebar.mainmenu,
+nav.navbar.navbar-default.navbar-static-top:hover > .navbar-default.sidebar.mainmenu,
+nav.navbar.navbar-default.navbar-static-top:focus-within > .navbar-default.sidebar.mainmenu{
+  max-height:600px !important;           /* tall enough for 2 lines + dropdowns */
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+  border-top-color:var(--border-0) !important;
+}
+
+/* keep dropdowns above page content while open */
+.navbar-default.sidebar.mainmenu .nav-second-level,
+.navbar-default.sidebar.mainmenu .nav-third-level{
+  z-index:2000 !important;
+}
+
+/* (optional) make the hover target a little easier to catch */
+nav.navbar.navbar-default.navbar-static-top{
+  position:sticky; top:0; z-index:1000;
+}
+nav.navbar.navbar-default.navbar-static-top::after{
+  content:""; position:absolute; left:0; right:0; bottom:-6px; height:6px;
+}
