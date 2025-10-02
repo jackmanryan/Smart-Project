@@ -1,0 +1,40 @@
+/* Modernized + legible typography without breaking icon fonts */
+
+/* 1) Text stack (apply globally) */
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+html { font-size: 16px; }
+body, button, input, select, textarea {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.01em;
+}
+
+/* 2) Keep icons using their proper icon fonts (so they render correctly) */
+.fa, .fas, .far, .fal { /* Font Awesome (Free/Pro) */
+  font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "Font Awesome 4",
+               "Font Awesome 6 Pro", "Font Awesome 5 Pro" !important;
+}
+.fab { /* Font Awesome Brands */
+  font-family: "Font Awesome 6 Brands", "Font Awesome 5 Brands" !important;
+}
+.glyphicon { /* Bootstrap 3 */
+  font-family: "Glyphicons Halflings" !important;
+}
+
+/* 3) Icon weights + fine-tuning for legibility */
+.fas { font-weight: 900 !important; }   /* solid */
+.far { font-weight: 400 !important; }   /* regular */
+.fal { font-weight: 300 !important; }   /* light (Pro; falls back gracefully) */
+.fab { font-weight: 400 !important; }   /* brands */
+
+.fa, .fas, .far, .fal, .fab, .glyphicon {
+  line-height: 1;
+  vertical-align: -0.07em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
