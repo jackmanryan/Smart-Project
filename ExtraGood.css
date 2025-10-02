@@ -190,7 +190,7 @@ table.dataTable thead .sorting_desc_disabled{
 table.dataTable thead .sorting_asc:after,
 table.dataTable thead .sorting_desc:after,
 table.dataTable thead .sorting:after{
-  float:right; font-family:fontawesome;
+  float:right; font-family:"FontAwesome";
   color:var(--text-1)!important; opacity:.85;
 }
 table.dataTable thead .sorting_asc:after{ content:"\f0de"; }
@@ -888,4 +888,7 @@ nav.navbar.navbar-default.navbar-static-top{
 nav.navbar.navbar-default.navbar-static-top::after{
   content:""; position:absolute; left:0; right:0; bottom:-6px; height:6px;
 }
+/* Hotfix: force legacy FA4 for .fa classes so old codepoints render */
+.fa { font-family:"FontAwesome","Font Awesome 4" !important; font-style:normal!important; line-height:1; }
+
 
