@@ -33,7 +33,7 @@ p,.lead{margin:0 0 var(--space-4);color:var(--text-1);}
   border-bottom:1px solid var(--border-0)!important;border-top-left-radius:var(--radius-2);border-top-right-radius:var(--radius-2);
   padding:var(--space-4) var(--space-5);
 }
-.panel .panel-body{padding:var(--space-5);color:#000 !important;}
+.panel .panel-body{padding:var(--space-5);color: #ffffff !important;}
 .panel .panel-footer{
   background:var(--surface-1)!important;border-top:1px solid var(--border-0)!important;color:var(--text-1);
   border-bottom-left-radius:var(--radius-2);border-bottom-right-radius:var(--radius-2);
@@ -888,3 +888,4 @@ nav.navbar.navbar-default.navbar-static-top{
 nav.navbar.navbar-default.navbar-static-top::after{
   content:""; position:absolute; left:0; right:0; bottom:-6px; height:6px;
 }
+
