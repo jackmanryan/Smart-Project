@@ -1786,7 +1786,6 @@ nav.navbar.navbar-default.navbar-static-top::after{
 /* ================================
    Light tokens (as requested)
    ================================ */
-:root,
 [data-theme="light"]{
   color-scheme: light;
 
@@ -1854,3 +1853,4 @@ a{ color:var(--link); }
 .bg-success{ background:rgba(var(--accent-good-rgb),.18) !important; }
 .bg-warning{ background:rgba(var(--accent-warn-rgb),.18) !important; }
 .bg-danger { background:rgba(var(--accent-bad-rgb), .18) !important; }
+
