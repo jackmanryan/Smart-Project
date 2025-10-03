@@ -1,0 +1,472 @@
+.smalltitle {
+	font-size:10px;
+}
+			#messagebox {
+				bottom: 0;
+				font-size: 20px;
+				left: 0;
+				line-height: 20px;
+				margin-bottom: 0;
+				padding: 10px;
+				position: fixed;
+				right: 0;
+				text-align: center;
+				width: 100%;
+				z-index: 99999999;
+			}
+.warningIcon {
+				color: #ca0606;
+				float: left;
+				font-size: 42px;
+				margin: 0 10px 0 0;
+}
+
+.panel-black {
+    border-color: #000;
+}
+
+.panel-black > .panel-heading {
+    border-color: #000;
+    color: white;
+    background-color: #000;
+}
+
+
+.shippingoptions {
+	padding: 5px 0 5px 0;
+    border-bottom: 1px solid #ccc;
+
+}
+.shippingoptions label {
+	font-weight:unset;
+}
+.markedshipoption {
+	background-color:#f2f2f2;
+	font-weight:bold;
+}
+
+
+#ringcentral_callmonitor {
+	background:transparent;
+	border:none;
+}
+#ringcentral_notifier {
+	width:300px;
+	height:450px;
+	border:2px solid #ff8000;
+	border-radius:10px 0 0 10px;
+	margin:10px;
+	background-color:#fff;
+	padding:20px;
+}
+
+#list-files {
+	list-style:none;
+	padding:0px;
+	margin:0px;
+}
+#list-files li {
+	padding:5px;
+	background-color:#f2f2f2;
+	margin:2px 0 0 0;
+	float:left;
+	width:100%;
+}
+
+.showSignature {
+	padding:20px;
+	max-height:300px;
+	overflow:scroll;
+	margin:0px;
+	border:1px solid #CCC;
+}
+
+#sideA {
+    border-bottom: 1px dotted #ccc;
+    float: left;
+    height: 286px;
+    padding: 20px 0 0;
+    width: 327px;
+}
+#sideB {
+    border-bottom: 1px dotted #ccc;
+    float: left;
+    height: 286px;
+    padding: 20px 0 0;
+    width: 327px;
+}
+#sideC {
+    border-bottom: 1px dotted #ccc;
+    float: left;
+    height: 286px;
+    padding: 20px 0 0;
+    width: 327px;
+}
+#sideD {
+    border-bottom: 1px dotted #ccc;
+    float: left;
+    height: 286px;
+    padding: 20px 0 0;
+    width: 327px;
+}
+.side-image {
+    float: left;
+    padding: 0;
+    width: 85px;
+    margin: 0 10px 0 0;
+}
+
+.side-title {
+    float: left;
+    width: 180px;
+}
+
+.measurementsWidthHeight {
+    float: left;
+    width: 220px;
+}
+
+span.MeaName {
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    height: 20px;
+    width: 50%;
+}
+.indsizes {
+    background: #eeeeee none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    float: left;
+    height: 31px;
+    width: 32px;
+}
+
+.colorsSides {
+    float: left;
+    width: 200px;
+}
+
+.instructionColorPicker {
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 7px 0;
+    width: 200px;
+}
+.colorRow {
+    border-bottom: 1px dotted #ccc;
+    float: left;
+    padding: 4px 0 1px;
+    width: 200px;
+}
+
+span.feet {
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 3px 0 0;
+    vertical-align: top;
+	margin:0 0 0 2px;
+}
+span.inches {
+    float: left;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 3px 0 0;
+    vertical-align: top;
+	margin:0 0 0 2px;
+}
+span.exx {
+    float: left;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 7px 5px;
+    text-align: left;
+}
+.instructionColorPicker div.SpecialLegend {
+    width: 58px;
+}
+.instructionColorPicker div {
+    float: left;
+    width: 40px;
+}
+.instructionColorPicker div {
+    float: left;
+    width: 40px;
+}
+
+.colorName {
+    float: left;
+    font-size: 11px;
+    line-height: 11px;
+    padding: 5px 0 0;
+    text-align: center;
+    width: 144px;
+}
+.ColorInches {
+    background: #eeeeee none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    float: left;
+    height: 26px;
+    width: 35px;
+	margin: 9px 0 0;
+}
+.colorMeasure {
+	float: left;
+    margin: 11px 0 0 2px;
+}
+.colorpickcurtain {
+	max-width:128px;
+}
+.colorpickcurtain option:hover,
+.colorpickcurtain option:checked {
+	color:#000 !important;
+}
+.colorpickcurtain:focus > option:checked {
+    color: #000 !important;
+}
+
+
+
+
+.product-search {
+	height:668px;
+	overflow:auto;
+}
+
+.curtainconfigurator {
+	list-style:none;
+    padding-left:0;
+}
+
+.stepbar {
+    background: #00007b none repeat scroll 0 0;
+    border-radius: 10px;
+    color: #fff;
+    float: left;
+    font-size: 18px;
+    height: 35px;
+    padding: 10px;
+    width: 100%;
+	margin:10px 0 0 0;
+	line-height: 14px;
+}
+.stepbar span {
+    background: #e1d60d none repeat scroll 0 0;
+    border-radius: 6px 0 0 6px;
+    color: #000;
+    float: left;
+    font-size: 20px;
+    font-weight: bold;
+    height: 35px;
+    line-height: 35px;
+    margin: -10px 37px 0 -10px;
+    position: relative;
+    text-align: center;
+    width: 100px;
+}
+.stepbar span::after {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: rgba(225, 214, 13, 0) rgba(225, 214, 13, 0) rgba(225, 214, 13, 0) #e1d60d;
+    border-image: none;
+    border-style: solid;
+    border-width: 18px;
+    content: " ";
+    height: 0;
+    left: 100%;
+    margin-top: -19px;
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    width: 0;
+}
+
+
+.curtainlayout {
+	max-width:150px;
+	float:left;
+	margin:10px 10px 0 0;
+	border:1px solid #CCC;
+	border-radius:10px;
+	padding:10px;
+}
+.curtainlayout img{
+	max-width:120px;
+
+}
+.vinylcat {
+	margin:20px 0 0 0;
+    min-height: 190px;
+}
+.vinylcat img {
+	max-width:100px;
+	max-height:150px;
+	margin:0 0 10px 0;
+}
+
+.quote_hard_type {
+	width:134px;
+	height:192px;
+	float:left;
+	background:#f2f2f2;
+	padding:5px;
+	margin:0 5px 0 0;
+}
+.quote_hard_type p {
+	width:90px;
+	float:left;
+	margin: 6px 5px 0 0;
+}
+.quote_hard_type img {
+	height:135px;
+}
+.quote_hard_type input {
+	float:left;
+	margin: 10px 5px 0 0;
+}
+
+.linemarked {
+	background-color: #CCFF99 !important;
+}
+.stickerprintedcolor {
+	background-color: #B2FF66 !important;
+}
+
+.instructionsOrderView {
+	border:1px solid #ccc;
+	padding:10px;
+	margin:10px;
+	width: 900px;
+	background-color:#ffff99;
+	font-size:20px;
+}
+
+.csradio {
+		margin:0 0 40px 0;
+}
+
+.cs_menu {
+	margin:0px;
+	padding:0px;
+	list-style:none;
+}
+
+.cs_menu li {
+	width:100%;
+	border-top:1px solid #ccc;
+	padding:10px 0 10px 10px;
+}
+
+.errorBox {
+	border-radius: 5px;
+	border:1px solid #BD1313;
+	background-color: #FDEEEE;
+	text-align: center;
+}
+
+.successBox {
+	border-radius: 5px;
+	border:1px solid #69A427;
+	background-color: #EFFCE0;
+	text-align: center;
+}
+
+.jFiler-theme-default .jFiler-input {
+	max-width: 300px;
+	min-width: 100px;
+}
+.note-editor .modal {
+
+	display:none !important;
+}
+
+.xlarge {
+	font-size:20px !important;
+	line-height:50px !important;
+}
+
+.quoteeditorheaderbox {
+	min-height:130px;
+}
+
+.searchfields {
+	margin:5px 0 5px 0 !important;
+
+}
+.searchfields label {
+	min-width:100px;
+
+}
+.searchfields input {
+	max-width:100px;
+
+}
+.searchfields select {
+	max-width:170px;
+
+}
+
+.disableClick{
+    pointer-events: none;
+}
+
+
+#orderTimeline ul {
+	background: #000;
+	height:2px;
+	margin-top:50px;
+	width:100%;
+	list-style: none;
+	padding:0px;
+}
+#orderTimeline li {
+	background: #f2f2f2;
+	padding:10px;
+	position:relative;
+	width:170px;
+	height:140px;
+	top:-51px;
+	left: 20px;
+	float:left;
+	border: 2px solid #ccc;
+    border-radius: 5px;
+	margin-right:20px;
+	text-align:center;
+}
+
+@media only screen and (min-width: 900px) {
+
+	.mainmenu {
+		position: fixed;
+		overflow-y: auto;
+		top: 0;
+		bottom: 0;
+	}
+
+}
+#sideah1, #sideah2, #sidebh1,#sidebh2, #sidech1, #sidech2, #sidedh1, #sidedh2 {
+	width: 32px;
+    float: left;
+    background: #eeeeee none repeat scroll 0 0;
+    border: 1px solid #ccc;
+    height: 31px;
+    border-radius: 5px;
+
+}
+
+.panel-heading.sc-hover {
+    transition: all 0.1s;
+}
+.panel-heading.sc-hover:hover {
+    transition: all 0.1s;
+    background-color: #dfdfdf;
+	cursor: pointer;
+}
+.panel-success > .panel-heading.sc-hover:hover {
+    background-color: #c9d7c3;
+}
