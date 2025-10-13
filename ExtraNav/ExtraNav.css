@@ -1026,7 +1026,7 @@
   }
   /* Click hitbox should NOT include dot-gap */
   .group .settings-hit {
-    transform: translate(calc(-1 * var(--xs-overlap)), -50%);
+    transform:  translate(calc(-1 * var(--dot-gap) - var(--xs-overlap)), -50%);
   }
 }
 
@@ -2092,8 +2092,5 @@ body { margin: 0; }                 /* removes the white strip */
   outline:none;
   box-shadow:0 0 0 2px var(--accent-1);
 }
-
-:host { --dot-gap: 0px; }  /* or 1px if you still want a hairline nudge */
-
 
 
