@@ -2072,9 +2072,3 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
-/* Prevent our nav CSS from recoloring the app content */
-#page-wrapper, #page-wrapper * {
-  color: revert !important;
-  background: revert !important;         /* covers background-color & image */
-  border-color: revert !important;
-}
