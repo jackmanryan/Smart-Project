@@ -49,7 +49,7 @@
      --search-size: 20px;
      --search-gap: clamp(10px, 1.2vw, 14px);
      --dot-size: 0px;
-     --dot-gap: 15px;
+     --dot-gap: 1px;
      --settings-hit: 34px;
 
      /* shadows (fixed) */
@@ -2072,5 +2072,6 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
+
 
 
