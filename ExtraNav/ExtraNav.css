@@ -48,9 +48,9 @@
      /* search */
      --search-size: 20px;
      --search-gap: clamp(10px, 1.2vw, 14px);
-     --dot-size: 50px;
-     --dot-gap: -50px;
-     --settings-hit: 43px;
+     --dot-size: 0px;
+     --dot-gap: 0px;
+     --settings-hit: 100px;
 
      /* shadows (fixed) */
      --elev-0: 0 0 0 1px var(--border-0);
@@ -2070,6 +2070,7 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
+
 
 
 
