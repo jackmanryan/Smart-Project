@@ -16,7 +16,11 @@
   css.rel  = 'stylesheet';
   css.href = `${BASE}ExtraNav.css?v=${v}`;
   document.head.appendChild(css);
-  const js = document.createElement('script'); js.defer = true; js.src = ${BASE}nav-ux.js?v=${v}; document.head.appendChild(js);
+  
+  const js = document.createElement('script');
+  js.defer = true;
+  js.src = `${BASE}nav-ux.js?v=${v}`;
+  document.head.appendChild(js);
 })();
 </script>
 
@@ -293,4 +297,5 @@
         </div>
     </div>
 </div>
+
 
