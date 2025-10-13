@@ -4,7 +4,7 @@
      -webkit-user-drag: none;
 
      /* colors */
-     --bg-0: #e9e9e9;
+     --bg-0: #none;
      --surface-0: #0d024cb8;
      /* header bg */
      --surface-1: #120b314f;
@@ -2072,3 +2072,4 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
+
