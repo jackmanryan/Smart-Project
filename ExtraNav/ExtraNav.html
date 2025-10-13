@@ -2,13 +2,29 @@
 <meta charset="utf-8" />
 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@0dd186533f392f338b034b699df95d859ff81a46/ExtraNav/ExtraNav.css">
+<!-- Dynamic loader: follow @main and bust cache hourly -->
+<script>
+(function () {
+  const REF  = 'main';
+  const BASE = `https://cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@${REF}/ExtraNav/`;
+  const v    = Math.floor(Date.now() / 3_600_000); // hourly
+
+  const css = document.createElement('link');
+  css.rel  = 'stylesheet';
+  css.href = `${BASE}ExtraNav.css?v=${v}`;
+  document.head.appendChild(css);
+
+  const js = document.createElement('script');
+  js.defer = true;
+  js.src   = `${BASE}nav-ux.js?v=${v}`;
+  document.head.appendChild(js);
+})();
+</script>
 
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-
-<script src="https://cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@0dd186533f392f338b034b699df95d859ff81a46/ExtraNav/nav-ux.js" defer></script>
 
 
 <div>
@@ -281,3 +297,4 @@
         </div>
     </div>
 </div>
+
