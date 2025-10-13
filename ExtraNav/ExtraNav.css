@@ -2074,4 +2074,23 @@ body { margin: 0; }                 /* removes the white strip */
 }
 
 
+/* Centered hit area for the Settings gear */
+.settings-wrap .settings-hit{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:var(--settings-hit);
+  height:var(--settings-hit);
+  transform:translate(-50%,-50%);
+  border:0;
+  border-radius:9999px;
+  background:transparent;
+  cursor:pointer;
+  z-index:1200;            /* above the decorative status dot */
+}
+.settings-wrap .settings-hit:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 2px var(--accent-1);
+}
+
 
