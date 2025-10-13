@@ -4,7 +4,7 @@
      -webkit-user-drag: none;
 
      /* colors */
-     --bg-0: #none;
+     --bg-0: transparent;
      --surface-0: #0d024cb8;
      /* header bg */
      --surface-1: #120b314f;
@@ -571,7 +571,7 @@
      border: 0;
      padding: 0;
      background: var(--surface-1);
-     color: none;
+     color: inherit;
      box-shadow: none;
      /* invisible & non-interactive by default */
      opacity: 0;
@@ -2072,4 +2072,5 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
+
 
