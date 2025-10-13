@@ -1572,19 +1572,20 @@
   }
 
   const ST = {
-    get: (key) => STState.get(key),
-    set: (key, val) => {
+      get: (key) => STState.get(key),
+      set: (key, val, opts = { save: true, emit: true }) => {
       if (!STState.has(key)) return;
       const input = groupEl.querySelector(`.st_input[data-key="${key}"]`);
       if (!input) return;
       const next = !!val;
-      input.checked = next;
-      STState.set(key, next);
-      saveState(STState);
+      const prev = !!STState.get(key);
+       input.checked = next;
+       STState.set(key, next);
+       if (opts.save && next !== prev) saveState(STState);
       const item = stItems.find(x => x.key === key);
       const label = input.closest('.st_switch');
       if (label) label.dataset.tooltipContent = `${item.tooltip}`;
-      emitChange({ key, name: item.name, label: item.label, value: next });
+      if (opts.emit) emitChange({ key, name: item.name, label: item.label, value: next });
       renderTable();
     },
     subscribe: (key, fn) => {
@@ -1733,17 +1734,20 @@
   });
 
   /** =================== Cross-tab sync =================== */
-  window.addEventListener('storage', (e) => {
-    if (e.key !== ST_STORAGE_KEY) return;
-    try {
-      const saved = JSON.parse(e.newValue || '{}');
+  const LIVE_SYNC = false; // set true only if you want live updates across tabs
+  if (LIVE_SYNC) {
+    window.addEventListener('storage', (e) => {
+      if (e.key !== ST_STORAGE_KEY) return;
+      let saved = {};
+      try { saved = JSON.parse(e.newValue || '{}'); } catch {}
       stItems.forEach(i => {
         if (Object.prototype.hasOwnProperty.call(saved, i.key)) {
-          ST.set(i.key, !!saved[i.key]); // idempotent UI update
+          // apply without writing back (no loops)
+          ST.set(i.key, !!saved[i.key], { save: false, emit: true });
         }
       });
-    } catch {}
-  });
+    });
+  }
 
   // Signal for late loaders
   document.dispatchEvent(new CustomEvent('st:switches-ready'));
