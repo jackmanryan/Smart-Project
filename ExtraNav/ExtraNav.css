@@ -1019,16 +1019,14 @@
      /* optional safety so it never exceeds the viewport */
      max-inline-size: calc(100vw - 16px);
  }
-  /* When XS pushes the input left via --xs-overlap, let the dot follow */
-  /* Decorative status dot keeps the extra gap */
-  .group .status-dot {
-    transform: translate(calc(-1 * var(--dot-gap) - var(--xs-overlap)), -50%);
-  }
-  /* Click hitbox should NOT include dot-gap */
-  .group .settings-hit {
-    transform:  translate(calc(-1 * var(--dot-gap) - var(--xs-overlap)), -50%);
-  }
-}
+
+ /* When XS pushes the input left via --xs-overlap, let the dot follow */
+ @container (max-width: 400px) {
+     .group .status-dot {
+         transform: translate(calc(-1 * var(--dot-gap) - var(--xs-overlap)), -50%);
+
+     }
+ }
 
  .line {
      fill: none;
