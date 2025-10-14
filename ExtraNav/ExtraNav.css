@@ -1054,7 +1054,7 @@
  .group:has(#settings-toggle[aria-expanded="true"]) .status-dot .line-top-bottom,
  .group:has(.settings-hit[aria-expanded="true"]) .status-dot .line-top-bottom {
      stroke-dasharray: 20 300;
-     stroke-dashoffset: -10;
+     stroke-dashoffset: -32.42;
  }
 
  /* ========= Theme Toggle (separate bundle) ========= */
@@ -2070,8 +2070,6 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
-
-
 
 
 
