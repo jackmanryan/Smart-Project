@@ -2383,65 +2383,65 @@ const HREFS = {
   },
 
   production: {
-    richmondOrders: 'linkhere',          // TODO: not in CSV (no “Richmond Orders” label found)
-    vendorOrders: 'linkhere',            // TODO: not in CSV (no “Vendor Orders” label found)
-    hardwareOrders: 'linkhere',          // TODO: not in CSV (menu has “Hardware in Queue”, not “Hardware Orders”)
-    usaOrders: 'linkhere',               // TODO: not in CSV (no “USA Orders” label found)
+    richmondOrders: '?p=orders&special=internal',          // TODO: not in CSV (no “Richmond Orders”)
+    vendorOrders: '?p=orders&special=3party',            // TODO: not in CSV (no “Vendor Orders”)
+    hardwareOrders: '?p=orders&special=partial',          // TODO: menu shows “Hardware in Queue”, not “Hardware Orders”
+    usaOrders: '?p=orders&special=partial3party',               // TODO: not in CSV (no “USA Orders”)
 
     warehouse: {
-      ordersToProcess: 'https://extranet.strip-curtains.com/?p=orders_to_process',
-      reviewed: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Reviewed',
-      onHold: 'https://extranet.strip-curtains.com/?p=onhold',
-      cancelled: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Canceled',
-      warehouseScreens: 'linkhere',      // TODO: not in CSV (no “Warehouse Screens” label found)
-      backOrders: 'https://extranet.strip-curtains.com/?p=back_orders',
-      manualOrdersImport: 'https://extranet.strip-curtains.com/?p=manual_orders_import',
-      productionList: 'https://extranet.strip-curtains.com/?p=production_list'
+      ordersToProcess: '?p=orders_to_process',
+      reviewed: '?p=orders&sales_status=Reviewed',
+      onHold: '?p=onhold',
+      cancelled: '?p=orders&sales_status=Canceled',
+      warehouseScreens: 'linkhere',      // TODO: not in CSV (no “Warehouse Screens”)
+      backOrders: '?p=back_orders',
+      manualOrdersImport: '?p=manual_orders_import',
+      productionList: '?p=production_list'
     },
 
     inventory: {
-      receiving: 'https://extranet.strip-curtains.com/?p=receiving',
-      hardwareQueue: 'https://extranet.strip-curtains.com/?p=hardware_queue', // note: also saw queue v2 / Toronto variants
-      stripsReport: 'https://extranet.strip-curtains.com/?p=strips_report',
-      completedReports: 'linkhere',      // TODO: not in CSV (no “Completed Reports” label found)
-      stripsScanReports: 'https://extranet.strip-curtains.com/?p=strips_scan_reports',
-      hardwareScanReports: 'https://extranet.strip-curtains.com/?p=hardware_scan_reports'
+      receiving: '?p=receiving',
+      hardwareQueue: '?p=hardware_queue', // note: v2 / Toronto variants also exist
+      stripsReport: '?p=strips_report',
+      completedReports: 'linkhere',       // TODO: not in CSV (no “Completed Reports”)
+      stripsScanReports: '?p=strips_scan_reports',
+      hardwareScanReports: '?p=hardware_scan_reports'
     }
   },
 
   shipping: {
-    uploadTracking: 'https://extranet.strip-curtains.com/?p=po_tracking_upload',
+    uploadTracking: '?p=po_tracking_upload',
     tracking: {
-      richmondTracking: 'linkhere',      // TODO: not in CSV (no “Richmond Tracking” label found)
-      vendorTracking: 'linkhere',        // TODO: not in CSV (no “Vendor Tracking” label found)
-      upsTracking: 'https://extranet.strip-curtains.com/?p=ups_packages',
-      fedexTracking: 'https://extranet.strip-curtains.com/?p=fedex_packages'
+      richmondTracking: 'linkhere',       // TODO: not in CSV (no “Richmond Tracking”)
+      vendorTracking: 'linkhere',         // TODO: not in CSV (no “Vendor Tracking”)
+      upsTracking: '?p=ups_packages',
+      fedexTracking: '?p=fedex_packages'
     },
     shipping: {
-      shipped: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Shipped',
-      shipmentsInQueue: 'https://extranet.strip-curtains.com/?p=shipment_in_queue',
-      expectedShipmentPending: 'https://extranet.strip-curtains.com/?p=pocontrol&type=EXPECTED%20SHIPMENT&',
-      shipOut: 'https://extranet.strip-curtains.com/?p=ship_out',
-      manageShipmentType: 'https://extranet.strip-curtains.com/?p=manage_shipment_type'
+      shipped: '?p=orders&sales_status=Shipped',
+      shipmentsInQueue: '?p=shipment_in_queue',
+      expectedShipmentPending: '?p=pocontrol&type=EXPECTED%20SHIPMENT&',
+      shipOut: '?p=ship_out',
+      manageShipmentType: '?p=manage_shipment_type'
     },
     ltl: {
-      ltlShipments: 'linkhere',          // TODO: ambiguous – CSV has separate Pending/Sent/Completed routes
-      ltlRequestPending: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Pending',
-      ltlRequestSent: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Sent',
-      ltlCompleted: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Completed'
+      ltlShipments: 'linkhere',           // TODO: ambiguous (CSV only has Pending/Sent/Completed)
+      ltlRequestPending: '?p=ltl_orders&type=Pending',
+      ltlRequestSent: '?p=ltl_orders&type=Sent',
+      ltlCompleted: '?p=ltl_orders&type=Completed'
     }
   },
 
   accounts: {
-    productPricing: 'linkhere',          // TODO: not in CSV (no “Product Pricing” label found)
-    quotes: 'https://extranet.strip-curtains.com/?p=quotes_list',
-    akonOrders: 'https://extranet.strip-curtains.com/?p=akon_orders',
-    fullyDelivered: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Delivered',
+    productPricing: '?p=quotes_editor&priceCheck=true',           // TODO: not in CSV (no “Product Pricing”)
+    quotes: '?p=quotes_list',
+    akonOrders: '?p=akon_orders',
+    fullyDelivered: '?p=orders&sales_status=Delivered',
     sage: {
-      enteredInSageReports: 'https://extranet.strip-curtains.com/?p=entered_in_sage_reports',
-      enteredInSage: 'https://extranet.strip-curtains.com/?p=entered_in_sage',
-      notInSage: 'https://extranet.strip-curtains.com/?p=not_in_sage',
-      subtotalCheckPending: 'https://extranet.strip-curtains.com/?p=pocontrol&type=SUBTOTAL%20MATCH&'
+      enteredInSageReports: '?p=entered_in_sage_reports',
+      enteredInSage: '?p=entered_in_sage',
+      notInSage: '?p=not_in_sage',
+      subtotalCheckPending: '?p=pocontrol&type=SUBTOTAL%20MATCH&'
     }
   }
 };
@@ -2774,6 +2774,7 @@ const HREFS = {
     }
   });
 })();
+
 
 
 
