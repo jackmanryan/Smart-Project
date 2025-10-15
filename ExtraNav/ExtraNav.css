@@ -2070,6 +2070,19 @@ body { margin: 0; }                 /* removes the white strip */
   to   { transform: translate(-50%, -50%) rotate(-360deg); }
 
 }
+#inbox-badge {
+  background-color: #FF2F02;
+  color: #fff;
+  padding: 3px;
+  border-radius: 15px;
+  min-width: 25px;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 5px;
+}
+
 
 
 
