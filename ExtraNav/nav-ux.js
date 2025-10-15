@@ -2375,75 +2375,76 @@
 
 
   /** Hrefs/route registry: one source of truth for every destination */
-  const HREFS = {
-    processing: {
-      poPending: '?p=pocontrol&type=PO%20SENT&',
-      orderPending: '?p=orders&sales_status=Pending',
-      confirmationPending: '?p=pocontrol&type=CONFIRMATION%20NUMBER&'
+const HREFS = {
+  processing: {
+    poPending: '?p=pocontrol&type=PO%20SENT&',
+    orderPending: '?p=orders&sales_status=Pending',
+    confirmationPending: '?p=pocontrol&type=CONFIRMATION%20NUMBER&'
+  },
+
+  production: {
+    richmondOrders: 'linkhere',          // TODO: not in CSV (no “Richmond Orders” label found)
+    vendorOrders: 'linkhere',            // TODO: not in CSV (no “Vendor Orders” label found)
+    hardwareOrders: 'linkhere',          // TODO: not in CSV (menu has “Hardware in Queue”, not “Hardware Orders”)
+    usaOrders: 'linkhere',               // TODO: not in CSV (no “USA Orders” label found)
+
+    warehouse: {
+      ordersToProcess: 'https://extranet.strip-curtains.com/?p=orders_to_process',
+      reviewed: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Reviewed',
+      onHold: 'https://extranet.strip-curtains.com/?p=onhold',
+      cancelled: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Canceled',
+      warehouseScreens: 'linkhere',      // TODO: not in CSV (no “Warehouse Screens” label found)
+      backOrders: 'https://extranet.strip-curtains.com/?p=back_orders',
+      manualOrdersImport: 'https://extranet.strip-curtains.com/?p=manual_orders_import',
+      productionList: 'https://extranet.strip-curtains.com/?p=production_list'
     },
 
-    production: {
-      richmondOrders: 'linkhere',
-      vendorOrders: 'linkhere',
-      hardwareOrders: 'linkhere',
-      usaOrders: 'linkhere',
-      warehouse: {
-        ordersToProcess: 'linkhere',
-        reviewed: 'linkhere',
-        onHold: 'linkhere',
-        cancelled: 'linkhere',
-        warehouseScreens: 'linkhere',
-        backOrders: 'linkhere',
-        manualOrdersImport: 'linkhere',
-        productionList: 'linkhere'
-      },
-      inventory: {
-        receiving: 'linkhere',              // (spelling kept to match your label)
-        hardwareQueue: 'linkhere',
-        stripsReport: 'linkhere',
-        completedReports: 'linkhere',
-        stripsScanReports: 'linkhere',
-        hardwareScanReports: 'linkhere'
-      }
-    },
-
-    shipping: {
-      uploadTracking: 'linkhere',
-      tracking: {
-        richmondTracking: 'linkhere',
-        vendorTracking: 'linkhere',
-        upsTracking: 'linkhere',
-        fedexTracking: 'linkhere'
-      },
-      shipping: {
-        shipped: 'linkhere',
-        shipmentsInQueue: 'linkhere',
-        expectedShipmentPending: 'linkhere',
-        shipOut: 'linkhere',
-        manageShipmentType: 'linkhere'
-      },
-      ltl: {
-        ltlShipments: 'linkhere',
-        ltlRequestPending: 'linkhere',
-        ltlRequestSent: 'linkhere',
-        ltlCompleted: 'linkhere'
-      }
-    },
-
-    accounts: {
-      productPricing: 'linkhere',
-      quotes: 'linkhere',
-      akonOrders: 'linkhere',
-      fullyDelivered: 'linkhere',
-      sage: {
-        enteredInSageReports: 'linkhere',
-        enteredInSage: 'linkhere',
-        notInSage: 'linkhere',
-        subtotalCheckPending: 'linkhere'
-      }
+    inventory: {
+      receiving: 'https://extranet.strip-curtains.com/?p=receiving',
+      hardwareQueue: 'https://extranet.strip-curtains.com/?p=hardware_queue', // note: also saw queue v2 / Toronto variants
+      stripsReport: 'https://extranet.strip-curtains.com/?p=strips_report',
+      completedReports: 'linkhere',      // TODO: not in CSV (no “Completed Reports” label found)
+      stripsScanReports: 'https://extranet.strip-curtains.com/?p=strips_scan_reports',
+      hardwareScanReports: 'https://extranet.strip-curtains.com/?p=hardware_scan_reports'
     }
-  };
+  },
 
+  shipping: {
+    uploadTracking: 'https://extranet.strip-curtains.com/?p=po_tracking_upload',
+    tracking: {
+      richmondTracking: 'linkhere',      // TODO: not in CSV (no “Richmond Tracking” label found)
+      vendorTracking: 'linkhere',        // TODO: not in CSV (no “Vendor Tracking” label found)
+      upsTracking: 'https://extranet.strip-curtains.com/?p=ups_packages',
+      fedexTracking: 'https://extranet.strip-curtains.com/?p=fedex_packages'
+    },
+    shipping: {
+      shipped: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Shipped',
+      shipmentsInQueue: 'https://extranet.strip-curtains.com/?p=shipment_in_queue',
+      expectedShipmentPending: 'https://extranet.strip-curtains.com/?p=pocontrol&type=EXPECTED%20SHIPMENT&',
+      shipOut: 'https://extranet.strip-curtains.com/?p=ship_out',
+      manageShipmentType: 'https://extranet.strip-curtains.com/?p=manage_shipment_type'
+    },
+    ltl: {
+      ltlShipments: 'linkhere',          // TODO: ambiguous – CSV has separate Pending/Sent/Completed routes
+      ltlRequestPending: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Pending',
+      ltlRequestSent: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Sent',
+      ltlCompleted: 'https://extranet.strip-curtains.com/?p=ltl_orders&type=Completed'
+    }
+  },
+
+  accounts: {
+    productPricing: 'linkhere',          // TODO: not in CSV (no “Product Pricing” label found)
+    quotes: 'https://extranet.strip-curtains.com/?p=quotes_list',
+    akonOrders: 'https://extranet.strip-curtains.com/?p=akon_orders',
+    fullyDelivered: 'https://extranet.strip-curtains.com/?p=orders&sales_status=Delivered',
+    sage: {
+      enteredInSageReports: 'https://extranet.strip-curtains.com/?p=entered_in_sage_reports',
+      enteredInSage: 'https://extranet.strip-curtains.com/?p=entered_in_sage',
+      notInSage: 'https://extranet.strip-curtains.com/?p=not_in_sage',
+      subtotalCheckPending: 'https://extranet.strip-curtains.com/?p=pocontrol&type=SUBTOTAL%20MATCH&'
+    }
+  }
+};
   /** ----------------- Menu data using keys only ----------------- */
 
   const MENUS = {
@@ -2773,5 +2774,6 @@
     }
   });
 })();
+
 
 
