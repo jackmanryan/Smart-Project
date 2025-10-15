@@ -243,47 +243,62 @@
                     </div>
 
                    <!-- Search (click-to-open) -->
-                    <form id="scx-nav-search" class="group" role="search" data-hasmenu
-                          action="https://extranet.strip-curtains.com/?p=search"
-                          method="POST" target="_self" novalidate>
-                      <input id="query" class="input" type="search"
-                             placeholder="Looking for something...?"
-                             name="search" aria-label="Search" />
-                      <!-- keep this in sync with the radios via JS -->
-                      <input type="hidden" name="extraOption" id="extraOptionHidden" value="Broad">
-                    
-                      <!-- clickable icon -->
-                      <button type="button" id="searchTrigger" class="search-trigger"
-                              aria-expanded="false" aria-controls="searchMenu" aria-label="Search options">
-                        <svg class="search-icon" viewBox="0 0 32 32" fill="currentColor" stroke="currentColor" aria-hidden="true" focusable="false">
-                          <polygon points="30 6 26 6 26 2 24 2 24 6 20 6 20 8 24 8 24 12 26 12 26 8 30 8 30 6"></polygon>
-                          <path d="M24,28.5859l-5.9751-5.9751a9.0234,9.0234,0,1,0-1.4141,1.4141L22.5859,30ZM4,17a7,7,0,1,1,7,7A7.0078,7.0078,0,0,1,4,17Z"></path>
-                        </svg>
-                      </button>
-                    
-                      <!-- dropdown -->
-                      <div id="searchMenu" class="submenu" data-submenu role="menu" aria-label="Search options">
-                        <!-- NOTE: WAS <form> —> must NOT nest forms -->
-                        <div id="searchScopeForm" autocomplete="off">
-                          <ul class="list" role="none">
-                            <li class="element"><label><input type="radio" name="searchScope" value="general" checked data-default><span class="label">General</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="quotes"><span class="label">Quotes</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="account"><span class="label">Customer Account</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="email"><span class="label">Email</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="amount"><span class="label">Amount</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="order"><span class="label">Order</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="phone"><span class="label">Phone</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="invoice"><span class="label">Invoice</span></label></li>
-                            <li class="element"><label><input type="radio" name="searchScope" value="po"><span class="label">Purchase Order</span></label></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </form>
+                    <div class="group" role="search" data-hasmenu>
+                        <input id="query" class="input" type="search" placeholder="Looking for something...?"
+                            name="searchbar" aria-label="Search" />
+                            <!-- clickable icon -->
+                            <button type="button" id="searchTrigger" class="search-trigger" aria-expanded="false"
+                                aria-controls="searchMenu" aria-label="Search options">
+                                <svg class="search-icon" viewBox="0 0 32 32" fill="currentColor" stroke="currentColor"
+                                    aria-hidden="true" focusable="false">
+                                    <polygon points="30 6 26 6 26 2 24 2 24 6 20 6 20 8 24 8 24 12 26 12 26 8 30 8 30 6" />
+                                    <path
+                                        d="M24,28.5859l-5.9751-5.9751a9.0234,9.0234,0,1,0-1.4141,1.4141L22.5859,30ZM4,17a7,7,0,1,1,7,7A7.0078,7.0078,0,0,1,4,17Z" />
+                                </svg>
+                            </button>
+
+                        <!-- dropdown -->
+                        <div id="searchMenu" class="submenu" data-submenu role="menu" aria-label="Search options">
+                        <form id="searchScopeForm" autocomplete="off">
+                            <ul class="list" role="none">
+                            <li class="element">
+                                <label>
+                                <input type="radio" name="searchScope" value="general" checked data-default>
+                                <span class="label">General</span>
+                                </label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="quotes"> <span class="label">Quotes</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="account"> <span class="label">Customer Account</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="email"> <span class="label">Email</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="amount"> <span class="label">Amount</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="order"> <span class="label">Order</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="phone"> <span class="label">Phone</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="invoice"> <span class="label">Invoice</span></label>
+                            </li>
+                            <li class="element">
+                                <label><input type="radio" name="searchScope" value="po"> <span class="label">Purchase Order</span></label>
+                            </li>
+                            </ul>
+                        </form>
                     </div>
             </header>
         </div>
     </div>
 </div>
+
 
 
 
