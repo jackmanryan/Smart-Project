@@ -2377,9 +2377,9 @@
   /** Hrefs/route registry: one source of truth for every destination */
   const HREFS = {
     processing: {
-      poPending: 'linkhere',
-      orderPending: 'linkhere',
-      confirmationPending: 'linkhere'
+      poPending: '?p=pocontrol&type=PO%20SENT&',
+      orderPending: '?p=orders&sales_status=Pending',
+      confirmationPending: '?p=pocontrol&type=CONFIRMATION%20NUMBER&'
     },
 
     production: {
@@ -2773,4 +2773,5 @@
     }
   });
 })();
+
 
