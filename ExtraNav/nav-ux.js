@@ -2606,81 +2606,102 @@ const HREFS = {
     });
   }
 
-  function enhanceFlyout(li) {
-    li.classList.add('has-submenu');
-    li.setAttribute('aria-haspopup', 'true');
-    li.setAttribute('aria-expanded', 'false');
-    li.tabIndex = 0;
-    const open = () => { li.classList.add('open'); li.setAttribute('aria-expanded', 'true'); };
-    const close = () => { li.classList.remove('open'); li.setAttribute('aria-expanded', 'false'); };
-    li.addEventListener('mouseenter', open);
-    li.addEventListener('mouseleave', close);
-    li.addEventListener('focusin', open);
-    li.addEventListener('focusout', (e) => { if (!li.contains(e.relatedTarget)) close(); });
-    li.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.classList.contains('open') ? close() : open(); }
-      if (e.key === 'Escape') close();
-    });
-  }
 
-  function renderMenu(container, items) {
-    container.innerHTML = '';
-    const frag = document.createDocumentFragment();
-    let section = document.createElement('ul');
-    section.className = 'list';
-    const flushSection = () => {
-      if (section.children.length) frag.appendChild(section);
-      section = document.createElement('ul');
-      section.className = 'list';
-    };
+   // Hover-intent owns all flyout behavior; we only mark structure.
+   function enhanceFlyout(li) {
+     li.classList.add('has-submenu');
+   }
 
-    for (const it of resolveKeys(items)) {
-      if (it.separator) { flushSection(); frag.appendChild(topSep()); continue; }
-
-      const li = document.createElement('li');
-      li.className = 'element' +
-        (it.submenu ? ' has-submenu' : '') +
-        (it.variant && VARIANT_CLASS[it.variant] ? ` ${VARIANT_CLASS[it.variant]}` : '');
-
-      if (it.color) li.style.color = it.color;
-      if (it.icon) li.appendChild(makeIcon(it.icon));
-
-      const label = document.createElement('p');
-      label.className = 'label';
-      label.textContent = it.label || '';
-      li.appendChild(label);
-
-      if (it.href) attachNav(li, it.href, it.target);
-
-      if (it.submenu && it.submenu.length) {
-        const sub = document.createElement('ul');
-        sub.className = 'sublist';
-        sub.setAttribute('role', 'menu');
-
-        for (const s of it.submenu) {
-          if (s.separator) { sub.appendChild(listSep()); continue; }
-          const sli = document.createElement('li');
-          sli.className = 'subelement';
-          if (s.color) sli.style.color = s.color;
-          if (s.icon) sli.appendChild(makeIcon(s.icon));
-          const sp = document.createElement('p');
-          sp.className = 'label';
-          sp.textContent = s.label || '';
-          sli.appendChild(sp);
-          if (s.href) attachNav(sli, s.href, s.target);
-          sub.appendChild(sli);
-        }
-
-        li.appendChild(sub);
-        enhanceFlyout(li);
-      }
-
-      section.appendChild(li);
-    }
-
-    flushSection();
-    container.appendChild(frag);
-  }
+      function renderMenu(container, items) {
+     // Hover-intent expects the submenu container to be inside the trigger and
+     // identifiable via [data-submenu], with proper roles.
+     container.innerHTML = '';
+     container.setAttribute('data-submenu', '');
+     container.setAttribute('role', 'menu');
+ 
+     const frag = document.createDocumentFragment();
+     let section = document.createElement('ul');
+     section.className = 'list';
+     const flushSection = () => {
+       if (section.children.length) frag.appendChild(section);
+       section = document.createElement('ul');
+       section.className = 'list';
+     };
+ 
+     const makeAnchor = (href, target, icon, text) => {
+       const a = document.createElement('a');
+       a.className = 'item';
+       a.setAttribute('role', 'menuitem');
+       a.tabIndex = -1;
+       if (href) a.href = href;
+       if (target) a.target = target;
+       if (icon) a.appendChild(makeIcon(icon));
+       const span = document.createElement('span');
+       span.className = 'label';
+       span.textContent = text || '';
+       a.appendChild(span);
+       return a;
+     };
+ 
+     const makeTriggerBtn = (icon, text) => {
+       const btn = document.createElement('button');
+       btn.type = 'button';
+       btn.className = 'item trigger';
+       btn.setAttribute('role', 'menuitem');
+       btn.setAttribute('aria-haspopup', 'true');
+       btn.setAttribute('aria-expanded', 'false');
+       btn.tabIndex = -1;
+       if (icon) btn.appendChild(makeIcon(icon));
+       const span = document.createElement('span');
+       span.className = 'label';
+       span.textContent = text || '';
+       btn.appendChild(span);
+       return btn;
+     };
+ 
+     for (const it of resolveKeys(items)) {
+       if (it.separator) { flushSection(); frag.appendChild(topSep()); continue; }
+ 
+       const li = document.createElement('li');
+       li.className = 'element' +
+         (it.submenu ? ' has-submenu' : '') +
+         (it.variant && VARIANT_CLASS[it.variant] ? ` ${VARIANT_CLASS[it.variant]}` : '');
+       if (it.color) li.style.color = it.color;
+ 
+       if (it.submenu && it.submenu.length) {
+         // Parent trigger (focusable) for the flyout
+         const trigger = makeTriggerBtn(it.icon, it.label);
+         li.appendChild(trigger);
+ 
+         // Child menu
+         const sub = document.createElement('ul');
+         sub.className = 'sublist';
+         sub.setAttribute('role', 'menu');
+ 
+         for (const s of it.submenu) {
+           if (s.separator) { sub.appendChild(listSep()); continue; }
+           const sli = document.createElement('li');
+           sli.className = 'subelement';
+           if (s.color) sli.style.color = s.color;
+ 
+           // leaf as anchor
+           const a = makeAnchor(s.href || '#', s.target, s.icon, s.label);
+           sli.appendChild(a);
+           sub.appendChild(sli);
+         }
+         li.appendChild(sub);
+         enhanceFlyout(li); // mark as .has-submenu; hover-intent drives behavior
+       } else {
+         // leaf at top level as anchor
+         const a = makeAnchor(it.href || '#', it.target, it.icon, it.label);
+         li.appendChild(a);
+       }
+ 
+       section.appendChild(li);
+     }
+     flushSection();
+     container.appendChild(frag);
+   }
 
   /** ---- Mount all configured menus by id="menu-{key}" ---- */
   function renderAll() {
@@ -2707,21 +2728,6 @@ const HREFS = {
     },
     menus: MENUS
   });
-
-  /** Wire top buttons (unchanged) */
-  document.querySelectorAll('.iconDiv[data-hasmenu]').forEach(btn => {
-    const toggle = () => {
-      const isOpen = btn.getAttribute('aria-expanded') === 'true';
-      window.NavUX.closeAllMenus();
-      btn.setAttribute('aria-expanded', String(!isOpen));
-    };
-    btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
-    btn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
-      if (e.key === 'Escape') btn.setAttribute('aria-expanded', 'false');
-    });
-  });
-  document.addEventListener('click', () => window.NavUX.closeAllMenus());
 
   /** Initial paint */
   renderAll();
@@ -2790,6 +2796,7 @@ const HREFS = {
     }
   });
 })();
+
 
 
 
