@@ -9,23 +9,33 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Dynamic loader: follow @main and bust cache hourly -->
-  <script>
-    (function () {
-      const REF = 'main';
-      const BASE = `https://cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@${REF}/ExtraNav/`;
-      const v = Math.floor(Date.now() / 3_600_000); // hourly
+<script>
+  (function () {
+    const REF = 'main';
+    const BASE = `https://cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@${REF}/ExtraNav/`;
+    const v = Math.floor(Date.now() / 3_600_000);
 
-      const css = document.createElement('link');
-      css.rel = 'stylesheet';
-      css.href = `${BASE}ExtraNav.css?v=${v}`;
-      document.head.appendChild(css);
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = `${BASE}ExtraNav.css?v=${v}`;
+    document.head.appendChild(css);
 
+    // Wait until the DOM exists, then load the script (no defer)
+    const loadJS = () => {
       const js = document.createElement('script');
-      js.defer = true;
       js.src = `${BASE}nav-ux.js?v=${v}`;
-      document.head.appendChild(js);
-    })();
-  </script>
+      js.async = false; // execute after parse, in order
+      document.body.appendChild(js);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadJS, { once: true });
+    } else {
+      loadJS();
+    }
+  })();
+</script>
+
 </head>
 <body>
   <div>
@@ -242,3 +252,4 @@
   </div>
 </body>
 </html>
+
