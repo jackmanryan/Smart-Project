@@ -1109,245 +1109,229 @@
   })();
 
   // ========= Hover intent menus for .iconDiv[data-hasmenu] + nested .has-submenu =========
+  (function initHoverIntent() {
+    const triggers = $$('.iconDiv[data-hasmenu]');
+    if (!triggers.length) return;
 
-   /* Hover-intent + keyboard menus (exclusive, robust, consolidated) */
-(function initHoverIntent() {
-  'use strict';
+    const OPEN_DELAY = 140;
+    const CLOSE_DELAY = 270;
+    const state = new Map(); // trigger -> {openT, closeT}
 
-  const triggers = $$('.iconDiv[data-hasmenu]');
-  if (!triggers.length) return;
+    const getMenu = (t) => t.querySelector('[data-submenu]');
+    const getItems = (menu) => Array.from(menu.querySelectorAll('[role="menuitem"], .menu-item, a.item'));
 
-  const OPEN_DELAY = 140;
-  const CLOSE_DELAY = 270;
-  const state = new Map(); // trigger -> {openT, closeT}
+    const clearTimers = (t) => {
+      const s = state.get(t);
+      if (!s) return;
+      clearTimeout(s.openT);
+      clearTimeout(s.closeT);
+      s.openT = s.closeT = null;
+    };
 
-  const getMenu = (t) => t.querySelector('[data-submenu]');
-  const getItems = (menu) => Array.from(menu.querySelectorAll('[role="menuitem"], .menu-item, a.item'));
-
-  const clearTimers = (t) => {
-    const s = state.get(t);
-    if (!s) return;
-    clearTimeout(s.openT);
-    clearTimeout(s.closeT);
-    s.openT = s.closeT = null;
-  };
-
-  // Hard close + kill timers (prevents "re-open" after switching)
-  const forceCloseTrigger = (t) => {
-    clearTimers(t);
-    t.setAttribute('aria-expanded', 'false');
-  };
-
-  // When opening one trigger, close others and kill their timers
-  const setExpanded = (t, on) => {
-    if (!t) return;
-    if (on) {
-      triggers.forEach((x) => { if (x !== t) forceCloseTrigger(x); });
-    } else {
+    // Hard close + kill timers (prevents "re-open" after switching)
+    const forceCloseTrigger = (t) => {
       clearTimers(t);
-    }
-    t.setAttribute('aria-expanded', on ? 'true' : 'false');
-  };
+      t.setAttribute('aria-expanded', 'false');
+    };
 
-  const scheduleOpen = (t, delay) => {
-    clearTimers(t);
-    const d = Number(t.dataset.openDelay) || delay || OPEN_DELAY;
-    const s = state.get(t) || {};
-    s.openT = setTimeout(() => setExpanded(t, true), Math.max(0, d));
-    state.set(t, s);
-  };
+    // NOTE: when opening one trigger, close others and kill their timers
+    const setExpanded = (t, on) => {
+      if (!t) return;
+      if (on) {
+        triggers.forEach((x) => { if (x !== t) forceCloseTrigger(x); });
+      } else {
+        clearTimers(t);
+      }
+      t.setAttribute('aria-expanded', on ? 'true' : 'false');
+    };
 
-  const scheduleClose = (t, delay) => {
-    clearTimers(t);
-    const d = Number(t.dataset.closeDelay) || delay || CLOSE_DELAY;
-    const s = state.get(t) || {};
-    s.closeT = setTimeout(() => setExpanded(t, false), Math.max(0, d));
-    state.set(t, s);
-  };
+    const scheduleOpen = (t, delay) => {
+      clearTimers(t);
+      const d = Number(t.dataset.openDelay) || delay || OPEN_DELAY;
+      const s = state.get(t) || {};
+      s.openT = setTimeout(() => setExpanded(t, true), d);
+      state.set(t, s);
+    };
 
-  // Initialize each trigger
-  triggers.forEach((trigger) => {
-    const menu = getMenu(trigger);
-    if (!menu) {
-      trigger.removeAttribute('data-hasmenu');
-      trigger.removeAttribute('aria-haspopup');
-      trigger.removeAttribute('aria-expanded');
-      return;
-    }
+    const scheduleClose = (t, delay) => {
+      clearTimers(t);
+      const d = Number(t.dataset.closeDelay) || delay || CLOSE_DELAY;
+      const s = state.get(t) || {};
+      s.closeT = setTimeout(() => setExpanded(t, false), d);
+      state.set(t, s);
+    };
 
-    if (!menu.id) {
-      const base = (trigger.getAttribute('aria-label') || 'menu').toLowerCase().replace(/\s+/g, '-');
-      menu.id = `menu-${base}`;
-    }
-    trigger.setAttribute('aria-controls', menu.id);
-    trigger.setAttribute('aria-haspopup', 'menu');
-    trigger.setAttribute('aria-expanded', 'false');
+    // Initialize each trigger
+    triggers.forEach((trigger) => {
+      const menu = getMenu(trigger);
+      if (!menu) {
+        trigger.removeAttribute('data-hasmenu');
+        trigger.removeAttribute('aria-haspopup');
+        trigger.removeAttribute('aria-expanded');
+        return;
+      }
 
-    // Roving tabindex for menu items
-    getItems(menu).forEach((el) => el.tabIndex = -1);
+      if (!menu.id) {
+        const base = (trigger.getAttribute('aria-label') || 'menu').toLowerCase().replace(/\s+/g, '-');
+        menu.id = `menu-${base}`;
+      }
+      trigger.setAttribute('aria-controls', menu.id);
 
-    // HOVER: when entering a new trigger, close others immediately, then open this
-    trigger.addEventListener('pointerenter', () => {
-      triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
-      scheduleOpen(trigger);
-    });
+      // Roving tabindex for menu items
+      getItems(menu).forEach((el) => el.tabIndex = -1);
 
-    trigger.addEventListener('pointerleave', (e) => {
-      const rt = e.relatedTarget;
-      // Don't close if moving into our own panel
-      if (rt && (trigger.contains(rt) || menu.contains(rt))) return;
-      scheduleClose(trigger);
-    });
-
-    // Keep open while pointer in submenu
-    menu.addEventListener('pointerenter', () => {
-      // entering a panel: close others immediately and open this immediately
-      triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
-      clearTimers(trigger);          // cancel any pending close
-      setExpanded(trigger, true);    // open now (no delay)
-    });
-    menu.addEventListener('pointerleave', (e) => {
-      const rt = e.relatedTarget;
-      // If moving back to trigger (or staying within), don't close
-      if (rt && (trigger.contains(rt) || menu.contains(rt))) return;
-      scheduleClose(trigger);
-    });
-
-    // Focus-driven behavior (no delay) – still exclusive
-    trigger.addEventListener('focusin', () => {
-      triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
-      setExpanded(trigger, true);
-    });
-    trigger.addEventListener('focusout', (e) => {
-      const rt = e.relatedTarget;
-      if (rt && (trigger.contains(rt) || menu.contains(rt))) return;
-      scheduleClose(trigger);
-    });
-
-    // Keyboard (unchanged)
-    trigger.addEventListener('keydown', (e) => {
-      const idx = triggers.indexOf(trigger);
-      const openAndFocusFirst = () => { setExpanded(trigger, true); (getItems(menu)[0] || menu).focus(); };
-      const focusPrev = () => triggers[(idx - 1 + triggers.length) % triggers.length]?.focus();
-      const focusNext = () => triggers[(idx + 1) % triggers.length]?.focus();
-
-      if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
-      if (e.key === 'ArrowDown' && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
-      if (e.key === 'ArrowUp' && document.activeElement === trigger) { e.preventDefault(); setExpanded(trigger, true); const its = getItems(menu); (its[its.length - 1] || menu).focus(); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); focusNext(); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); focusPrev(); }
-      if (e.key === 'Home') { e.preventDefault(); triggers[0]?.focus(); }
-      if (e.key === 'End') { e.preventDefault(); triggers[triggers.length - 1]?.focus(); }
-      if (e.key === 'Escape') { setExpanded(trigger, false); trigger.focus(); }
-    });
-
-    // Keyboard inside menu
-    menu.addEventListener('keydown', (e) => {
-      const its = getItems(menu);
-      const i = its.indexOf(document.activeElement);
-      const idx = triggers.indexOf(trigger);
-
-      if (e.key === 'ArrowDown') { e.preventDefault(); (its[(i + 1) % its.length] || its[0])?.focus(); }
-      if (e.key === 'ArrowUp') { e.preventDefault(); (its[(i - 1 + its.length) % its.length] || its[0])?.focus(); }
-      if (e.key === 'Home') { e.preventDefault(); its[0]?.focus(); }
-      if (e.key === 'End') { e.preventDefault(); its[its.length - 1]?.focus(); }
-      if (e.key === 'Escape') { e.preventDefault(); setExpanded(trigger, false); trigger.focus(); }
-      if (e.key === 'ArrowRight') { e.preventDefault(); triggers[(idx + 1) % triggers.length]?.focus(); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); triggers[(idx - 1 + triggers.length) % triggers.length]?.focus(); }
-    });
-
-    // Click a menu item -> close the menu
-    menu.addEventListener('click', (e) => {
-      const target = e.target.closest('[role="menuitem"], .menu-item, a[href]');
-      if (target) setExpanded(trigger, false);
-    });
-  });
-
-  // Nested flyouts (.has-submenu) with open/close and keyboard support
-  (function initNested() {
-    const items = $$('.has-submenu');
-    if (!items.length) return;
-
-    const timers = new WeakMap();
-    const ensureTimers = (item) => { if (!timers.has(item)) timers.set(item, { open: null, close: null }); return timers.get(item); };
-    const parseDelay = (v, fb) => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : fb; };
-    const delays = (item) => ({ open: parseDelay(item.dataset.openDelay, 140), close: parseDelay(item.dataset.closeDelay, 270) });
-    const focusablesSel = 'a[href],button:not([disabled]),[role="menuitem"],[tabindex]:not([tabindex="-1"])';
-    const getFocusables = (c) => c ? Array.from(c.querySelectorAll(focusablesSel)) : [];
-    const first = (c) => getFocusables(c)[0] || null;
-    const last = (c) => { const els = getFocusables(c); return els[els.length - 1] || null; };
-    const getTrigger = (item) => item.querySelector('[aria-haspopup="true"]') || first(item) || item;
-
-    function closeAllExceptFamily(items, except, closeFn) {
-      items.forEach((it) => {
-        if (!except) return closeFn(it, true);
-        if (it === except) return;
-        if (it.contains(except)) return;
-        if (except.contains(it)) return;
-        closeFn(it, true);
+      // HOVER: when entering a new trigger, close others immediately, then open this
+      trigger.addEventListener('pointerenter', () => {
+        triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
+        scheduleOpen(trigger);
       });
-    }
-    function open(item, immediate = false) {
-      const t = ensureTimers(item); const { open: d } = delays(item);
-      clearTimeout(t.close);
-      if (item.classList.contains('open')) return;
-      t.open = setTimeout(() => {
-        item.classList.add('open'); item.setAttribute('aria-expanded', 'true');
-        const trig = getTrigger(item);
-        if (trig && trig !== item) { trig.setAttribute('aria-expanded', 'true'); trig.setAttribute('aria-haspopup', 'true'); }
-      }, immediate ? 0 : d);
-    }
-    function close(item, immediate = false) {
-      const t = ensureTimers(item); const { close: d } = delays(item);
-      clearTimeout(t.open);
-      t.close = setTimeout(() => {
-        item.classList.remove('open'); item.setAttribute('aria-expanded', 'false');
-        const trig = getTrigger(item);
-        if (trig && trig !== item) trig.setAttribute('aria-expanded', 'false');
-      }, immediate ? 0 : d);
-    }
-    function moveHorizontal(currentItem, dir) {
-      const parent = currentItem.parentElement; if (!parent) return;
-      const siblings = Array.from(parent.children).filter((el) => el.matches('.has-submenu'));
-      const i = siblings.indexOf(currentItem); if (i === -1 || siblings.length < 2) return;
-      const target = siblings[(i + (dir > 0 ? 1 : -1) + siblings.length) % siblings.length];
-      closeAllExceptFamily(items, target, close); open(target, true); (getTrigger(target).focus || target.focus)?.call(getTrigger(target));
-    }
-    items.forEach((item) => {
-      item.addEventListener('pointerenter', () => { closeAllExceptFamily(items, item, close); open(item); });
-      item.addEventListener('pointerleave', () => { close(item); });
-      item.addEventListener('focusin', () => { closeAllExceptFamily(items, item, close); open(item); });
-      item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) close(item); });
-      item.addEventListener('click', (e) => {
-        if (!item.classList.contains('open')) { closeAllExceptFamily(items, item, close); open(item, true); e.preventDefault(); }
+
+      trigger.addEventListener('pointerleave', (e) => {
+        if (trigger.contains(e.relatedTarget)) return;
+        scheduleClose(trigger);
       });
-      item.addEventListener('keydown', (e) => {
-        const submenu = item.querySelector('.submenu, [role="menu"], .sublist');
-        switch (e.key) {
-          case 'Escape': close(item, true); (getTrigger(item).focus || item.focus)?.call(getTrigger(item)); e.stopPropagation(); e.preventDefault(); break;
-          case 'ArrowDown': open(item, true); (first(submenu) || getTrigger(item))?.focus?.(); e.preventDefault(); break;
-          case 'ArrowUp': open(item, true); (last(submenu) || getTrigger(item))?.focus?.(); e.preventDefault(); break;
-          case 'ArrowLeft': moveHorizontal(item, -1); e.preventDefault(); break;
-          case 'ArrowRight': moveHorizontal(item, 1); e.preventDefault(); break;
-        }
+
+      // Keep open while pointer in submenu
+      menu.addEventListener('pointerenter', () => {
+        // If the pointer enters the PANEL of another trigger (overlapping menus),
+        // close all others immediately and open THIS one immediately.
+        triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
+        clearTimers(trigger);          // cancel any pending close
+        setExpanded(trigger, true);    // open now (no delay)
+      });
+      menu.addEventListener('pointerleave', (e) => {
+        if (trigger.contains(e.relatedTarget)) return;
+        scheduleClose(trigger);
+      });
+
+      // Focus-driven behavior (no delay) – still exclusive
+      trigger.addEventListener('focusin', () => {
+        triggers.forEach((x) => { if (x !== trigger) forceCloseTrigger(x); });
+        setExpanded(trigger, true);
+      });
+      trigger.addEventListener('focusout', (e) => {
+        if (!trigger.contains(e.relatedTarget)) scheduleClose(trigger);
+      });
+
+      // Keyboard (unchanged)
+      trigger.addEventListener('keydown', (e) => {
+        const idx = triggers.indexOf(trigger);
+        const openAndFocusFirst = () => { setExpanded(trigger, true); (getItems(menu)[0] || menu).focus(); };
+        const focusPrev = () => triggers[(idx - 1 + triggers.length) % triggers.length]?.focus();
+        const focusNext = () => triggers[(idx + 1) % triggers.length]?.focus();
+
+        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
+        if (e.key === 'ArrowDown' && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
+        if (e.key === 'ArrowUp' && document.activeElement === trigger) { e.preventDefault(); setExpanded(trigger, true); const its = getItems(menu); (its[its.length - 1] || menu).focus(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); focusNext(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); focusPrev(); }
+        if (e.key === 'Home') { e.preventDefault(); triggers[0]?.focus(); }
+        if (e.key === 'End') { e.preventDefault(); triggers[triggers.length - 1]?.focus(); }
+        if (e.key === 'Escape') { setExpanded(trigger, false); trigger.focus(); }
+      });
+
+      // Keyboard inside menu
+      menu.addEventListener('keydown', (e) => {
+        const its = getItems(menu);
+        const i = its.indexOf(document.activeElement);
+        const idx = triggers.indexOf(trigger);
+
+        if (e.key === 'ArrowDown') { e.preventDefault(); (its[(i + 1) % its.length] || its[0])?.focus(); }
+        if (e.key === 'ArrowUp') { e.preventDefault(); (its[(i - 1 + its.length) % its.length] || its[0])?.focus(); }
+        if (e.key === 'Home') { e.preventDefault(); its[0]?.focus(); }
+        if (e.key === 'End') { e.preventDefault(); its[its.length - 1]?.focus(); }
+        if (e.key === 'Escape') { e.preventDefault(); setExpanded(trigger, false); trigger.focus(); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); triggers[(idx + 1) % triggers.length]?.focus(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); triggers[(idx - 1 + triggers.length) % triggers.length]?.focus(); }
+      });
+
+      // Click a menu item -> close the menu
+      menu.addEventListener('click', (e) => {
+        const target = e.target.closest('[role="menuitem"], .menu-item, a[href]');
+        if (target) setExpanded(trigger, false);
       });
     });
 
-    document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.has-submenu')) items.forEach((it) => close(it, true)); });
-    window.addEventListener('blur', () => { items.forEach((it) => close(it, true)); });
+    // Nested flyouts (.has-submenu) with open/close and keyboard support
+    (function initNested() {
+      const items = $$('.has-submenu');
+      if (!items.length) return;
+
+      const timers = new WeakMap();
+      const ensureTimers = (item) => { if (!timers.has(item)) timers.set(item, { open: null, close: null }); return timers.get(item); };
+      const parseDelay = (v, fb) => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : fb; };
+      const delays = (item) => ({ open: parseDelay(item.dataset.openDelay, 140), close: parseDelay(item.dataset.closeDelay, 270) });
+      const focusablesSel = 'a[href],button:not([disabled]),[role="menuitem"],[tabindex]:not([tabindex="-1"])';
+      const getFocusables = (c) => c ? Array.from(c.querySelectorAll(focusablesSel)) : [];
+      const first = (c) => getFocusables(c)[0] || null;
+      const last = (c) => { const els = getFocusables(c); return els[els.length - 1] || null; };
+      const getTrigger = (item) => item.querySelector('[aria-haspopup="true"]') || first(item) || item;
+
+      function closeAllExceptFamily(items, except, closeFn) {
+        items.forEach((it) => {
+          if (!except) return closeFn(it, true);
+          if (it === except) return;
+          if (it.contains(except)) return;
+          if (except.contains(it)) return;
+          closeFn(it, true);
+        });
+      }
+      function open(item, immediate = false) {
+        const t = ensureTimers(item); const { open: d } = delays(item);
+        clearTimeout(t.close);
+        if (item.classList.contains('open')) return;
+        t.open = setTimeout(() => {
+          item.classList.add('open'); item.setAttribute('aria-expanded', 'true');
+          const trig = getTrigger(item);
+          if (trig && trig !== item) { trig.setAttribute('aria-expanded', 'true'); trig.setAttribute('aria-haspopup', 'true'); }
+        }, immediate ? 0 : d);
+      }
+      function close(item, immediate = false) {
+        const t = ensureTimers(item); const { close: d } = delays(item);
+        clearTimeout(t.open);
+        t.close = setTimeout(() => {
+          item.classList.remove('open'); item.setAttribute('aria-expanded', 'false');
+          const trig = getTrigger(item);
+          if (trig && trig !== item) trig.setAttribute('aria-expanded', 'false');
+        }, immediate ? 0 : d);
+      }
+      function moveHorizontal(currentItem, dir) {
+        const parent = currentItem.parentElement; if (!parent) return;
+        const siblings = Array.from(parent.children).filter((el) => el.matches('.has-submenu'));
+        const i = siblings.indexOf(currentItem); if (i === -1 || siblings.length < 2) return;
+        const target = siblings[(i + (dir > 0 ? 1 : -1) + siblings.length) % siblings.length];
+        closeAllExceptFamily(items, target, close); open(target, true); (getTrigger(target).focus || target.focus)?.call(getTrigger(target));
+      }
+      items.forEach((item) => {
+        item.addEventListener('pointerenter', () => { closeAllExceptFamily(items, item, close); open(item); });
+        item.addEventListener('pointerleave', () => { close(item); });
+        item.addEventListener('focusin', () => { closeAllExceptFamily(items, item, close); open(item); });
+        item.addEventListener('focusout', (e) => { if (!item.contains(e.relatedTarget)) close(item); });
+        item.addEventListener('click', (e) => {
+          if (!item.classList.contains('open')) { closeAllExceptFamily(items, item, close); open(item, true); e.preventDefault(); }
+        });
+        item.addEventListener('keydown', (e) => {
+          const submenu = item.querySelector('.submenu, [role="menu"], .sublist');
+          switch (e.key) {
+            case 'Escape': close(item, true); (getTrigger(item).focus || item.focus)?.call(getTrigger(item)); e.stopPropagation(); e.preventDefault(); break;
+            case 'ArrowDown': open(item, true); (first(submenu) || getTrigger(item))?.focus?.(); e.preventDefault(); break;
+            case 'ArrowUp': open(item, true); (last(submenu) || getTrigger(item))?.focus?.(); e.preventDefault(); break;
+            case 'ArrowLeft': moveHorizontal(item, -1); e.preventDefault(); break;
+            case 'ArrowRight': moveHorizontal(item, 1); e.preventDefault(); break;
+          }
+        });
+      });
+
+      document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.has-submenu')) items.forEach((it) => close(it, true)); });
+      window.addEventListener('blur', () => { items.forEach((it) => close(it, true)); });
+    })();
+    // Outside click: close all immediately (kill timers)
+    document.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.iconDiv[data-hasmenu]')) return;
+      triggers.forEach((t) => forceCloseTrigger(t));
+    });
   })();
-
-  // Outside click: close all immediately (kill timers)
-  document.addEventListener('pointerdown', (e) => {
-    // don't close when interacting within a trigger or any submenu panel
-    if (e.target.closest('.iconDiv[data-hasmenu], [data-submenu], .has-submenu')) return;
-    triggers.forEach((t) => forceCloseTrigger(t));
-  });
-
-  // Window blur closes everything
-  window.addEventListener('blur', () => { triggers.forEach((t) => forceCloseTrigger(t)); });
 })();
-
 
  // =========               =========
  // ========= Settings Menu =========
@@ -2606,102 +2590,81 @@ const HREFS = {
     });
   }
 
+  function enhanceFlyout(li) {
+    li.classList.add('has-submenu');
+    li.setAttribute('aria-haspopup', 'true');
+    li.setAttribute('aria-expanded', 'false');
+    li.tabIndex = 0;
+    const open = () => { li.classList.add('open'); li.setAttribute('aria-expanded', 'true'); };
+    const close = () => { li.classList.remove('open'); li.setAttribute('aria-expanded', 'false'); };
+    li.addEventListener('mouseenter', open);
+    li.addEventListener('mouseleave', close);
+    li.addEventListener('focusin', open);
+    li.addEventListener('focusout', (e) => { if (!li.contains(e.relatedTarget)) close(); });
+    li.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.classList.contains('open') ? close() : open(); }
+      if (e.key === 'Escape') close();
+    });
+  }
 
-   // Hover-intent owns all flyout behavior; we only mark structure.
-   function enhanceFlyout(li) {
-     li.classList.add('has-submenu');
-   }
+  function renderMenu(container, items) {
+    container.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    let section = document.createElement('ul');
+    section.className = 'list';
+    const flushSection = () => {
+      if (section.children.length) frag.appendChild(section);
+      section = document.createElement('ul');
+      section.className = 'list';
+    };
 
-      function renderMenu(container, items) {
-     // Hover-intent expects the submenu container to be inside the trigger and
-     // identifiable via [data-submenu], with proper roles.
-     container.innerHTML = '';
-     container.setAttribute('data-submenu', '');
-     container.setAttribute('role', 'menu');
- 
-     const frag = document.createDocumentFragment();
-     let section = document.createElement('ul');
-     section.className = 'list';
-     const flushSection = () => {
-       if (section.children.length) frag.appendChild(section);
-       section = document.createElement('ul');
-       section.className = 'list';
-     };
- 
-     const makeAnchor = (href, target, icon, text) => {
-       const a = document.createElement('a');
-       a.className = 'item';
-       a.setAttribute('role', 'menuitem');
-       a.tabIndex = -1;
-       if (href) a.href = href;
-       if (target) a.target = target;
-       if (icon) a.appendChild(makeIcon(icon));
-       const span = document.createElement('span');
-       span.className = 'label';
-       span.textContent = text || '';
-       a.appendChild(span);
-       return a;
-     };
- 
-     const makeTriggerBtn = (icon, text) => {
-       const btn = document.createElement('button');
-       btn.type = 'button';
-       btn.className = 'item trigger';
-       btn.setAttribute('role', 'menuitem');
-       btn.setAttribute('aria-haspopup', 'true');
-       btn.setAttribute('aria-expanded', 'false');
-       btn.tabIndex = -1;
-       if (icon) btn.appendChild(makeIcon(icon));
-       const span = document.createElement('span');
-       span.className = 'label';
-       span.textContent = text || '';
-       btn.appendChild(span);
-       return btn;
-     };
- 
-     for (const it of resolveKeys(items)) {
-       if (it.separator) { flushSection(); frag.appendChild(topSep()); continue; }
- 
-       const li = document.createElement('li');
-       li.className = 'element' +
-         (it.submenu ? ' has-submenu' : '') +
-         (it.variant && VARIANT_CLASS[it.variant] ? ` ${VARIANT_CLASS[it.variant]}` : '');
-       if (it.color) li.style.color = it.color;
- 
-       if (it.submenu && it.submenu.length) {
-         // Parent trigger (focusable) for the flyout
-         const trigger = makeTriggerBtn(it.icon, it.label);
-         li.appendChild(trigger);
- 
-         // Child menu
-         const sub = document.createElement('ul');
-         sub.className = 'sublist';
-         sub.setAttribute('role', 'menu');
- 
-         for (const s of it.submenu) {
-           if (s.separator) { sub.appendChild(listSep()); continue; }
-           const sli = document.createElement('li');
-           sli.className = 'subelement';
-           if (s.color) sli.style.color = s.color;
- 
-           // leaf as anchor
-           const a = makeAnchor(s.href || '#', s.target, s.icon, s.label);
-           sli.appendChild(a);
-           sub.appendChild(sli);
-         }
-         li.appendChild(sub);
-         enhanceFlyout(li); // mark as .has-submenu; hover-intent drives behavior
-       } else {
-         // leaf at top level as anchor
-         const a = makeAnchor(it.href || '#', it.target, it.icon, it.label);
-         li.appendChild(a);
-       }
- 
-       section.appendChild(li);
-     }
-     flushSection();
-     container.appendChild(frag);
-   }
+    for (const it of resolveKeys(items)) {
+      if (it.separator) { flushSection(); frag.appendChild(topSep()); continue; }
+
+      const li = document.createElement('li');
+      li.className = 'element' +
+        (it.submenu ? ' has-submenu' : '') +
+        (it.variant && VARIANT_CLASS[it.variant] ? ` ${VARIANT_CLASS[it.variant]}` : '');
+
+      if (it.color) li.style.color = it.color;
+      if (it.icon) li.appendChild(makeIcon(it.icon));
+
+      const label = document.createElement('p');
+      label.className = 'label';
+      label.textContent = it.label || '';
+      li.appendChild(label);
+
+      if (it.href) attachNav(li, it.href, it.target);
+
+      if (it.submenu && it.submenu.length) {
+        const sub = document.createElement('ul');
+        sub.className = 'sublist';
+        sub.setAttribute('role', 'menu');
+
+        for (const s of it.submenu) {
+          if (s.separator) { sub.appendChild(listSep()); continue; }
+          const sli = document.createElement('li');
+          sli.className = 'subelement';
+          if (s.color) sli.style.color = s.color;
+          if (s.icon) sli.appendChild(makeIcon(s.icon));
+          const sp = document.createElement('p');
+          sp.className = 'label';
+          sp.textContent = s.label || '';
+          sli.appendChild(sp);
+          if (s.href) attachNav(sli, s.href, s.target);
+          sub.appendChild(sli);
+        }
+
+        li.appendChild(sub);
+        enhanceFlyout(li);
+      }
+
+      section.appendChild(li);
+    }
+
+    flushSection();
+    container.appendChild(frag);
+  }
 
   /** ---- Mount all configured menus by id="menu-{key}" ---- */
   function renderAll() {
@@ -2728,6 +2691,21 @@ const HREFS = {
     },
     menus: MENUS
   });
+
+  /** Wire top buttons (unchanged) */
+  document.querySelectorAll('.iconDiv[data-hasmenu]').forEach(btn => {
+    const toggle = () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      window.NavUX.closeAllMenus();
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    };
+    btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      if (e.key === 'Escape') btn.setAttribute('aria-expanded', 'false');
+    });
+  });
+  document.addEventListener('click', () => window.NavUX.closeAllMenus());
 
   /** Initial paint */
   renderAll();
@@ -2796,8 +2774,3 @@ const HREFS = {
     }
   });
 })();
-
-
-
-
-
