@@ -165,22 +165,13 @@
         <div class="divider" aria-hidden="true"></div>
 
         <div class="group">
-          
+          <span class="status-dot" aria-hidden="true"></span>
           <div class="settings-wrap">
             <!-- hit area centered over the gear -->
 
-            <button id="settings-toggle" class="settings-dot" type="button"
-            aria-label="Settings" aria-haspopup="menu" aria-expanded="false"
-            aria-controls="menu-settings">
-              <span class="status-dot" aria-hidden="true">
-                <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" width="32"
-              height="32" viewBox="0 0 32 32">
-              <path class="line line-top-bottom"
-                d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22">
-              </path>
-              <path class="line" d="M7 16 27 16"></path>
-            </svg>
-              </span><svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" width="32"
+            <button id="settings-toggle" class="settings-dot" type="button" aria-label="Settings" aria-haspopup="menu"
+              aria-expanded="false" aria-controls="menu-settings">
+              <svg fill="#ffffff" xmlns="http://www.w3.org/2000/svg" width="32"
               height="32" viewBox="0 0 32 32">
               <path class="line line-top-bottom"
                 d="M27 10 13 10C10.8 10 9 8.2 9 6 9 3.5 10.8 2 13 2 15.2 2 17 3.8 17 6L17 26C17 28.2 18.8 30 21 30 23.2 30 25 28.2 25 26 25 23.8 23.2 22 21 22L7 22">
@@ -190,7 +181,7 @@
             </button>
 
 
-            <div id="menu-settings" class="submenu" role="menu" aria-label="Settings">
+            <div id="menu-settings" class="submenu" data-submenu role="menu" aria-label="Settings">
               <label class="switch tt_switch">
                 <input id="theme-toggle" type="checkbox" role="switch" aria-label="Toggle dark mode" />
                 <div class="slider round tt_track">
@@ -271,8 +262,6 @@
 </div>
 </body>
 </html>
-
-
 
 
 
