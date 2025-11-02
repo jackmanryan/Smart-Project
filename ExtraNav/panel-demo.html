@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reusable Collapsible Panel · Demo</title>
+  <link rel="stylesheet" href="panel-demo.css" />
+</head>
+<body>
+  <main class="demo-shell">
+    <header class="demo-controls" aria-label="Panel mode controls">
+      <button type="button" data-mode="wide" data-active="true">Wide</button>
+      <button type="button" data-mode="narrow">Narrow</button>
+    </header>
+
+    <section class="panel" id="order-panel" data-panel-mode="wide" data-panel-state="collapsed">
+      <button class="panel-toggle" data-panel-toggle aria-expanded="false">
+        <span class="panel-toggle-icon" data-icon aria-hidden="true"></span>
+        <span class="panel-toggle-label" data-label>Order Overview</span>
+      </button>
+
+      <div class="panel-content" data-panel-collapsed>
+        <div class="panel-summary">
+          <span class="badge ok">Shipped</span>
+          <span class="summary-meta">ETA: Oct 12 · 4 of 5 items fulfilled</span>
+        </div>
+      </div>
+
+      <div class="panel-content" data-panel-expanded>
+        <div class="panel-summary">
+          <div>
+            <span class="badge ok">Shipped</span>
+            <span class="summary-meta">Updated 2 hours ago</span>
+          </div>
+          <div class="summary-meta">Order · 112856</div>
+        </div>
+
+        <div class="panel-body">
+          <article class="metric">
+            <h4>Fulfillment</h4>
+            <p>4 / 5 lines completed</p>
+          </article>
+          <article class="metric">
+            <h4>Lead time</h4>
+            <p>3 – 5 business days</p>
+          </article>
+          <article class="metric">
+            <h4>Current Step</h4>
+            <p>Waiting Delivery</p>
+          </article>
+          <article class="metric">
+            <h4>Tracking</h4>
+            <p>UPS · 1ZR5263WDK94118741</p>
+          </article>
+        </div>
+
+        <footer class="panel-actions">
+          <button type="button">View Tracking</button>
+          <button type="button">Contact Support</button>
+          <button type="button">Hold Shipment</button>
+        </footer>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createCollapsiblePanel } from './collapsible-panel.js';
+
+    const panel = document.getElementById('order-panel');
+    const controller = createCollapsiblePanel(panel, {
+      label: 'Order Overview',
+      collapsedLabel: '',
+      expandedLabel: 'Order Overview',
+      iconCollapsed: '▸',
+      iconExpanded: '▾',
+      breakpoint: 520,
+      onModeChange(mode) {
+        document.querySelectorAll('[data-mode]').forEach((button) => {
+          button.dataset.active = String(button.dataset.mode === mode);
+        });
+      },
+    });
+
+    document.querySelectorAll('[data-mode]').forEach((button) => {
+      button.addEventListener('click', () => {
+        controller.setMode(button.dataset.mode);
+      });
+    });
+
+    window.demoPanel = controller;
+  </script>
+</body>
+</html>
