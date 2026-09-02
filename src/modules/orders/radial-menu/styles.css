@@ -1,0 +1,149 @@
+/*
+ * fileBUBBLE — the bottom-left radial menu, inside its shadow root.
+ *
+ * Ported verbatim from legacy/userscripts/filebubble.user.js. Two additions: the host
+ * box below (it was an inline style block in the legacy script) and the .is-disabled
+ * rule at the end (it was inline opacity / pointer-events).
+ */
+
+:host{
+  /* A 0x0 anchor in the bottom-left corner, kept small so it won't block page clicks.
+     Everything inside it is position: fixed, so the size costs nothing. */
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  z-index: 2147483646;
+
+  /* default edge offsets; override with inline style on <div id="scx-radial-host"> if needed */
+  --edge-x: 19px;
+  --edge-y: 19px;
+  /* click-away distance */
+  --rm-close-distance: 200px;
+}
+
+/* ---------- Theme tokens (mapped to your globals) ---------- */
+.rm-theme {
+  /* layout */
+  --rm-size: var(--control-lg, 56px);
+  --rm-item: var(--control-md, 44px);
+  --rm-spread: var(--space-11, calc(var(--rm-item) * 2.25));
+  /* color & elevation */
+  --rm-fab-bg: var(--accent-2, #5353ff);
+  --rm-fab-fg: var(--ink-1, #fff);
+  --rm-item-bg: var(--surface-1, #1a2140);
+  --rm-item-fg: var(--ink-1, #fff);
+  --rm-ring: var(--border-0, #2a3460);
+  --rm-shadow: var(--elev-1, 0 6px 10px rgba(0,0,0,.30));
+  --rm-shadow-hover: var(--elev-2, 0 8px 15px rgba(0,0,0,.35));
+  --rm-fab-bg-hover: color-mix(in oklab, var(--rm-fab-bg), #fff 12%);
+  /* motion & radius */
+  --rm-radius: var(--radius-full, 999px);
+  --rm-t-fast: var(--t-fast, .18s);
+  --rm-t-med: var(--t-med, .22s);
+  --rm-focus: var(--focus-ring, 0 0 0 3px rgba(83,83,255,.5));
+  /* tooltip */
+  --rm-tip-bg: var(--accent-2, #5353ff);
+  --rm-tip-fg: var(--ink-1, #fff);
+  --rm-tip-pad: var(--space-2, 6px) var(--space-3, 10px);
+  --rm-tip-radius: var(--radius-2, 6px);
+  --rm-tip-shadow: var(--elev-1, 0 6px 14px rgba(0,0,0,.25));
+  --rm-tip-font: var(--font-size-2, 13px);
+}
+
+/* ---------- Container (bottom-left floating) ---------- */
+.radial-menu {
+  position: fixed;
+  left: var(--edge-x);
+  bottom: var(--edge-y);
+  width: var(--rm-size);
+  height: var(--rm-size);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ---------- State driver ---------- */
+.radial-menu__toggle {
+  position: absolute; inset: 0;
+  opacity: 0; pointer-events: none;
+}
+
+/* ---------- FAB ---------- */
+.radial-menu__fab {
+  position: absolute; inset: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: var(--rm-size); height: var(--rm-size);
+  border-radius: var(--rm-radius);
+  background: var(--rm-fab-bg); color: var(--rm-fab-fg);
+  border: 1px solid var(--rm-ring);
+  box-shadow: var(--rm-shadow);
+  cursor: pointer;
+  transition: transform var(--rm-t-med) ease, box-shadow var(--rm-t-med) ease, background var(--rm-t-fast) ease;
+  z-index: 2; touch-action: manipulation;
+}
+.radial-menu__fab * { pointer-events: none; }
+.radial-menu__fab:hover { background: var(--rm-fab-bg-hover); box-shadow: var(--rm-shadow-hover); }
+.radial-menu__fab:active { transform: scale(.96); }
+.radial-menu__fab:focus-visible { box-shadow: var(--rm-focus); }
+.radial-menu__toggle:checked + .radial-menu__fab { transform: rotate(45deg) scale(.96); background: var(--rm-fab-bg-hover); }
+
+/* ---------- Items layer ---------- */
+.radial-menu__items { position: absolute; inset: 0; display: block; pointer-events: none; z-index:1; }
+
+/* ---------- Item ---------- */
+.radial-menu__item{
+  --angle: 0deg;
+  position: absolute; left: 50%; top: 50%;
+  width: var(--rm-item); height: var(--rm-item);
+  margin-left: calc(var(--rm-item)/-2); margin-top: calc(var(--rm-item)/-2);
+  display: grid; place-items: center; text-decoration: none;
+  border-radius: var(--rm-radius);
+  border: 1px solid var(--rm-ring);
+  background: var(--rm-item-bg); color: var(--rm-item-fg);
+  box-shadow: var(--rm-shadow);
+  cursor: pointer;
+  transform: rotate(var(--angle)) translate(0) rotate(calc(var(--angle) * -1)) scale(.6);
+  opacity: 0; visibility: hidden;
+  transition: transform var(--rm-t-med) ease, opacity var(--rm-t-fast) ease, background var(--rm-t-fast) ease, visibility 0s linear var(--rm-t-fast);
+}
+.radial-menu__item:hover { background: color-mix(in oklab, var(--rm-item-bg), #fff 12%); }
+.radial-menu__item:focus-visible{ outline: 3px solid color-mix(in oklab, var(--rm-fab-bg), #fff 30%); outline-offset: 2px; }
+
+.radial-menu__toggle:checked ~ .radial-menu__items { pointer-events: auto; }
+.radial-menu__toggle:checked ~ .radial-menu__items .radial-menu__item{
+  transform: rotate(var(--angle)) translate(var(--rm-spread)) rotate(calc(var(--angle) * -1)) scale(1);
+  opacity: 1; visibility: visible; transition-delay: 0s;
+}
+
+/* ---------- Tooltip ---------- */
+.radial-menu__item[data-tip]::after{
+  content: attr(data-tip);
+  position: absolute; left: 50%; top: calc(-1 * var(--rm-item) - 8px);
+  transform: translate(-50%, -6px) scale(.95);
+  background: var(--rm-tip-bg); color: var(--rm-tip-fg);
+  padding: var(--rm-tip-pad); border-radius: var(--rm-tip-radius);
+  white-space: nowrap; box-shadow: var(--rm-tip-shadow);
+  font-size: var(--rm-tip-font); line-height: 1.1; opacity: 0; pointer-events: none;
+  transition: transform var(--rm-t-fast) ease, opacity var(--rm-t-fast) ease, top var(--rm-t-fast) ease; z-index:3;
+}
+.radial-menu__item[data-tip]::before{
+  content: ""; position: absolute; left: 50%; top: calc(-1 * var(--rm-item) + 2px);
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px; height: 8px; background: var(--rm-tip-bg);
+  border-radius: 2px; opacity: 0; pointer-events: none;
+  transition: opacity var(--rm-t-fast) ease, top var(--rm-t-fast) ease; z-index:2;
+}
+.radial-menu__item:hover::after, .radial-menu__item:focus-visible::after{ opacity: 1; transform: translate(-50%, -12px) scale(1); top: calc(-1 * var(--rm-item) - 12px); }
+.radial-menu__item:hover::before, .radial-menu__item:focus-visible::before{ opacity: 1; top: calc(-1 * var(--rm-item) - 2px); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .radial-menu__fab, .radial-menu__item, .radial-menu__item::before, .radial-menu__item::after{ transition: none !important; }
+}
+
+/* ---------- No link to open ---------- */
+/* The open-state rule above sets opacity on four classes, so the dimming has to be at
+   least as specific to land; pointer-events only has the base rule to beat. */
+.radial-menu__item.is-disabled { pointer-events: none; }
+.radial-menu__toggle:checked ~ .radial-menu__items .radial-menu__item.is-disabled { opacity: .5; }

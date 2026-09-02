@@ -12,10 +12,10 @@
  * Ported from legacy/userscripts/extraright.user.js (v1.0). Differences from the
  * original, all deliberate:
  *
- *  - The order helpers are imported from ../lib/order-data.js (the old `window.SCX`)
- *    rather than re-declared here. That swaps this script's narrower `takeInlineJSON`
- *    key list for the shared one, which matches on shipping/address fields too, so an
- *    order page whose JSON blob leads with an address field is now found.
+ *  - The order helpers come from ../lib/order-data.js (the old `window.SCX`) instead of
+ *    being re-declared here. The shared `takeInlineJSON` matches a wider key list than
+ *    this script's own did — shipping and address fields as well — so an order page
+ *    whose JSON blob leads with an address field is now found.
  *  - `window.__AID_CACHE__` is a closure variable, cleared on ctx.route change so a
  *    client-side navigation cannot serve the previous order's account id.
  *  - `window.Qlink` (the quote link another script froze onto window) is the
@@ -563,10 +563,13 @@ function createActions(ctx) {
       if (href && !quoteLink) quoteLink = String(href);
     },
 
-    /** A client-side navigation means a different order; forget what we cached. */
+    /**
+     * A client-side navigation means a different order, so the account id has to be
+     * looked up again. The quote link is left alone: it is published once per page by
+     * orders.info-panels, which does not re-announce it either.
+     */
     forgetPageCache() {
       aidCache = '';
-      quoteLink = '';
     },
   };
 }
@@ -770,7 +773,7 @@ export default {
     ctx.style.add(hostCss, { id: `${STYLE_ID}-host` });
 
     const actions = createActions(ctx);
-    const menu = buildMenu(ctx, actions);
+    const ui = buildMenu(ctx, actions);
 
     // The quote link, if orders.info-panels already took the Quote # row away.
     ctx.events.on(QUOTE_LINK_EVENT, (href) => actions.setQuoteLink(href));
@@ -785,7 +788,7 @@ export default {
         if (!document.body.contains(e.target)) return;
         e.preventDefault();
         e.stopImmediatePropagation(); // avoid other global menus
-        menu.showAt(e.clientX, e.clientY);
+        ui.showAt(e.clientX, e.clientY);
       },
       { capture: true },
     );
@@ -793,15 +796,15 @@ export default {
     document.addEventListener(
       'click',
       (e) => {
-        if (!menu.isOpen()) return;
+        if (!ui.isOpen()) return;
         const path = e.composedPath?.() || [];
-        if (!path.includes(menu.host)) menu.hide();
+        if (!path.includes(ui.host)) ui.hide();
       },
       true,
     );
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu.hide(); }, true);
-    window.addEventListener('blur', () => menu.hide(), true);
-    window.addEventListener('scroll', () => menu.hide(), true);
-    window.addEventListener('resize', () => menu.hide(), true);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ui.hide(); }, true);
+    window.addEventListener('blur', () => ui.hide(), true);
+    window.addEventListener('scroll', () => ui.hide(), true);
+    window.addEventListener('resize', () => ui.hide(), true);
   },
 };
