@@ -1,0 +1,51 @@
+/*
+ * Tracking panel — layout only.
+ *
+ * Nothing here introduces a colour. The one visible border uses `currentColor`, so the
+ * pills pick up whatever the panel's own text colour is in either theme.
+ */
+
+/* Header pills */
+#Shipments-Block .trk-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin:6px 0 8px; }
+#Shipments-Block .trk-pills{ display:flex; gap:8px; flex-wrap:wrap; }
+#Shipments-Block .trk-pills .pill{ display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border:1px solid currentColor; border-radius:14px; font-size:12px; line-height:1.1; }
+#Shipments-Block .trk-pills .pill .label{ opacity:.75; margin-right:2px; }
+
+/* Actions area (keeps the site's existing button) */
+#Shipments-Block .trk-actions{ display:flex; gap:8px; align-items:center; }
+#Shipments-Block .trk-actions .btn{ font-size:12px; line-height:1.15; padding:4px 10px; }
+
+/* Table wrapper and sizing */
+#Shipments-Block .trk-table-wrap{ overflow-x:auto; overflow-y:hidden; width:100%; }
+
+/* Real colgroup widths (tighter than v1.0) */
+#Shipments-Block table.trk{ width:100%!important; table-layout:fixed; border-collapse:collapse; background:transparent!important; border:0!important; }
+#Shipments-Block table.trk col.trk-col-num     { width:18ch; }  /* Tracking # */
+#Shipments-Block table.trk col.trk-col-car     { width:18ch; }  /* Carrier · Method */
+#Shipments-Block table.trk col.trk-col-status  { width:18ch; }
+#Shipments-Block table.trk col.trk-col-update  { width:16ch; }
+#Shipments-Block table.trk col.trk-col-loc     { width:24ch; }
+#Shipments-Block table.trk col.trk-col-wt      { width:10ch; }
+#Shipments-Block table.trk col.trk-col-src     { width:16ch; }
+#Shipments-Block table.trk col.trk-col-act     { width:20ch; }
+
+#Shipments-Block table.trk thead:not(:first-of-type){ display:none!important; }
+#Shipments-Block table.trk th, #Shipments-Block table.trk td{ padding:6px 8px!important; vertical-align:middle; box-sizing:border-box; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#Shipments-Block table.trk th{ text-align:center; font-size:12px; font-weight:600; }
+
+/* Clamp bubble widths so they don't force wide cells */
+#Shipments-Block .tm-bubble, #Shipments-Block .tm-bubble--order-link{ display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#Shipments-Block .tm-bubble--order-link a{ display:block!important; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Actions cell */
+#Shipments-Block td.trk-col-act .btn{ font-size:12px; padding:2px 8px; margin-right:6px; }
+#Shipments-Block td.trk-col-act .btn:last-child{ margin-right:0; }
+
+/* Keep Location readable but clipped */
+#Shipments-Block td.trk-col-loc{ min-width:0; }
+
+/* Manual Add-Tracking form should never overflow the drawer */
+#Shipments-Block #AddTrackingNumberForm{ max-width:100%!important; width:100%!important; }
+#Shipments-Block #AddTrackingNumberForm table{ width:100%!important; table-layout:fixed; }
+#Shipments-Block #AddTrackingNumberForm th, #Shipments-Block #AddTrackingNumberForm td{ padding:6px 8px!important; }
+#Shipments-Block #AddTrackingNumberForm select, #Shipments-Block #AddTrackingNumberForm input{ width:100%!important; }
