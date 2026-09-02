@@ -254,7 +254,14 @@ function createDock(ctx) {
     const visible = isOpen() && activeKey() === MC_KEY;
     if (visible === mcOnScreen) return;
     mcOnScreen = visible;
-    if (visible) events.emit('messages:open', { source: 'dock', reason });
+    if (!visible) return;
+
+    // Behind selectTab's deferred layout pass, so a listener sees the finished table
+    // rather than the seven-column one the site rendered.
+    setTimeout(() => {
+      if (!(isOpen() && activeKey() === MC_KEY)) return;
+      events.emit('messages:open', { source: 'dock', reason });
+    }, 0);
   }
 
   /** Open one conversation: announce it, then let the site's own toggle do the work. */
