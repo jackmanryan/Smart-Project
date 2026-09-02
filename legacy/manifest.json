@@ -1,0 +1,188 @@
+{
+  "exported": "2026-09 Tampermonkey export (ACTIVE_SCRIPTS.zip)",
+  "count": 26,
+  "scripts": [
+    {
+      "slug": "adaptive-table-filters-column-menu-dt-aware-compact-ui",
+      "name": "Adaptive Table Filters + Column Menu (DT-aware, compact UI)",
+      "version": "3.5.0",
+      "lines": 838,
+      "exportFile": "Adaptive Table Filters + Column Menu (DT-aware, compact UI).user.js"
+    },
+    {
+      "slug": "bubble-text",
+      "name": "Bubble Text",
+      "version": "1.13.0",
+      "lines": 747,
+      "exportFile": "Bubble Text.user.js"
+    },
+    {
+      "slug": "copy-buttons",
+      "name": "Copy Buttons",
+      "version": "1.2",
+      "lines": 268,
+      "exportFile": "Copy Buttons.user.js"
+    },
+    {
+      "slug": "extraclaims",
+      "name": "ExtraClaims",
+      "version": "3.3",
+      "lines": 546,
+      "exportFile": "ExtraClaims.user.js"
+    },
+    {
+      "slug": "extraclean",
+      "name": "ExtraClean",
+      "version": "1.3",
+      "lines": 268,
+      "exportFile": "ExtraClean.user.js"
+    },
+    {
+      "slug": "extralinks",
+      "name": "ExtraLinks",
+      "version": "1.5",
+      "lines": 262,
+      "exportFile": "ExtraLinks.user.js"
+    },
+    {
+      "slug": "extranav-navbar-main-style",
+      "name": "ExtraNav - NAVBAR MAIN STYLE",
+      "version": "1.3.4",
+      "lines": 1296,
+      "exportFile": "ExtraNav - NAVBAR MAIN STYLE.user.js"
+    },
+    {
+      "slug": "extraright",
+      "name": "ExtraRight",
+      "version": "1.0",
+      "lines": 890,
+      "exportFile": "ExtraRight.user.js"
+    },
+    {
+      "slug": "extrasort",
+      "name": "ExtraSort",
+      "version": "0.2.0",
+      "lines": 73,
+      "exportFile": "ExtraSort.user.js"
+    },
+    {
+      "slug": "extranet-2fa",
+      "name": "Extranet 2FA",
+      "version": "2.3.0",
+      "lines": 361,
+      "exportFile": "Extranet 2FA.user.js"
+    },
+    {
+      "slug": "gmail-quote-search",
+      "name": "Gmail Quote Search",
+      "version": "1.8",
+      "lines": 281,
+      "exportFile": "Gmail Quote Search.user.js"
+    },
+    {
+      "slug": "hamilton-the-hamster-and-lizard",
+      "name": "Hamilton The Hamster (and Lizard)",
+      "version": "1.4.0",
+      "lines": 1181,
+      "exportFile": "Hamilton The Hamster (and Lizard).user.js"
+    },
+    {
+      "slug": "kill-custom-css",
+      "name": "Kill custom.css",
+      "version": "1.0.0",
+      "lines": 103,
+      "exportFile": "Kill custom.css.user.js"
+    },
+    {
+      "slug": "legacy-form-consolidated-and-hardened",
+      "name": "Legacy Form (Consolidated & Hardened)",
+      "version": "2.0.0",
+      "lines": 522,
+      "exportFile": "Legacy Form (Consolidated & Hardened).user.js"
+    },
+    {
+      "slug": "message-center",
+      "name": "Message Center",
+      "version": "3.8.1",
+      "lines": 1582,
+      "exportFile": "Message Center.user.js"
+    },
+    {
+      "slug": "order-info-panels",
+      "name": "Order Info Panels",
+      "version": "1.1.1",
+      "lines": 330,
+      "exportFile": "Order Info Panels.user.js"
+    },
+    {
+      "slug": "order-products-panel-layout-only-fixes",
+      "name": "Order Products Panel (layout-only fixes)",
+      "version": "1.0",
+      "lines": 446,
+      "exportFile": "Order Products Panel (layout-only fixes).user.js"
+    },
+    {
+      "slug": "order-timeline-and-overview",
+      "name": "Order Timeline & Overview",
+      "version": "1.4",
+      "lines": 200,
+      "exportFile": "Order Timeline & Overview.user.js"
+    },
+    {
+      "slug": "orders-review",
+      "name": "Orders Review",
+      "version": "1.2.1",
+      "lines": 192,
+      "exportFile": "Orders Review.user.js"
+    },
+    {
+      "slug": "sc-auto-review-rereview-batch",
+      "name": "SC Auto Review (rereview batch)",
+      "version": "0.1.4",
+      "lines": 265,
+      "exportFile": "SC Auto Review (rereview batch).user.js"
+    },
+    {
+      "slug": "sc-fab-message-and-sales-viewer-scord-integrated",
+      "name": "SC FAB \u2014 Message & Sales Viewer (SCORD integrated)",
+      "version": "0.3.0",
+      "lines": 470,
+      "exportFile": "SC FAB #U2014 Message & Sales Viewer (SCORD integrated).user.js"
+    },
+    {
+      "slug": "sc-turbokit-backboost-extrafast-local-css-cache",
+      "name": "SC TurboKit (BackBoost + ExtraFast + Local CSS Cache)",
+      "version": "0.2.0",
+      "lines": 529,
+      "exportFile": "SC TurboKit (BackBoost + ExtraFast + Local CSS Cache).user.js"
+    },
+    {
+      "slug": "sidedock",
+      "name": "SideDock",
+      "version": "1.10",
+      "lines": 556,
+      "exportFile": "SideDock.user.js"
+    },
+    {
+      "slug": "tabname",
+      "name": "TabName",
+      "version": "1.0",
+      "lines": 145,
+      "exportFile": "TabName.user.js"
+    },
+    {
+      "slug": "tracking-panel-layout-restyle-layout-only-color-inherit",
+      "name": "Tracking Panel \u2014 Layout Restyle (layout-only; color-inherit)",
+      "version": "1.1.0",
+      "lines": 330,
+      "exportFile": "Tracking Panel #U2014 Layout Restyle (layout-only; color-inherit).user.js"
+    },
+    {
+      "slug": "filebubble",
+      "name": "fileBUBBLE",
+      "version": "0.5.0",
+      "lines": 351,
+      "exportFile": "fileBUBBLE.user.js"
+    }
+  ]
+}
