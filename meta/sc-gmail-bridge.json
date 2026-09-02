@@ -13,8 +13,7 @@
   "grant": [
     "GM_setValue",
     "GM_getValue",
-    "GM_addValueChangeListener",
-    "GM_saveTab"
+    "GM_addValueChangeListener"
   ],
   "connect": [],
   "noframes": true

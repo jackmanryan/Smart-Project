@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Consolidated extranet enhancements: navigation, order panels, tables, dock, message centre, performance.",
   "author": "jackmanryan",
-  "match": ["https://extranet.strip-curtains.com/*"],
+  "match": [
+    "https://extranet.strip-curtains.com/*"
+  ],
   "exclude": [
     "https://extranet.strip-curtains.com/?p=quotes_editor*",
     "https://extranet.strip-curtains.com/quotepayment*"
@@ -15,10 +17,10 @@
     "GM_xmlhttpRequest",
     "GM_setValue",
     "GM_getValue",
-    "GM_setClipboard",
-    "GM_saveTab",
-    "GM_getTab"
+    "GM_setClipboard"
   ],
-  "connect": ["extranet.strip-curtains.com"],
+  "connect": [
+    "extranet.strip-curtains.com"
+  ],
   "noframes": true
 }
