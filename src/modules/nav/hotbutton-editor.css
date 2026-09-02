@@ -1,0 +1,592 @@
+    /* ========= Hot-Button Editor (innerHTML) ========= */
+    /* ---- Tokens ---- */
+    :root {
+        --panel-w: 720px;
+        --panel-h: 400px;
+        --field-h: 36px;
+        --gap: 10px;
+        --radius: 12px;
+        --ink: #111;
+        --bg: #fff;
+        --muted: #666;
+        --border: #c9c9c9;
+        --accent: #5353ff;
+        --accent-border: #3b3be0;
+        --shadow: 0 10px 40px rgba(0, 0, 0, .25);
+        --font-ui: inherit;
+        --preview-size: 112px;
+        /* bigger preview */
+    }
+
+    /* ---- Host + backdrop ---- */
+    :host {
+        display: block;
+        color-scheme: light;
+        /* force light UI inside editor */
+        border-radius: 17px;
+    }
+
+    /* Overlay mode (centered modal with backdrop) */
+    :host([overlay]),
+    :host([overlay]) .backdrop {
+        position: fixed;
+        inset: 0;
+    }
+
+    :host([overlay]) .backdrop {
+        background: rgba(0, 0, 0, .35);
+    }
+
+    /* Contained mode (default): no overlay/backdrop */
+    :host(:not([overlay])) .backdrop {
+        display: none;
+    }
+
+    /* ---- Shell frame (used only when contained) ---- */
+    .hb-shell {
+        width: max-content;
+        margin: 16px auto;
+        padding: 12px;
+        border-radius: 16px;
+        background: transparent;
+        --bg: #fff;
+        --ink: #111;
+        color-scheme: light;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+        position: relative;
+    }
+
+    /* ---- Panel (single source of truth) ---- */
+    .panel {
+        width: var(--panel-w);
+        height: var(--panel-h);
+        background: var(--bg);
+        color: var(--ink);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        font-family: var(--font-ui);
+        padding: 16px;
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        /* title, preview, fields (actions float) */
+        gap: 12px;
+        overflow: hidden;
+        border-radius: 17px;
+    }
+
+    /* Positioning differences by mode */
+    :host([overlay]) .panel {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        /* true modal center */
+    }
+
+    :host(:not([overlay])) .panel {
+        position: relative;
+        margin: 0;
+        /* in-flow card inside hb-shell */
+    }
+
+    /* ---- Headings ---- */
+    h2 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    /* ---- Preview ---- */
+    .preview {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        border: 1px dashed #ddd;
+        border-radius: 8px;
+    }
+
+    .preview .box {
+        width: var(--preview-size);
+        height: var(--preview-size);
+        aspect-ratio: 1 / 1;
+        display: grid;
+        place-items: center;
+        color: #222;
+        background: #f3f6ff;
+        border: 1px solid #e0e6ff;
+        border-radius: 8px;
+    }
+
+    #hb-icon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .hint {
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    /* ---- Fields (scrolls within fixed panel) ---- */
+    .fields {
+        min-height: 0;
+        display: grid;
+        gap: 8px;
+        overflow: auto;
+        padding-right: 2px;
+        /* avoid overlaying scrollbar on text */
+    }
+
+    label {
+        display: block;
+        margin: 0 0 4px;
+        font-weight: 600;
+        font-size: 12px;
+    }
+
+    /* Single-line text boxes (also used for the SVG input) */
+    .boxline {
+        width: 100%;
+        height: var(--field-h);
+        min-height: var(--field-h);
+        max-height: var(--field-h);
+        box-sizing: border-box;
+
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+
+        font: 13px/1.2 monospace;
+        background: #fff;
+        color: #111;
+
+        resize: none;
+        /* never grow */
+        overflow-y: hidden;
+        /* single-line */
+        white-space: nowrap;
+        /* keep 1 line */
+        text-overflow: ellipsis;
+        /* visual truncate */
+    }
+
+    /* UI font for URL/text types */
+    input[type="url"].boxline,
+    input[type="text"].boxline {
+        font-family: var(--font-ui);
+    }
+
+    /* SVG field: one line, no visible scrollbar, keep horizontal caret scroll */
+    #hb-svg.boxline {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: pre;
+        /* never soft-wrap */
+        overflow-wrap: normal;
+        word-break: normal;
+        -ms-overflow-style: none;
+        /* IE/old Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    #hb-svg.boxline::-webkit-scrollbar {
+        display: none;
+    }
+    .boxline{ line-height: 100; } 
+
+    .hb-shell button {
+        background: #f5f5f5;
+        border: 1px solid #ccc;
+        cursor: pointer;
+    }
+
+    .hb-shell button.primary {
+      background: var(--accent, #5353ff);        /* fallback */
+      color: #fff;
+      border-color: var(--accent-border, #3b3be0);
+    }
+
+    /* Focus */
+    .hb-shell .boxline:focus, .hb-shell button:focus {
+        outline: 2px solid #aab4ff;
+        outline-offset: 1px;
+    }
+
+    /* ========= Sample cards (scoped to .panel) ========= */
+    .panel .login {
+        box-sizing: border-box;
+        width: 100%;
+        max-width: 340px;
+        min-height: 320px;
+        margin: 0 auto;
+        padding: 32px 24px 40px;
+        background: #2c2c2c;
+        color: #fff;
+        border-radius: 17px;
+        font-size: 1.3em;
+        font-family: var(--font-ui);
+    }
+
+    .panel .login input[type="text"],
+    .panel .login input[type="password"] {
+        width: 100%;
+        margin-top: 20px;
+        padding: 13px 18px;
+        border: none;
+        outline: none;
+        border-radius: 100px;
+        background: #3c3c3c;
+        color: #fff;
+        font-size: .8em;
+    }
+
+    .panel .login input:focus {
+        animation: bounce 1s;
+    }
+
+    .panel .login .h1 {
+        display: block;
+        margin: 0;
+        padding: 0;
+        position: relative;
+        top: -35px;
+        font-size: 1.3em;
+        font-weight: 600;
+    }
+
+    .panel .login .btn {
+        padding: 16px !important;
+        border: 0;
+        outline: 0;
+        width: 100%;
+        margin-top: 40px;
+        border-radius: 500px;
+        background: linear-gradient(144deg, #af40ff, #5b42f3 50%, #00ddeb);
+        color: #fff;
+        animation: bounce2 1.6s;
+    }
+
+    .panel .login .btn:hover {
+        background: linear-gradient(144deg, #1e1e1e 20%, #1e1e1e 50%, #1e1e1e);
+        transition: all .4s;
+        cursor: pointer;
+    }
+
+    .panel .login .ui {
+        font-weight: 800;
+        background: -webkit-linear-gradient(#B563FF, #535EFC, #0EC8EE);
+        -webkit-text-fill-color: transparent;
+        border-bottom: 4px solid transparent;
+        border-image: linear-gradient(0.25turn, #535EFC, #0EC8EE, #0EC8EE) 1;
+    }
+
+    @media (max-width: 600px) {
+        .panel .login {
+            width: 100%;
+            padding: 2em;
+        }
+    }
+
+    /* Glitch form (scoped) */
+    .panel .glitch-form-wrapper {
+        --bg-color: #0d0d0d;
+        --primary-color: #00f2ea;
+        --secondary-color: #a855f7;
+        --text-color: #e5e5e5;
+        --font-family: "Fira Code", Consolas, "Courier New", Courier, monospace;
+        --glitch-anim-duration: .5s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: transparent;
+        font-family: var(--font-family);
+    }
+
+    .panel .glitch-card {
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto;
+        overflow: hidden;
+        background-color: var(--bg-color);
+        border: 1px solid rgba(0, 242, 234, .2);
+        box-shadow: 0 0 20px rgba(0, 242, 234, .1), inset 0 0 10px rgba(0, 0, 0, .5);
+    }
+
+    .panel .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5em 1em;
+        background: rgba(0, 0, 0, .3);
+        border-bottom: 1px solid rgba(0, 242, 234, .2);
+    }
+
+    .panel .card-title {
+        color: var(--primary-color);
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        display: flex;
+        gap: .5em;
+    }
+
+    .panel .card-title svg {
+        width: 1.2em;
+        height: 1.2em;
+        stroke: var(--primary-color);
+    }
+
+    .panel .card-dots span {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        margin-left: 5px;
+        border-radius: 50%;
+        background: #333;
+    }
+
+    .panel .card-body {
+        padding: 1.5rem;
+    }
+
+    .panel .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .panel .form-group input {
+        width: 100%;
+        padding: .75em 0;
+        background: transparent;
+        color: var(--text-color);
+        border: none;
+        outline: none;
+        border-bottom: 2px solid rgba(0, 242, 234, .3);
+        transition: border-color .3s ease;
+    }
+
+    .panel .form-label {
+        position: absolute;
+        top: .75em;
+        left: 0;
+        pointer-events: none;
+        color: var(--primary-color);
+        opacity: .6;
+        font-size: 1rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        transition: all .3s ease;
+    }
+
+    .panel .form-group input:focus {
+        border-color: var(--primary-color);
+    }
+
+    .panel .form-group input:focus+.form-label,
+    .panel .form-group input:not(:placeholder-shown)+.form-label {
+        top: -1.2em;
+        font-size: .8rem;
+        opacity: 1;
+    }
+
+    .panel .submit-btn {
+        width: 100%;
+        margin-top: 1rem;
+        padding: .8em;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        background: transparent;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: .2em;
+        text-transform: uppercase;
+        transition: all .3s;
+    }
+
+    .panel .submit-btn:hover,
+    .panel .submit-btn:focus {
+        background: var(--primary-color);
+        color: var(--bg-color);
+        box-shadow: 0 0 25px var(--primary-color);
+        outline: none;
+    }
+
+    .panel .submit-btn:active {
+        transform: scale(.97);
+    }
+
+    .panel .submit-btn .btn-text {
+        position: relative;
+        z-index: 1;
+        transition: opacity .2s ease;
+    }
+
+    .panel .submit-btn:hover .btn-text {
+        opacity: 0;
+    }
+
+    .panel .submit-btn::before,
+    .panel .submit-btn::after {
+        content: attr(data-text);
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        background: var(--primary-color);
+        transition: opacity .2s ease;
+    }
+
+    .panel .submit-btn:hover::before,
+    .panel .submit-btn:focus::before {
+        opacity: 1;
+        color: var(--secondary-color);
+        animation: glitch-anim var(--glitch-anim-duration) cubic-bezier(.25, .46, .45, .94) both;
+    }
+
+    .panel .submit-btn:hover::after,
+    .panel .submit-btn:focus::after {
+        opacity: 1;
+        color: var(--bg-color);
+        animation: glitch-anim var(--glitch-anim-duration) cubic-bezier(.25, .46, .45, .94) reverse both;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .panel .form-group input:focus+.form-label::before,
+        .panel .form-group input:focus+.form-label::after,
+        .panel .submit-btn:hover::before,
+        .panel .submit-btn:focus::before,
+        .panel .submit-btn:hover::after,
+        .panel .submit-btn:focus::after {
+            animation: none;
+            opacity: 0;
+        }
+
+        .panel .submit-btn:hover .btn-text {
+            opacity: 1;
+        }
+    }
+
+    /* ---- Shared keyframes ---- */
+    @keyframes bounce {
+        0% {
+            transform: translateY(-250px);
+            opacity: 0;
+        }
+    }
+
+    @keyframes bounce1 {
+        0% {
+            opacity: 0;
+        }
+
+        40% {
+            transform: translateY(-100px);
+            opacity: 0;
+        }
+    }
+
+    @keyframes bounce2 {
+        0% {
+            opacity: 0;
+        }
+
+        70% {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+    }
+
+    @keyframes glitch-anim {
+        0% {
+            transform: translate(0);
+            clip-path: inset(0 0 0 0);
+        }
+
+        20% {
+            transform: translate(-5px, 3px);
+            clip-path: inset(50% 0 20% 0);
+        }
+
+        40% {
+            transform: translate(3px, -2px);
+            clip-path: inset(20% 0 60% 0);
+        }
+
+        60% {
+            transform: translate(-4px, 2px);
+            clip-path: inset(80% 0 5% 0);
+        }
+
+        80% {
+            transform: translate(4px, -3px);
+            clip-path: inset(30% 0 45% 0);
+        }
+
+        100% {
+            transform: translate(0);
+            clip-path: inset(0 0 0 0);
+        }
+    }
+
+    /* Anchor actions inside the panel (overlay) and inside hb-shell (contained) */
+    .panel>.hb-actions,
+    .hb-shell>.hb-actions {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        margin: 0;
+        display: flex;
+        gap: 8px;
+        z-index: 5;
+        background: transparent;
+    }
+
+    /* Chrome/Safari */
+
+    /* --- 2) Make top-right action buttons smaller --- */
+    .hb-actions button {
+        padding: 6px 10px;
+        /* was 10px 14px */
+        font-size: 12px;
+        /* slightly smaller label */
+        border-radius: 6px;
+        /* a bit tighter */
+    }
+
+    /* closer spacing */
+
+    /* If the buttons ever crowd the title, give the panel a hair more space */
+    .panel {
+        padding-top: 20px;
+    }
+
+
+
+    /* Chrome/Safari */
+
+    /* (optional) if you still see a sliver of a 2nd row due to metrics, clamp line-height */
+    .boxline {
+        line-height: 1;
+    }
+
+    .hb-actions button.primary {
+        background: var(--accent) !important;
+        color: #fff !important;
+        border-color: var(--accent-border) !important;
+    }
+
+    /* Ensure the Save button is visibly “primary” inside the editor */
+    /* Make Save match Cancel/Clear */
+    .hb-panel .hb-actions #hb-save {
+      background-color: #f5f5f5;      /* same as .hb-shell button */
+      color: var(--ink, #111);
+      border: 1px solid #ccc;
+    }

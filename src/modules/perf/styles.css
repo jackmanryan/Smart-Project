@@ -1,0 +1,36 @@
+/*
+ * Layout stability (CLS) and the one heavy panel TurboKit removes outright.
+ * Injected at document-start so the reserved space exists before the first paint.
+ */
+
+/*
+ * Reserve space so late email HTML cannot shove the page around. 640px is the legacy
+ * MIN_EMAIL_PANE_HEIGHT; overflow-anchor is off because the browser's own anchoring
+ * fights the reservation while the pane is still filling.
+ */
+#emailsPane,
+[id*="email"],
+[class*="email"] {
+  min-height: 640px;
+  overflow-anchor: none;
+}
+
+/* Skip rendering work for media that is still off-screen. */
+img,
+iframe {
+  content-visibility: auto;
+}
+
+img {
+  height: auto;
+}
+
+/*
+ * The Toronto packages block is expensive to lay out and rarely read. Hidden here so it
+ * never paints, and removed from the DOM in index.js so it never costs layout either.
+ */
+#Packages-Block-Toronto,
+.panel:has(#Packages-Block-Toronto),
+.panel-heading:has(#Packages-Block-Toronto) {
+  display: none !important;
+}

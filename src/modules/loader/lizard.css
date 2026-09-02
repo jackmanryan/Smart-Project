@@ -1,0 +1,535 @@
+/* =========================================================
+   LIZARD LOADER
+   ========================================================= */
+.lizard-loader {
+  --dur: 1s;
+  --body-hue: 110;
+  --belly-hue: 70;
+  --eye-hue: 60;
+
+  position: relative;
+  width: 12em;
+  height: 12em;
+  font-size: 14px;
+  color-scheme: light;
+}
+
+/* RING + SPOKES  (reverted to hamster wheel style) */
+.lizard-loader__ring,
+.lizard-loader__spokes {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* outer wheel rim */
+.lizard-loader__ring {
+  background: radial-gradient(
+    100% 100% at center,
+    hsla(0,0%,60%,0) 47.8%,
+    hsl(0,0%,60%) 48%
+  );
+  z-index: 2;
+}
+
+/* inner rotating spokes */
+.lizard-loader__spokes {
+  animation: spoke var(--dur) linear infinite;
+  background:
+    radial-gradient(
+      100% 100% at center,
+      hsl(0,0%,60%) 4.8%,
+      hsla(0,0%,60%,0) 5%
+    ),
+    linear-gradient(
+      hsla(0,0%,55%,0) 46.9%,
+      hsl(0,0%,65%) 47% 52.9%,
+      hsla(0,0%,65%,0) 53%
+    )
+    50% 50% / 99% 99% no-repeat;
+  border-radius: 50%;
+  filter: none;
+  z-index: 1;
+}
+
+/* LIZARD GROUP */
+.lizard-loader__lizard,
+.lizard-loader__lizard * {
+  position: absolute;
+}
+.lizard-loader__lizard {
+  top: 50%;
+  left: calc(50% - 3.5em);
+  width: 7em;
+  height: 3.75em;
+  transform-origin: 50% 0;
+  transform: rotate(6deg) translate(-0.8em, 1.85em);
+  animation: liz-bob var(--dur) ease-in-out infinite;
+  will-change: transform;
+  z-index: 3;
+}
+
+/* BODY / TORSO */
+.lizard-loader__body {
+  top: 0.5em;
+  left: 2em;
+  width: 4.5em;
+  height: 2.75em;
+  transform-origin: 15% 50%;
+  transform-style: preserve-3d;
+  border-radius: 60% 35% 45% 35% / 45% 55% 45% 45%;
+  background:
+    radial-gradient(
+      ellipse at 30% 70%,
+      hsl(calc(var(--belly-hue) + 5),60%,80%) 0%,
+      hsl(var(--belly-hue),50%,70%) 40%,
+      hsla(var(--belly-hue),50%,70%,0) 41%
+    ),
+    radial-gradient(circle at 35% 35%, hsla(var(--body-hue),50%,20%,0.6) 0 20%, transparent 21%),
+    radial-gradient(circle at 55% 30%, hsla(var(--body-hue),50%,20%,0.6) 0 22%, transparent 23%),
+    radial-gradient(circle at 75% 40%, hsla(var(--body-hue),50%,20%,0.6) 0 20%, transparent 21%),
+    linear-gradient(
+      to bottom right,
+      hsl(var(--body-hue),45%,38%) 0%,
+      hsl(var(--body-hue),45%,30%) 60%
+    );
+  box-shadow:
+    0.15em 0.5em 0 hsl(var(--body-hue),45%,22%) inset,
+    -0.1em -0.4em 0 hsl(var(--body-hue),45%,45%) inset;
+  animation: liz-bodyMotion var(--dur) ease-in-out infinite;
+}
+
+/* fine scale texture */
+.lizard-loader__body::after {
+  content: "";
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.22;
+  background:
+    repeating-radial-gradient(
+      circle at 0 0,
+      hsla(var(--body-hue),40%,60%,0.4) 0 0.08em,
+      hsla(var(--body-hue),40%,60%,0) 0.09em 0.3em
+    );
+  background-size: 0.4em 0.4em;
+}
+
+/* DORSAL SPIKES */
+.lizard-loader__spikes {
+  left: 0.5em;
+  top: -0.9em;
+  width: 3.4em;
+  height: 1.4em;
+  background:
+    repeating-linear-gradient(
+      -65deg,
+      hsl(var(--body-hue),60%,55%) 0 0.5em,
+      hsla(var(--body-hue),60%,55%,0) 0.5em 0.7em
+    );
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  border-radius: 0.2em;
+  transform-origin: 0% 100%;
+  transform: skewX(-12deg);
+  filter:
+    drop-shadow(0 0.05em 0 hsl(var(--body-hue),45%,20%))
+    drop-shadow(0 0.15em 0 hsla(0,0%,0%,0.35));
+  z-index: 4;
+  animation: liz-spikesWobble calc(var(--dur)*1.2) ease-in-out infinite;
+  animation-delay: calc(var(--dur) * -0.3);
+}
+
+/* HEAD */
+.lizard-loader__head {
+  top: 0.4em;
+  left: -2em;
+  width: 2.6em;
+  height: 2em;
+  transform-origin: 100% 50%;
+  border-radius: 60% 40% 45% 70% / 55% 40% 50% 60%;
+  background:
+    radial-gradient(
+      circle at 20% 60%,
+      hsl(calc(var(--body-hue) - 15),60%,60%) 0%,
+      hsla(calc(var(--body-hue) - 15),60%,60%,0) 60%
+    ),
+    linear-gradient(
+      to bottom right,
+      hsl(var(--body-hue),45%,38%) 0%,
+      hsl(var(--body-hue),45%,28%) 70%
+    );
+  box-shadow:
+    0 0.4em 0.4em hsla(var(--body-hue),45%,15%,0.4) inset,
+    0 -0.25em 0 hsl(var(--body-hue),45%,50%) inset;
+  animation: liz-headBob var(--dur) ease-in-out infinite;
+  z-index: 5;
+}
+
+/* cranial crest */
+.lizard-loader__head::before {
+  content: "";
+  top: -0.45em;
+  left: 1em;
+  width: 1.4em;
+  height: 0.8em;
+  background:
+    radial-gradient(
+      circle at 30% 30%,
+      hsl(var(--body-hue),45%,40%) 0%,
+      hsl(var(--body-hue),45%,25%) 70%
+    );
+  border-radius: 60% 40% 60% 40%;
+  box-shadow:
+    0.15em 0.15em 0 hsl(var(--body-hue),45%,20%) inset,
+    0 -0.1em 0 hsl(var(--body-hue),45%,50%) inset;
+  transform-origin: 0% 100%;
+  transform: rotate(-15deg) skewX(-10deg);
+  filter: drop-shadow(0 0.08em 0.08em hsla(0,0%,0%,0.4));
+  animation: liz-crestWobble calc(var(--dur)*1.2) ease-in-out infinite;
+  animation-delay: calc(var(--dur)*-0.15);
+}
+
+/* throat dewlap */
+.lizard-loader__head::after {
+  content: "";
+  left: 0.3em;
+  top: 1.3em;
+  width: 1.2em;
+  height: 0.8em;
+  background:
+    radial-gradient(
+      ellipse at 50% 30%,
+      hsl(calc(var(--belly-hue) + 10),70%,75%) 0%,
+      hsl(var(--belly-hue),50%,55%) 60%,
+      hsla(var(--belly-hue),50%,55%,0) 61%
+    );
+  border-radius: 60% 60% 70% 70%;
+  box-shadow:
+    0 0.25em 0.3em hsla(var(--body-hue),45%,10%,0.4) inset,
+    0 -0.15em 0 hsl(var(--belly-hue),60%,80%) inset;
+  transform-origin: 20% 0%;
+  animation: liz-dewlapJiggle var(--dur) ease-in-out infinite;
+  z-index: -1;
+}
+
+/* EYE */
+.lizard-loader__eye {
+  top: 0.5em;
+  left: 1.2em;
+  width: 0.6em;
+  height: 0.6em;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      hsl(0,0%,0%) 0 40%,
+      transparent 41%
+    );
+  box-shadow:
+    0 0 0 0.18em hsl(var(--eye-hue),90%,55%) inset,
+    0 0 0.25em hsla(0,0%,0%,0.6);
+  animation: liz-eyeBlink var(--dur) linear infinite;
+}
+
+/* TONGUE */
+.lizard-loader__tongue {
+  top: 1.15em;
+  left: -0.5em;
+  width: 1em;
+  height: 0.25em;
+  border-radius: 0.25em;
+  background:
+    radial-gradient(circle at 10% 50%, hsl(5,90%,70%) 0%, hsl(5,80%,55%) 60%);
+  box-shadow:
+    0 0 0.1em hsla(0,0%,0%,0.4),
+    0 0.15em 0.15em hsla(5,80%,30%,0.4) inset;
+  transform-origin: 100% 50%;
+  transform: scaleX(0) rotate(0deg);
+  animation: liz-tongueFlick calc(var(--dur)*1.5) cubic-bezier(.3,.7,.4,1) infinite;
+  z-index: 10;
+}
+.lizard-loader__tongue::after {
+  content: "";
+  right: -0.3em;
+  top: 0.05em;
+  width: 0.4em;
+  height: 0.15em;
+  background: hsl(5,80%,60%);
+  border-radius: 0.05em 0.05em 0.1em 0.1em;
+  box-shadow: 0 0 0.1em hsla(0,0%,0%,0.4);
+  clip-path: polygon(
+    0 50%,
+    40% 0,
+    100% 40%,
+    60% 50%,
+    100% 60%,
+    40% 100%
+  );
+  transform-origin: 0% 50%;
+}
+
+/* LEGS */
+.lizard-loader__leg {
+  top: 1.4em;
+  left: 0.5em;
+  width: 1em;
+  height: 1.5em;
+  transform-origin: 50% 0;
+  border-radius: 0.5em 0.5em 0 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    80% 70%,
+    60% 100%,
+    40% 100%,
+    20% 70%
+  );
+  background:
+    linear-gradient(
+      hsl(var(--body-hue),45%,32%) 70%,
+      hsl(var(--belly-hue),60%,75%) 70%
+    );
+  box-shadow:
+    0 -0.25em 0 hsl(var(--body-hue),45%,22%) inset,
+    0 0.25em 0 hsl(var(--body-hue),45%,50%) inset;
+}
+.lizard-loader__leg--fr {
+  top: 1.55em;
+  left: 0.4em;
+  transform: rotate(40deg) translateZ(-1px);
+  animation: liz-legFR var(--dur) linear infinite;
+  z-index: 4;
+}
+.lizard-loader__leg--fl {
+  top: 1.55em;
+  left: 0.6em;
+  transform: rotate(-30deg);
+  animation: liz-legFL var(--dur) linear infinite;
+  background:
+    linear-gradient(
+      hsl(var(--body-hue),45%,28%) 70%,
+      hsl(var(--belly-hue),60%,75%) 70%
+    );
+  z-index: 2;
+}
+.lizard-loader__leg--br,
+.lizard-loader__leg--bl {
+  top: 0.9em;
+  left: 2.9em;
+  width: 1.4em;
+  height: 2em;
+  transform-origin: 50% 20%;
+  border-radius: 0.75em 0.75em 0 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 30%,
+    80% 70%,
+    70% 100%,
+    30% 100%,
+    20% 70%,
+    0 30%
+  );
+  background:
+    linear-gradient(
+      hsl(var(--body-hue),45%,32%) 80%,
+      hsl(var(--belly-hue),60%,75%) 80%
+    );
+}
+.lizard-loader__leg--br {
+  transform: rotate(-50deg) translateZ(-1px);
+  animation: liz-legBR var(--dur) linear infinite;
+  z-index: 1;
+}
+.lizard-loader__leg--bl {
+  transform: rotate(20deg);
+  animation: liz-legBL var(--dur) linear infinite;
+  z-index: 0;
+}
+
+/* TAIL */
+.lizard-loader__tail {
+  top: 1.35em;
+  right: -1.6em;
+  width: 2.2em;
+  height: 0.8em;
+  transform-origin: 0.4em 0.4em;
+  transform: rotate(30deg) translateZ(-1px);
+  border-radius: 0.4em 80% 70% 0.4em;
+  background:
+    radial-gradient(
+      circle at 25% 40%,
+      hsl(var(--body-hue),45%,50%) 0%,
+      hsla(var(--body-hue),45%,50%,0) 70%
+    ),
+    repeating-linear-gradient(
+      to right,
+      hsla(var(--body-hue),45%,15%,0.8) 0 0.4em,
+      hsla(var(--body-hue),45%,15%,0) 0.4em 0.8em
+    ),
+    linear-gradient(
+      to bottom right,
+      hsl(var(--body-hue),45%,35%) 0%,
+      hsl(var(--body-hue),45%,22%) 70%
+    );
+  box-shadow: 0 -0.2em 0 hsl(var(--body-hue),45%,20%) inset;
+  animation: liz-tailWhip var(--dur) linear infinite;
+  z-index: 1;
+}
+.lizard-loader__tail::after {
+  content: "";
+  left: 1.6em;
+  top: 0.15em;
+  width: 1.2em;
+  height: 0.8em;
+  border-radius: 70% 70% 70% 70%;
+  transform-origin: 0.4em 0.4em;
+  transform: rotate(40deg);
+  background:
+    radial-gradient(
+      circle at 30% 40%,
+      hsl(var(--body-hue),45%,50%) 0%,
+      hsla(var(--body-hue),45%,50%,0) 70%
+    ),
+    repeating-linear-gradient(
+      to right,
+      hsla(var(--body-hue),45%,15%,0.8) 0 0.4em,
+      hsla(var(--body-hue),45%,15%,0) 0.4em 0.8em
+    ),
+    linear-gradient(
+      to bottom right,
+      hsl(var(--body-hue),45%,35%) 0%,
+      hsl(var(--body-hue),45%,22%) 70%
+    );
+  box-shadow: 0 -0.2em 0 hsl(var(--body-hue),45%,20%) inset;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+/* old wheel rotation */
+@keyframes spoke {
+  from { transform: rotate(0); }
+  to   { transform: rotate(-1turn); }
+}
+
+@keyframes liz-bob {
+  0%,100% {
+    transform: rotate(6deg) translate(-0.8em, 1.85em);
+  }
+  50% {
+    transform: rotate(0deg) translate(-0.8em, 1.85em);
+  }
+}
+
+@keyframes liz-bodyMotion {
+  0%,25%,50%,75%,100% {
+    transform: rotate(0deg) translateY(0) scaleX(1) scaleY(1);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(-3deg) translateY(0.05em) scaleX(1.02) scaleY(0.98);
+  }
+}
+@keyframes liz-headBob {
+  0%,25%,50%,75%,100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(8deg) translateY(0.03em);
+  }
+}
+@keyframes liz-eyeBlink {
+  0%,90%,100% { transform: scaleY(1); }
+  95%         { transform: scaleY(0); }
+}
+@keyframes liz-tongueFlick {
+  0%,60%,100% {
+    transform: scaleX(0) rotate(0deg);
+  }
+  8% {
+    transform: scaleX(1.15) rotate(-10deg);
+  }
+  14% {
+    transform: scaleX(0.9) rotate(8deg);
+  }
+  20% {
+    transform: scaleX(0) rotate(0deg);
+  }
+}
+@keyframes liz-dewlapJiggle {
+  0%,25%,50%,75%,100% {
+    transform: scaleY(1) scaleX(1) rotate(0deg);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: scaleY(1.15) scaleX(0.95) rotate(2deg);
+  }
+}
+@keyframes liz-spikesWobble {
+  0%,25%,50%,75%,100% {
+    transform: skewX(-12deg) rotate(0deg) translateY(0);
+  }
+  12.5%,62.5% {
+    transform: skewX(-8deg) rotate(-3deg) translateY(0.05em);
+  }
+  37.5%,87.5% {
+    transform: skewX(-16deg) rotate(2deg) translateY(-0.03em);
+  }
+}
+@keyframes liz-crestWobble {
+  0%,25%,50%,75%,100% {
+    transform: rotate(-15deg) skewX(-10deg) translateY(0);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(-10deg) skewX(-8deg) translateY(0.05em);
+  }
+}
+@keyframes liz-legFR {
+  0%,25%,50%,75%,100% {
+    transform: rotate(40deg) translateZ(-1px);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(-30deg) translateZ(-1px);
+  }
+}
+@keyframes liz-legFL {
+  0%,25%,50%,75%,100% {
+    transform: rotate(-30deg);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(40deg);
+  }
+}
+@keyframes liz-legBR {
+  0%,25%,50%,75%,100% {
+    transform: rotate(-50deg) translateZ(-1px);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(20deg) translateZ(-1px);
+  }
+}
+@keyframes liz-legBL {
+  0%,25%,50%,75%,100% {
+    transform: rotate(20deg);
+  }
+  12.5%,37.5%,62.5%,87.5% {
+    transform: rotate(-50deg);
+  }
+}
+@keyframes liz-tailWhip {
+  0%,50%,100% {
+    transform: rotate(30deg) translateZ(-1px);
+  }
+  12.5%,62.5% {
+    transform: rotate(5deg) translateZ(-1px);
+  }
+  25%,75% {
+    transform: rotate(20deg) translateZ(-1px);
+  }
+}
