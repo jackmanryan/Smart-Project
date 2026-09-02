@@ -1,19 +1,35 @@
-/* nav-ux.js — consolidates search UX, menus, settings, theme, hotbuttons, hover-intent, inbox badge
-   Safe to include once; all features no-op if their elements are missing. */
+/**
+ * The menubar's behaviour: search UX, menus, the settings switch grid, the theme toggle,
+ * hot buttons, hover intent and the inbox badge.
+ *
+ * Legacy shipped this as a standalone file fetched from jsDelivr and evaluated inside a
+ * `document`/`window` Proxy, so that bare `document.querySelector` calls landed on the
+ * shadow root. The proxy is gone: `mountNavUx(root, ctx)` takes the ShadowRoot directly,
+ * every lookup that meant "the nav" queries `root`, and the few that genuinely meant the
+ * page (the Message Center link, the hot-button editor host, the search POST form, the
+ * theme attribute) still say `document`.
+ *
+ * Each section is the IIFE it used to be, now a named function taking (root, ctx, shared).
+ * `shared` collects what the window globals used to publish; mountNavUx puts it on
+ * ctx.events at the bottom of the file.
+ */
+
+import hotbuttonEditorCss from './hotbutton-editor.css';
+import hotbuttonEditorHtml from './hotbutton-editor.html';
+
  // =========               =========
  // ======== Search + Hover  ========
  // =========     Logic     =========
-(() => {
-  'use strict';
+function initSearchAndHover(root, ctx, shared) {
 
   // ========= Utilities =========
-  const $ = (sel, root = document) => root.querySelector(sel);
-  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const $ = (sel, scope = root) => scope.querySelector(sel);
+  const $$ = (sel, scope = root) => Array.from(scope.querySelectorAll(sel));
   const now = () => Date.now();
   const safeJSON = {
-    read(key, fallback = null) { try { const v = localStorage.getItem(key); return v == null ? fallback : JSON.parse(v); } catch { return fallback; } },
-    write(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch { } },
-    remove(key) { try { localStorage.removeItem(key); } catch { } },
+    read: (key, fallback = null) => ctx.settings.json.get(key, fallback),
+    write: (key, val) => ctx.settings.json.set(key, val),
+    remove: (key) => ctx.settings.raw.remove(key),
   };
 
   // Generic “expandable” toggler with outside-click + Esc handling
@@ -29,11 +45,11 @@
       active.forEach((ctrl) => { if (ctrl !== except) setExpanded(ctrl, false); });
     }
     // One global outside-click + Esc handler
-    document.addEventListener('pointerdown', (e) => {
-      if ([...active].some(ctrl => ctrl.contains(e.target) || (ctrl.id && document.getElementById(ctrl.getAttribute('aria-controls') || '')?.contains(e.target)))) return;
+    root.addEventListener('pointerdown', (e) => {
+      if ([...active].some(ctrl => ctrl.contains(e.target) || (ctrl.id && root.getElementById(ctrl.getAttribute('aria-controls') || '')?.contains(e.target)))) return;
       closeAll();
     });
-    document.addEventListener('keydown', (e) => {
+    window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         // Close most recently opened (order not tracked; close all)
         closeAll();
@@ -113,7 +129,7 @@
         if (isOtherEditable(e.target, searchInput)) return;
         if (!isDoubleEnter()) return;
         e.preventDefault();
-        if (document.activeElement !== searchInput) {
+        if (root.activeElement !== searchInput) {
           searchInput.focus({ preventScroll: true });
           searchInput.select();
         } else {
@@ -124,7 +140,7 @@
 
       // Double-Escape: only when focus is inside the menubar search; blur to exit
       if (e.key === 'Escape') {
-        const a = document.activeElement;
+        const a = root.activeElement;
         const inSearch = a === searchInput || group.contains(a);
         if (!inSearch) return;
         if (!isDoubleEsc()) return;
@@ -136,8 +152,8 @@
 
   // ========= Search menu toggle (#searchTrigger / #searchMenu) =========
   (function initSearchMenu() {
-    const btn = document.getElementById('searchTrigger');
-    const menu = document.getElementById('searchMenu');
+    const btn = root.getElementById('searchTrigger');
+    const menu = root.getElementById('searchMenu');
     if (!btn || !menu) return;
 
     btn.setAttribute('aria-controls', menu.id);
@@ -154,8 +170,8 @@
   // ========= Settings menu (persisted) =========
   (function initSettingsMenu() {
     const STORAGE_KEY = 'settings:menu';
-    const btn = document.getElementById('settings-toggle');
-    const menu = document.getElementById('menu-settings');
+    const btn = root.getElementById('settings-toggle');
+    const menu = root.getElementById('menu-settings');
     if (!btn || !menu) return;
 
     btn.setAttribute('aria-controls', menu.id);
@@ -169,11 +185,13 @@
     btn.addEventListener('click', () => setOpen(!isOpen()));
 
     // Mirror to the “hotzone” if present
-    const hit = document.getElementById('settingsHotzone');
+    const hit = root.getElementById('settingsHotzone');
     if (hit) {
       hit.addEventListener('click', (e) => { e.preventDefault(); btn.click(); });
+      // Legacy mirrored aria-expanded with an attribute observer. Only the button ever
+      // flips it, so its click is the signal and no observer is needed.
       const sync = () => hit.setAttribute('aria-expanded', btn.getAttribute('aria-expanded') || 'false');
-      new MutationObserver(sync).observe(btn, { attributes: true, attributeFilter: ['aria-expanded'] });
+      btn.addEventListener('click', () => sync());
       sync();
     }
 
@@ -193,36 +211,37 @@
     }
   })();
 
-  // ========= Theme toggle (persisted) =========
+  // ========= Theme toggle (persisted by ctx.theme) =========
   (function initTheme() {
-    const STORAGE_KEY = 'theme'; // 'light' | 'dark'
-    const root = document.documentElement;
-    const toggle = document.getElementById('theme-toggle');
+    const toggle = root.getElementById('theme-toggle');
 
-    function applyTheme(theme) {
-      const t = theme === 'dark' ? 'dark' : 'light';
-      root.setAttribute('data-theme', t);
-      root.style.colorScheme = (t === 'dark') ? 'dark' : 'light';
-      localStorage.setItem(STORAGE_KEY, t);
+    // Legacy kept its own 'theme' key here while the document-start prologue read
+    // 'ui:theme'. ctx.theme owns both the attribute and the key now, so the old value is
+    // carried over once rather than orphaned.
+    ctx.settings.migrate('theme', ctx.theme.key);
+
+    function paint(mode) {
+      document.documentElement.style.colorScheme = mode === 'dark' ? 'dark' : 'light';
       if (toggle) {
-        const isDark = t === 'dark';
+        const isDark = mode === 'dark';
         toggle.checked = isDark;
         toggle.setAttribute('aria-checked', String(isDark));
       }
     }
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    applyTheme(saved === 'dark' ? 'dark' : 'light');
+    ctx.theme.set(ctx.theme.current());
+    paint(ctx.theme.current());
+    ctx.theme.onChange(paint);
 
-    toggle?.addEventListener('change', () =>
-      applyTheme(toggle.checked ? 'dark' : 'light')
-    );
+    toggle?.addEventListener('change', () => ctx.theme.set(toggle.checked ? 'dark' : 'light'));
   })();
 
   // ========= Inbox badge sync =========
   (function initInboxBadge() {
-    const inboxBtn = document.querySelector('.iconDiv[data-key="inbox"]');
-    const badgeEl = document.getElementById('inbox-badge');
+    const inboxBtn = root.querySelector('.iconDiv[data-key="inbox"]');
+    const badgeEl = root.getElementById('inbox-badge');
+    // The count belongs to the page: the Message Center link this module docks at the top
+    // right is the one the site's own JS keeps up to date.
     const srcLink = document.querySelector('a[href*="messagecenter"]');
     if (!inboxBtn || !badgeEl) return;
 
@@ -244,13 +263,18 @@
       const num = parseInt(String(raw).replace(/[^\d]/g, ''), 10);
       return isNaN(num) ? 0 : num;
     }
-    const sync = () => setInboxCount(readCountFromSource());
+    let last = -1;
+    const sync = () => {
+      const n = readCountFromSource();
+      if (n === last) return;   // the shared observer fires on every batch; don't repaint
+      last = n;
+      setInboxCount(n);
+    };
     sync();
-    if (srcLink) new MutationObserver(sync).observe(srcLink, { childList: true, characterData: true, subtree: true });
+    if (srcLink) ctx.observe.onChange(sync);
 
-    // Optional public helpers
-    window.setInboxCount = setInboxCount;
-    window.clearInboxBadge = () => setInboxCount(0);
+    // Was window.setInboxCount / window.clearInboxBadge.
+    shared.setInboxCount = setInboxCount;
   })();
 
   // ========= Hotbuttons (tooltip + Alt+Click config) =========
@@ -266,8 +290,8 @@
     // Tooltip “Not set” when no config (or missing external hotkey config)
     buttons.forEach(el => {
       const key = el.dataset.key || '';
-      const hasCfg = !!localStorage.getItem(`${STORAGE_PREFIX}${key}`);
-      // Prefer your own external checker if you have it:
+      const hasCfg = ctx.settings.raw.get(`${STORAGE_PREFIX}${key}`, null) != null;
+      // An external hotkey checker wins if the page happens to provide one.
       const hasHotkey = (window.checkHotkeyConfig?.(key)) || hasCfg;
       if (!hasHotkey) el.setAttribute('data-tooltip', 'Not set'); else el.removeAttribute('data-tooltip');
     });
@@ -368,640 +392,8 @@
       host.style.position = 'fixed'; host.style.inset = '0'; host.style.zIndex = '2147483647'; host.style.display = 'none';
       document.body.appendChild(host);
       const shadow = host.attachShadow({ mode: 'open' });
-      shadow.innerHTML = `<style>
-    /* ========= Hot-Button Editor (innerHTML) ========= */
-    /* ---- Tokens ---- */
-    :root {
-        --panel-w: 720px;
-        --panel-h: 400px;
-        --field-h: 36px;
-        --gap: 10px;
-        --radius: 12px;
-        --ink: #111;
-        --bg: #fff;
-        --muted: #666;
-        --border: #c9c9c9;
-        --accent: #5353ff;
-        --accent-border: #3b3be0;
-        --shadow: 0 10px 40px rgba(0, 0, 0, .25);
-        --font-ui: inherit;
-        --preview-size: 112px;
-        /* bigger preview */
-    }
-
-    /* ---- Host + backdrop ---- */
-    :host {
-        display: block;
-        color-scheme: light;
-        /* force light UI inside editor */
-        border-radius: 17px;
-    }
-
-    /* Overlay mode (centered modal with backdrop) */
-    :host([overlay]),
-    :host([overlay]) .backdrop {
-        position: fixed;
-        inset: 0;
-    }
-
-    :host([overlay]) .backdrop {
-        background: rgba(0, 0, 0, .35);
-    }
-
-    /* Contained mode (default): no overlay/backdrop */
-    :host(:not([overlay])) .backdrop {
-        display: none;
-    }
-
-    /* ---- Shell frame (used only when contained) ---- */
-    .hb-shell {
-        width: max-content;
-        margin: 16px auto;
-        padding: 12px;
-        border-radius: 16px;
-        background: transparent;
-        --bg: #fff;
-        --ink: #111;
-        color-scheme: light;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
-        position: relative;
-    }
-
-    /* ---- Panel (single source of truth) ---- */
-    .panel {
-        width: var(--panel-w);
-        height: var(--panel-h);
-        background: var(--bg);
-        color: var(--ink);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        font-family: var(--font-ui);
-        padding: 16px;
-        display: grid;
-        grid-template-rows: auto auto 1fr;
-        /* title, preview, fields (actions float) */
-        gap: 12px;
-        overflow: hidden;
-        border-radius: 17px;
-    }
-
-    /* Positioning differences by mode */
-    :host([overlay]) .panel {
-        position: absolute;
-        inset: 0;
-        margin: auto;
-        /* true modal center */
-    }
-
-    :host(:not([overlay])) .panel {
-        position: relative;
-        margin: 0;
-        /* in-flow card inside hb-shell */
-    }
-
-    /* ---- Headings ---- */
-    h2 {
-        margin: 0;
-        font-size: 18px;
-    }
-
-    /* ---- Preview ---- */
-    .preview {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px;
-        border: 1px dashed #ddd;
-        border-radius: 8px;
-    }
-
-    .preview .box {
-        width: var(--preview-size);
-        height: var(--preview-size);
-        aspect-ratio: 1 / 1;
-        display: grid;
-        place-items: center;
-        color: #222;
-        background: #f3f6ff;
-        border: 1px solid #e0e6ff;
-        border-radius: 8px;
-    }
-
-    #hb-icon svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-
-    .hint {
-        color: var(--muted);
-        font-size: 12px;
-    }
-
-    /* ---- Fields (scrolls within fixed panel) ---- */
-    .fields {
-        min-height: 0;
-        display: grid;
-        gap: 8px;
-        overflow: auto;
-        padding-right: 2px;
-        /* avoid overlaying scrollbar on text */
-    }
-
-    label {
-        display: block;
-        margin: 0 0 4px;
-        font-weight: 600;
-        font-size: 12px;
-    }
-
-    /* Single-line text boxes (also used for the SVG input) */
-    .boxline {
-        width: 100%;
-        height: var(--field-h);
-        min-height: var(--field-h);
-        max-height: var(--field-h);
-        box-sizing: border-box;
-
-        padding: 8px 10px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-
-        font: 13px/1.2 monospace;
-        background: #fff;
-        color: #111;
-
-        resize: none;
-        /* never grow */
-        overflow-y: hidden;
-        /* single-line */
-        white-space: nowrap;
-        /* keep 1 line */
-        text-overflow: ellipsis;
-        /* visual truncate */
-    }
-
-    /* UI font for URL/text types */
-    input[type="url"].boxline,
-    input[type="text"].boxline {
-        font-family: var(--font-ui);
-    }
-
-    /* SVG field: one line, no visible scrollbar, keep horizontal caret scroll */
-    #hb-svg.boxline {
-        overflow-x: auto;
-        overflow-y: hidden;
-        white-space: pre;
-        /* never soft-wrap */
-        overflow-wrap: normal;
-        word-break: normal;
-        -ms-overflow-style: none;
-        /* IE/old Edge */
-        scrollbar-width: none;
-        /* Firefox */
-    }
-
-    #hb-svg.boxline::-webkit-scrollbar {
-        display: none;
-    }
-    .boxline{ line-height: 100; } 
-
-    .hb-shell button {
-        background: #f5f5f5;
-        border: 1px solid #ccc;
-        cursor: pointer;
-    }
-
-    .hb-shell button.primary {
-      background: var(--accent, #5353ff);        /* fallback */
-      color: #fff;
-      border-color: var(--accent-border, #3b3be0);
-    }
-
-    /* Focus */
-    .hb-shell .boxline:focus, .hb-shell button:focus {
-        outline: 2px solid #aab4ff;
-        outline-offset: 1px;
-    }
-
-    /* ========= Sample cards (scoped to .panel) ========= */
-    .panel .login {
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 340px;
-        min-height: 320px;
-        margin: 0 auto;
-        padding: 32px 24px 40px;
-        background: #2c2c2c;
-        color: #fff;
-        border-radius: 17px;
-        font-size: 1.3em;
-        font-family: var(--font-ui);
-    }
-
-    .panel .login input[type="text"],
-    .panel .login input[type="password"] {
-        width: 100%;
-        margin-top: 20px;
-        padding: 13px 18px;
-        border: none;
-        outline: none;
-        border-radius: 100px;
-        background: #3c3c3c;
-        color: #fff;
-        font-size: .8em;
-    }
-
-    .panel .login input:focus {
-        animation: bounce 1s;
-    }
-
-    .panel .login .h1 {
-        display: block;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        top: -35px;
-        font-size: 1.3em;
-        font-weight: 600;
-    }
-
-    .panel .login .btn {
-        padding: 16px !important;
-        border: 0;
-        outline: 0;
-        width: 100%;
-        margin-top: 40px;
-        border-radius: 500px;
-        background: linear-gradient(144deg, #af40ff, #5b42f3 50%, #00ddeb);
-        color: #fff;
-        animation: bounce2 1.6s;
-    }
-
-    .panel .login .btn:hover {
-        background: linear-gradient(144deg, #1e1e1e 20%, #1e1e1e 50%, #1e1e1e);
-        transition: all .4s;
-        cursor: pointer;
-    }
-
-    .panel .login .ui {
-        font-weight: 800;
-        background: -webkit-linear-gradient(#B563FF, #535EFC, #0EC8EE);
-        -webkit-text-fill-color: transparent;
-        border-bottom: 4px solid transparent;
-        border-image: linear-gradient(0.25turn, #535EFC, #0EC8EE, #0EC8EE) 1;
-    }
-
-    @media (max-width: 600px) {
-        .panel .login {
-            width: 100%;
-            padding: 2em;
-        }
-    }
-
-    /* Glitch form (scoped) */
-    .panel .glitch-form-wrapper {
-        --bg-color: #0d0d0d;
-        --primary-color: #00f2ea;
-        --secondary-color: #a855f7;
-        --text-color: #e5e5e5;
-        --font-family: "Fira Code", Consolas, "Courier New", Courier, monospace;
-        --glitch-anim-duration: .5s;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: transparent;
-        font-family: var(--font-family);
-    }
-
-    .panel .glitch-card {
-        width: 100%;
-        max-width: 380px;
-        margin: 0 auto;
-        overflow: hidden;
-        background-color: var(--bg-color);
-        border: 1px solid rgba(0, 242, 234, .2);
-        box-shadow: 0 0 20px rgba(0, 242, 234, .1), inset 0 0 10px rgba(0, 0, 0, .5);
-    }
-
-    .panel .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: .5em 1em;
-        background: rgba(0, 0, 0, .3);
-        border-bottom: 1px solid rgba(0, 242, 234, .2);
-    }
-
-    .panel .card-title {
-        color: var(--primary-color);
-        font-size: .8rem;
-        font-weight: 700;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-        display: flex;
-        gap: .5em;
-    }
-
-    .panel .card-title svg {
-        width: 1.2em;
-        height: 1.2em;
-        stroke: var(--primary-color);
-    }
-
-    .panel .card-dots span {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        margin-left: 5px;
-        border-radius: 50%;
-        background: #333;
-    }
-
-    .panel .card-body {
-        padding: 1.5rem;
-    }
-
-    .panel .form-group {
-        position: relative;
-        margin-bottom: 1.5rem;
-    }
-
-    .panel .form-group input {
-        width: 100%;
-        padding: .75em 0;
-        background: transparent;
-        color: var(--text-color);
-        border: none;
-        outline: none;
-        border-bottom: 2px solid rgba(0, 242, 234, .3);
-        transition: border-color .3s ease;
-    }
-
-    .panel .form-label {
-        position: absolute;
-        top: .75em;
-        left: 0;
-        pointer-events: none;
-        color: var(--primary-color);
-        opacity: .6;
-        font-size: 1rem;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-        transition: all .3s ease;
-    }
-
-    .panel .form-group input:focus {
-        border-color: var(--primary-color);
-    }
-
-    .panel .form-group input:focus+.form-label,
-    .panel .form-group input:not(:placeholder-shown)+.form-label {
-        top: -1.2em;
-        font-size: .8rem;
-        opacity: 1;
-    }
-
-    .panel .submit-btn {
-        width: 100%;
-        margin-top: 1rem;
-        padding: .8em;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        background: transparent;
-        color: var(--primary-color);
-        border: 2px solid var(--primary-color);
-        font-size: 1rem;
-        font-weight: 700;
-        letter-spacing: .2em;
-        text-transform: uppercase;
-        transition: all .3s;
-    }
-
-    .panel .submit-btn:hover,
-    .panel .submit-btn:focus {
-        background: var(--primary-color);
-        color: var(--bg-color);
-        box-shadow: 0 0 25px var(--primary-color);
-        outline: none;
-    }
-
-    .panel .submit-btn:active {
-        transform: scale(.97);
-    }
-
-    .panel .submit-btn .btn-text {
-        position: relative;
-        z-index: 1;
-        transition: opacity .2s ease;
-    }
-
-    .panel .submit-btn:hover .btn-text {
-        opacity: 0;
-    }
-
-    .panel .submit-btn::before,
-    .panel .submit-btn::after {
-        content: attr(data-text);
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        background: var(--primary-color);
-        transition: opacity .2s ease;
-    }
-
-    .panel .submit-btn:hover::before,
-    .panel .submit-btn:focus::before {
-        opacity: 1;
-        color: var(--secondary-color);
-        animation: glitch-anim var(--glitch-anim-duration) cubic-bezier(.25, .46, .45, .94) both;
-    }
-
-    .panel .submit-btn:hover::after,
-    .panel .submit-btn:focus::after {
-        opacity: 1;
-        color: var(--bg-color);
-        animation: glitch-anim var(--glitch-anim-duration) cubic-bezier(.25, .46, .45, .94) reverse both;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-        .panel .form-group input:focus+.form-label::before,
-        .panel .form-group input:focus+.form-label::after,
-        .panel .submit-btn:hover::before,
-        .panel .submit-btn:focus::before,
-        .panel .submit-btn:hover::after,
-        .panel .submit-btn:focus::after {
-            animation: none;
-            opacity: 0;
-        }
-
-        .panel .submit-btn:hover .btn-text {
-            opacity: 1;
-        }
-    }
-
-    /* ---- Shared keyframes ---- */
-    @keyframes bounce {
-        0% {
-            transform: translateY(-250px);
-            opacity: 0;
-        }
-    }
-
-    @keyframes bounce1 {
-        0% {
-            opacity: 0;
-        }
-
-        40% {
-            transform: translateY(-100px);
-            opacity: 0;
-        }
-    }
-
-    @keyframes bounce2 {
-        0% {
-            opacity: 0;
-        }
-
-        70% {
-            transform: translateY(-20px);
-            opacity: 0;
-        }
-    }
-
-    @keyframes glitch-anim {
-        0% {
-            transform: translate(0);
-            clip-path: inset(0 0 0 0);
-        }
-
-        20% {
-            transform: translate(-5px, 3px);
-            clip-path: inset(50% 0 20% 0);
-        }
-
-        40% {
-            transform: translate(3px, -2px);
-            clip-path: inset(20% 0 60% 0);
-        }
-
-        60% {
-            transform: translate(-4px, 2px);
-            clip-path: inset(80% 0 5% 0);
-        }
-
-        80% {
-            transform: translate(4px, -3px);
-            clip-path: inset(30% 0 45% 0);
-        }
-
-        100% {
-            transform: translate(0);
-            clip-path: inset(0 0 0 0);
-        }
-    }
-
-    /* Anchor actions inside the panel (overlay) and inside hb-shell (contained) */
-    .panel>.hb-actions,
-    .hb-shell>.hb-actions {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        margin: 0;
-        display: flex;
-        gap: 8px;
-        z-index: 5;
-        background: transparent;
-    }
-
-    /* Chrome/Safari */
-
-    /* --- 2) Make top-right action buttons smaller --- */
-    .hb-actions button {
-        padding: 6px 10px;
-        /* was 10px 14px */
-        font-size: 12px;
-        /* slightly smaller label */
-        border-radius: 6px;
-        /* a bit tighter */
-    }
-
-    /* closer spacing */
-
-    /* If the buttons ever crowd the title, give the panel a hair more space */
-    .panel {
-        padding-top: 20px;
-    }
-
-
-
-    /* Chrome/Safari */
-
-    /* (optional) if you still see a sliver of a 2nd row due to metrics, clamp line-height */
-    .boxline {
-        line-height: 1;
-    }
-
-    .hb-actions button.primary {
-        background: var(--accent) !important;
-        color: #fff !important;
-        border-color: var(--accent-border) !important;
-    }
-
-    /* Ensure the Save button is visibly “primary” inside the editor */
-    /* Make Save match Cancel/Clear */
-    .hb-panel .hb-actions #hb-save {
-      background-color: #f5f5f5;      /* same as .hb-shell button */
-      color: var(--ink, #111);
-      border: 1px solid #ccc;
-    }
-</style>
-
-<div class="hb-shell">
-    <div class="backdrop" part="backdrop"></div>
-
-    <section class="panel hb-panel" role="dialog" aria-modal="false" aria-labelledby="hb-title">
-        <h2 id="hb-title">Hot Button</h2>
-
-        <div class="preview hb-preview" aria-describedby="hb-hints">
-            <div class="box" id="hb-icon"></div>
-            <div id="hb-hints">
-
-                <div class="hint hb-hint">Paste a full &lt;svg&gt;…&lt;/svg&gt;</div>
-                <div class="hint hb-hint">You can get icons <a href="https://iconstack.io/" target="_blank"
-                        rel="noopener noreferrer">here</a></div>
-                <div class="hint hb-hint">Double-click an icon to copy, paste below, then set link + label.</div>
-            </div>
-        </div>
-
-        <div class="fields hb-fields">
-            <div class="row hb-row">
-                <textarea id="hb-svg" class="boxline hb-line" rows="1" wrap="off" spellcheck="false"
-                    placeholder="SVG: &lt;svg&gt;…&lt;/svg&gt;"></textarea>
-            </div>
-
-            <div class="row hb-row">
-                <input id="hb-link" class="boxline hb-line" type="url" placeholder="Link: https://example.com/page" />
-            </div>
-
-            <div class="row hb-row">
-                <input id="hb-label" class="boxline hb-line" type="text" placeholder="LABEL: Icons" />
-            </div>
-        </div>
-        <div class="actions hb-actions">
-            <button id="hb-cancel" type="button">Cancel (Esc)</button>
-            <button id="hb-clear" type="button">Clear</button>
-            <button id="hb-save"  type="button">Save</button>
-        </div>
-
-    </section>
-</div>`;
+      ctx.style.addToShadow(shadow, hotbuttonEditorCss, { id: 'nav-hotbutton-editor' });
+      shadow.insertAdjacentHTML('beforeend', hotbuttonEditorHtml);
       const ui = {
         host, shadow,
         backdrop: shadow.querySelector('.backdrop'),
@@ -1019,7 +411,7 @@
         host.style.display = 'none';
         ui.targetBtn = null; ui.iconPreview.innerHTML = '';
         ui.svgInput.value = ''; ui.linkInput.value = ''; ui.labelInput.value = '';
-        document.removeEventListener('keydown', onEsc);
+        window.removeEventListener('keydown', onEsc);
       };
       const onEsc = (e) => { if (e.key === 'Escape') close(); };
       ui.backdrop.addEventListener('click', close);
@@ -1085,7 +477,7 @@
         }
         ui.labelInput.value = current?.label || btn.getAttribute('aria-label') || (btn.querySelector('.text')?.textContent || '');
         host.style.display = 'block';
-        document.addEventListener('keydown', onEsc);
+        window.addEventListener('keydown', onEsc);
         setTimeout(() => ui.svgInput.focus(), 0);
       };
       return host;
@@ -1220,9 +612,9 @@
         const focusPrev = () => triggers[(idx - 1 + triggers.length) % triggers.length]?.focus();
         const focusNext = () => triggers[(idx + 1) % triggers.length]?.focus();
 
-        if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
-        if (e.key === 'ArrowDown' && document.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
-        if (e.key === 'ArrowUp' && document.activeElement === trigger) { e.preventDefault(); setExpanded(trigger, true); const its = getItems(menu); (its[its.length - 1] || menu).focus(); }
+        if ((e.key === 'Enter' || e.key === ' ') && root.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
+        if (e.key === 'ArrowDown' && root.activeElement === trigger) { e.preventDefault(); openAndFocusFirst(); }
+        if (e.key === 'ArrowUp' && root.activeElement === trigger) { e.preventDefault(); setExpanded(trigger, true); const its = getItems(menu); (its[its.length - 1] || menu).focus(); }
         if (e.key === 'ArrowRight') { e.preventDefault(); focusNext(); }
         if (e.key === 'ArrowLeft') { e.preventDefault(); focusPrev(); }
         if (e.key === 'Home') { e.preventDefault(); triggers[0]?.focus(); }
@@ -1233,7 +625,7 @@
       // Keyboard inside menu
       menu.addEventListener('keydown', (e) => {
         const its = getItems(menu);
-        const i = its.indexOf(document.activeElement);
+        const i = its.indexOf(root.activeElement);
         const idx = triggers.indexOf(trigger);
 
         if (e.key === 'ArrowDown') { e.preventDefault(); (its[(i + 1) % its.length] || its[0])?.focus(); }
@@ -1322,41 +714,34 @@
         });
       });
 
-      document.addEventListener('pointerdown', (e) => { if (!e.target.closest('.has-submenu')) items.forEach((it) => close(it, true)); });
+      root.addEventListener('pointerdown', (e) => { if (!e.target.closest('.has-submenu')) items.forEach((it) => close(it, true)); });
       window.addEventListener('blur', () => { items.forEach((it) => close(it, true)); });
     })();
     // Outside click: close all immediately (kill timers)
-    document.addEventListener('pointerdown', (e) => {
+    root.addEventListener('pointerdown', (e) => {
       if (e.target.closest('.iconDiv[data-hasmenu]')) return;
       triggers.forEach((t) => forceCloseTrigger(t));
     });
   })();
-})();
+}
 
  // =========               =========
  // ========= Settings Menu =========
  // =========               =========
-(() => {
-  'use strict';
-
-  /** =================== Minimal Nav API (kept) =================== */
-  window.NavUX = Object.assign(window.NavUX || {}, {
-    closeAllMenus: () =>
-      document
-        .querySelectorAll('.iconDiv[data-hasmenu][aria-expanded="true"]')
-        .forEach(el => el.setAttribute('aria-expanded', 'false')),
-  });
+function initSettingsGrid(root, ctx, shared) {
+  // Legacy opened this section by publishing a window.NavUX.closeAllMenus that the
+  // primary-menu section below overwrote a moment later. Only that section's version
+  // ever ran, so it is the only one kept.
 
   /** =================== Small helpers =================== */
-  const $ = sel => document.querySelector(sel);
   const px = v => parseFloat(v) || 0;
   const svg = (strings, ...vals) => String.raw({ raw: strings }, ...vals);
 
   /** =================== DOM refs =================== */
   const PANEL_ID = 'menu-settings';
   const GRID_ID  = 'st_group';
-  const groupEl  = document.getElementById(GRID_ID);
-  const tbodyEl  = document.getElementById('st_tbody'); // optional table
+  const groupEl  = root.getElementById(GRID_ID);
+  const tbodyEl  = root.getElementById('st_tbody'); // optional table
 
   if (!groupEl) return; // settings grid is required
 
@@ -1364,9 +749,6 @@
   const ST_STORAGE_KEY   = 'st:switches:v1';
   const EX_STORAGE_KEY   = 'settings:extra:v1';
 
-  /** =================== Switch Items (PASTE HERE) =================== */
-  // Paste your current items here (same structure you showed).
-  // Example provided only to keep the module no-op-safe if you run it before pasting.
   /** ---------------- Switches: config ---------------- */
   const stItems = [
     { key: 's1', name: 'claim', label: 'Claim Buttons', value: false, tooltip: 'Claim Mode' },
@@ -1380,7 +762,7 @@
 
   /** =================== Theme toggle: ensure cell exists =================== */
   function ensureThemeToggleCell() {
-    const existing = document.getElementById('theme-toggle');
+    const existing = root.getElementById('theme-toggle');
     if (existing) {
       const label = existing.closest('.tt_switch');
       if (label && !groupEl.contains(label)) {
@@ -1394,8 +776,8 @@
     const cell = document.createElement('div');
     cell.className = 'st_item';
 
-    // ====== PASTE YOUR THEME TOGGLE MARKUP (cell.innerHTML) HERE ======
-    // Keep the same ids/classes (tt_switch, tt_track, tt_knob, stars, etc.)
+    // The ids and classes here (tt_switch, tt_track, tt_knob, stars…) are the ones
+    // ExtraNav.css animates; changing them silently kills the toggle's artwork.
     cell.innerHTML = `
     <label class="switch tt_switch">
         <input id="theme-toggle" type="checkbox" role="switch" aria-label="Toggle dark mode" />
@@ -1422,14 +804,13 @@
         </div>
         </div>
     </label>`;
-    // ================================================================
 
     groupEl.prepend(cell);
   }
   ensureThemeToggleCell();
 
-  /** =================== Icons (PASTE HERE) =================== */
-  // Leave as placeholder; renderer will fall back to DEFAULT_* when empty.
+  /** =================== Icons =================== */
+  // Any entry left empty falls back to DEFAULT_ON / DEFAULT_OFF below.
   const ICONS = {
     claim: { on: svg`<svg width="24" height="24" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="8" cy="8.49609" r="6" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1543,23 +924,19 @@
   /** =================== Persistence =================== */
   function loadInitialState(items) {
     const map = new Map(items.map(i => [i.key, !!i.value]));
-    try {
-      const raw = localStorage.getItem(ST_STORAGE_KEY);
-      if (!raw) return map;
-      const saved = JSON.parse(raw);
-      if (saved && typeof saved === 'object') {
-        items.forEach(i => {
-          if (Object.prototype.hasOwnProperty.call(saved, i.key)) {
-            map.set(i.key, !!saved[i.key]);
-          }
-        });
-      }
-    } catch {/* ignore */}
+    const saved = ctx.settings.json.get(ST_STORAGE_KEY, null);
+    if (saved && typeof saved === 'object') {
+      items.forEach(i => {
+        if (Object.prototype.hasOwnProperty.call(saved, i.key)) {
+          map.set(i.key, !!saved[i.key]);
+        }
+      });
+    }
     return map;
   }
   function saveState(map) {
     const obj = {}; map.forEach((v, k) => (obj[k] = !!v));
-    localStorage.setItem(ST_STORAGE_KEY, JSON.stringify(obj));
+    ctx.settings.json.set(ST_STORAGE_KEY, obj);
   }
 
   /** =================== Switches: bus + API =================== */
@@ -1569,6 +946,7 @@
   function emitChange(detail) {
     STBus.dispatchEvent(new CustomEvent('st:change', { detail }));
     groupEl.dispatchEvent(new CustomEvent('st:change', { bubbles: true, detail }));
+    ctx.events.emit('nav:switch', detail);   // for the rest of the bundle
   }
 
   const ST = {
@@ -1600,7 +978,7 @@
     },
     list: () => stItems.map(i => ({ key: i.key, name: i.name, label: i.label, value: STState.get(i.key) })),
   };
-  window.stSwitches = ST;
+  shared.switches = ST;   // was window.stSwitches
   /* ==== Menu toggles (acct / ship / product / process) ==== */
 
   const MENU_SWITCHES = {
@@ -1611,7 +989,7 @@
   };
 
   function setMenuEnabled(selector, enabled) {
-    const node = document.querySelector(selector);
+    const node = root.querySelector(selector);
     if (!node) return;
     node.toggleAttribute('hidden', !enabled);            // fully hide/show
     node.setAttribute('aria-hidden', String(!enabled));
@@ -1619,25 +997,9 @@
     node.setAttribute('tabindex', enabled ? '0' : '-1');
     if (!enabled) node.setAttribute('aria-expanded', 'false'); // collapse if open
   }
- //In case the button toggle breaks
-  // function setMenuEnabled(selector, enabled) {
-  // const node = document.querySelector(selector);
-  // if (!node) return;
-  // const hide = !enabled;
-
-  // // make it disappear no matter what
-  // node.hidden = hide;                         // sets [hidden]
-  // node.style.display = hide ? 'none' : '';    // inline style wins
-
-  // // accessibility / interaction
-  // node.setAttribute('aria-hidden', String(hide));
-  // node.setAttribute('aria-disabled', String(hide));
-  // node.tabIndex = hide ? -1 : 0;
-  // if (hide) node.setAttribute('aria-expanded', 'false');
-  // }
 
   /* First-run defaults: if nothing saved yet, turn these 4 ON and save. */
-  const firstRunNoSaved = !localStorage.getItem(ST_STORAGE_KEY);
+  const firstRunNoSaved = ctx.settings.raw.get(ST_STORAGE_KEY, null) == null;
   if (firstRunNoSaved) {
     Object.keys(MENU_SWITCHES).forEach(k => {
       if (STState.has(k)) STState.set(k, true);
@@ -1733,24 +1095,8 @@
     emitChange({ key, name: item.name, label: item.label, value });
   });
 
-  /** =================== Cross-tab sync =================== */
-  const LIVE_SYNC = false; // set true only if you want live updates across tabs
-  if (LIVE_SYNC) {
-    window.addEventListener('storage', (e) => {
-      if (e.key !== ST_STORAGE_KEY) return;
-      let saved = {};
-      try { saved = JSON.parse(e.newValue || '{}'); } catch {}
-      stItems.forEach(i => {
-        if (Object.prototype.hasOwnProperty.call(saved, i.key)) {
-          // apply without writing back (no loops)
-          ST.set(i.key, !!saved[i.key], { save: false, emit: true });
-        }
-      });
-    });
-  }
-
   // Signal for late loaders
-  document.dispatchEvent(new CustomEvent('st:switches-ready'));
+  root.dispatchEvent(new CustomEvent('st:switches-ready'));
 
   /** =================== Extras: hooks + positioning =================== */
   const OFFSET_R = 25;      // distance to the right of the grid
@@ -1761,27 +1107,29 @@
   ];
 
   const ExtraBus = new EventTarget();
-  const extraState = (() => { try { return JSON.parse(localStorage.getItem(EX_STORAGE_KEY) || '{}'); } catch { return {} } })();
-  const saveExtras = s => localStorage.setItem(EX_STORAGE_KEY, JSON.stringify(s));
+  const extraState = ctx.settings.json.get(EX_STORAGE_KEY, {}) || {};
+  const saveExtras = s => ctx.settings.json.set(EX_STORAGE_KEY, s);
 
-  window.SettingsExtras = {
+  const SettingsExtras = {   // was window.SettingsExtras
     get: id => !!extraState[id],
     set: (id, val) => {
-      const el = document.getElementById(id); if (!el) return;
+      const el = root.getElementById(id); if (!el) return;
       el.checked = !!val; el.setAttribute('aria-checked', String(el.checked));
       extraState[id] = el.checked; saveExtras(extraState);
       ExtraBus.dispatchEvent(new CustomEvent('extra:change', { detail: { id, value: el.checked } }));
+      ctx.events.emit('nav:extra', { id, value: el.checked });
     },
     subscribe: (id, fn) => { const h = e => e.detail.id === id && fn(e.detail); ExtraBus.addEventListener('extra:change', h); return () => ExtraBus.removeEventListener('extra:change', h); },
     subscribeAll: (fn) => { const h = e => fn(e.detail); ExtraBus.addEventListener('extra:change', h); return () => ExtraBus.removeEventListener('extra:change', h); },
     list: () => TOGGLES.map(t => ({ id: t.id, value: !!extraState[t.id] })),
   };
+  shared.extras = SettingsExtras;
 
-  const isOpen = () => document.getElementById('settings-toggle')?.getAttribute('aria-expanded') === 'true';
+  const isOpen = () => root.getElementById('settings-toggle')?.getAttribute('aria-expanded') === 'true';
   const relRect = (el, anc) => { const a = anc.getBoundingClientRect(), r = el.getBoundingClientRect(); return { left: r.left - a.left, top: r.top - a.top, width: r.width, height: r.height }; };
 
   function ensureCol(panel, grid) {
-    let col = document.getElementById('extra-toggle-col');
+    let col = root.getElementById('extra-toggle-col');
     if (!col) {
       col = document.createElement('div');
       col.id = 'extra-toggle-col';
@@ -1806,6 +1154,7 @@
           input.setAttribute('aria-checked', String(input.checked));
           saveExtras(extraState);
           ExtraBus.dispatchEvent(new CustomEvent('extra:change', { detail: { id: t.id, value: input.checked } }));
+          ctx.events.emit('nav:extra', { id: t.id, value: input.checked });
         });
 
         const box = document.createElement('span');
@@ -1816,7 +1165,7 @@
         col.appendChild(label);
       });
       panel.appendChild(col);
-      document.dispatchEvent(new CustomEvent('extra:ready'));
+      root.dispatchEvent(new CustomEvent('extra:ready'));
     }
     positionCol(panel, grid, col);
   }
@@ -1832,7 +1181,7 @@
   }
 
   function ensureBtn(panel, grid) {
-    let btn = document.getElementById('grid-corner-btn');
+    let btn = root.getElementById('grid-corner-btn');
     if (!btn) {
       btn = document.createElement('button');
       btn.id = 'grid-corner-btn'; btn.type = 'button';
@@ -1876,29 +1225,28 @@
   }
 
   function reflow() {
-    const panel = document.getElementById(PANEL_ID);
-    const grid  = document.getElementById(GRID_ID);
+    const panel = root.getElementById(PANEL_ID);
+    const grid  = root.getElementById(GRID_ID);
     if (!panel || !grid) return;
     ensureCol(panel, grid);
     ensureBtn(panel, grid);
   }
 
   // Build/position when switches render, when panel opens/closes, and on resize/mutation
-  document.addEventListener('st:switches-ready', reflow);
+  root.addEventListener('st:switches-ready', reflow);
   window.addEventListener('resize', reflow);
-  const settingsBtn = document.getElementById('settings-toggle');
+  const settingsBtn = root.getElementById('settings-toggle');
   settingsBtn?.addEventListener('click', () => requestAnimationFrame(reflow));
-  const gridNode = document.getElementById(GRID_ID);
-  if (gridNode) {
-    new MutationObserver(reflow).observe(gridNode, { childList: true });
-    new ResizeObserver(reflow).observe(gridNode);
-  }
+  // The grid only gains children while this function builds it, and reflow() runs below
+  // straight afterwards, so a size change is all that is left to watch for.
+  const gridNode = root.getElementById(GRID_ID);
+  if (gridNode) new ResizeObserver(reflow).observe(gridNode);
   if (document.readyState !== 'loading') reflow();
   else window.addEventListener('DOMContentLoaded', reflow);
 
   /** =================== Tooltip cool-down (scoped) =================== */
   (function tooltipCooldown() {
-    const scope = document.getElementById(PANEL_ID);
+    const scope = root.getElementById(PANEL_ID);
     if (!scope) return;
     const timers = new WeakMap(), REARM_MS = 2400;
     function suspendTip(el) {
@@ -1917,13 +1265,13 @@
       const host = e.target.closest('.data-tooltip'); if (host) suspendTip(host);
     });
   })();
-  // === Sexy mode wiring (use stSwitches) ===
-  (function () {
-    const root = document.documentElement;
+  // === Sexy mode wiring (use the switch grid) ===
+  (function initSexyMode() {
     const KEY = 's3'; // Sexy Mode switch key from stItems
 
     const apply = (isOn) => {
-      root.setAttribute('data-sexy', isOn ? 'on' : 'off'); // OFF => rain
+      document.documentElement.setAttribute('data-sexy', isOn ? 'on' : 'off'); // OFF => rain
+      ctx.events.emit('nav:host-attrs');   // mirror it onto the shadow host
     };
 
     // initial paint from saved state
@@ -1934,70 +1282,32 @@
   })();
   
   // === High Contrast wiring (extra-toggle-1) ===
-  (function () {
+  // The filters themselves live in styles.css; these only flip the attribute. Legacy
+  // built the stylesheet here and appended it to `document.head`, which the proxy mapped
+  // to the shadow root, so `html[...]` never matched anything and neither toggle did
+  // anything visible.
+  (function initHighContrast() {
     const ID = 'extra-toggle-1';
-    const root = document.documentElement;
-    const STYLE_ID = 'hc-style';
+    const apply = (isOn) => document.documentElement.setAttribute('data-high-contrast', isOn ? 'on' : 'off');
 
-    // Inject a tiny stylesheet once
-    function ensureStyle() {
-      if (document.getElementById(STYLE_ID)) return;
-      const style = document.createElement('style');
-      style.id = STYLE_ID;
-      style.textContent = `
-        /* 50% contrast increase when enabled */
-        html[data-high-contrast="on"] { filter: contrast(1.5); }
-      `;
-      document.head.appendChild(style);
-    }
-
-    function apply(isOn) {
-      ensureStyle();
-      root.setAttribute('data-high-contrast', isOn ? 'on' : 'off');
-    }
-
-    // Initial paint from saved state
-    apply(!!window.SettingsExtras?.get(ID));
-
-    // Live updates
-    window.SettingsExtras?.subscribe(ID, ({ value }) => apply(!!value));
+    apply(SettingsExtras.get(ID));
+    SettingsExtras.subscribe(ID, ({ value }) => apply(!!value));
   })();
-  
+
   // === Low Contrast wiring (extra-toggle-2) ===
-  (function () {
+  (function initLowContrast() {
     const ID = 'extra-toggle-2';
-    const root = document.documentElement;
-    const STYLE_ID = 'lc-style';
+    const apply = (isOn) => document.documentElement.setAttribute('data-low-contrast', isOn ? 'on' : 'off');
 
-    // Inject stylesheet once
-    function ensureStyle() {
-      if (document.getElementById(STYLE_ID)) return;
-      const style = document.createElement('style');
-      style.id = STYLE_ID;
-      style.textContent = `
-        /* 20% contrast decrease when enabled */
-        html[data-low-contrast="on"] { filter: contrast(0.8); }
-      `;
-      document.head.appendChild(style);
-    }
-
-    function apply(isOn) {
-      ensureStyle();
-      root.setAttribute('data-low-contrast', isOn ? 'on' : 'off');
-    }
-
-    // Initial paint + live updates
-    apply(!!window.SettingsExtras?.get(ID));
-    window.SettingsExtras?.subscribe(ID, ({ value }) => apply(!!value));
+    apply(SettingsExtras.get(ID));
+    SettingsExtras.subscribe(ID, ({ value }) => apply(!!value));
   })();
-
-
-})();
+}
 
  // =========               =========
- // ========= Priamry Menu  =========
+ // ========= Primary Menu  =========
  // =========               =========
-(() => {
+function initPrimaryMenu(root, ctx, shared) {
   /** ----------------- Central registries ----------------- */
 
   // One shared blank icon (use anywhere)
@@ -2669,34 +1979,33 @@ const HREFS = {
   /** ---- Mount all configured menus by id="menu-{key}" ---- */
   function renderAll() {
     for (const [key, def] of Object.entries(MENUS)) {
-      const host = document.getElementById(`menu-${key}`);
+      const host = root.getElementById(`menu-${key}`);
       if (host) renderMenu(host, def.items || []);
     }
   }
 
-  /** Public API (unchanged) */
-  window.NavUX = Object.assign(window.NavUX || {}, {
-    setMenu: (key, items) => {
-      MENUS[key] = { items };
-      const host = document.getElementById(`menu-${key}`);
-      if (host) renderMenu(host, items);
-    },
-    closeAllMenus: () => {
-      document.querySelectorAll('.has-submenu.open').forEach(li => {
-        li.classList.remove('open');
-        li.setAttribute('aria-expanded', 'false');
-      });
-      document.querySelectorAll('.iconDiv[data-hasmenu][aria-expanded="true"]')
-        .forEach(btn => btn.setAttribute('aria-expanded', 'false'));
-    },
-    menus: MENUS
-  });
+  /** Public API — was window.NavUX; mountNavUx republishes it on ctx.events. */
+  function closeAllMenus() {
+    root.querySelectorAll('.has-submenu.open').forEach(li => {
+      li.classList.remove('open');
+      li.setAttribute('aria-expanded', 'false');
+    });
+    root.querySelectorAll('.iconDiv[data-hasmenu][aria-expanded="true"]')
+      .forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+  }
+  shared.closeAllMenus = closeAllMenus;
+  shared.setMenu = (key, items) => {
+    MENUS[key] = { items };
+    const host = root.getElementById(`menu-${key}`);
+    if (host) renderMenu(host, items);
+  };
+  shared.menus = MENUS;
 
   /** Wire top buttons (unchanged) */
-  document.querySelectorAll('.iconDiv[data-hasmenu]').forEach(btn => {
+  root.querySelectorAll('.iconDiv[data-hasmenu]').forEach(btn => {
     const toggle = () => {
       const isOpen = btn.getAttribute('aria-expanded') === 'true';
-      window.NavUX.closeAllMenus();
+      closeAllMenus();
       btn.setAttribute('aria-expanded', String(!isOpen));
     };
     btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
@@ -2705,18 +2014,18 @@ const HREFS = {
       if (e.key === 'Escape') btn.setAttribute('aria-expanded', 'false');
     });
   });
-  document.addEventListener('click', () => window.NavUX.closeAllMenus());
+  root.addEventListener('click', () => closeAllMenus());
 
   /** Initial paint */
   renderAll();
-})();
+}
 
 
  // =========               =========
  // ========= Search Hook   =========
  // =========               =========
-(function wireSearchToHost() {
-  const scopeEl = document.querySelector('#searchScopeForm');
+function wireSearchToHost(root) {
+  const scopeEl = root.querySelector('#searchScopeForm');
   if (!scopeEl) return; // no scope menu on this page
 
   const scopeMap = {
@@ -2753,7 +2062,7 @@ const HREFS = {
   }
 
   // Handle bubbled submit from the top search input
-  document.addEventListener('search:submit', (e) => {
+  root.addEventListener('search:submit', (e) => {
     const query = (e.detail?.query ?? '').trim();
     if (!query) return; // ignore empty
     const sc = scopeMap[getScope()] || scopeMap.general;
@@ -2766,11 +2075,38 @@ const HREFS = {
   });
 
   // Optional: submit on single Enter when focused inside the input
-  const q = document.querySelector('header.menu-top .group[role="search"] input[type="search"]');
+  const q = root.querySelector('header.menu-top .group[role="search"] input[type="search"]');
   q?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.isComposing) {
       e.preventDefault();
       q.dispatchEvent(new CustomEvent('search:submit', { bubbles: true, detail: { query: q.value } }));
     }
   });
-})();
+}
+
+/* ------------------------------------------------------------------ mount */
+
+/**
+ * Start the menubar on the shadow root the module built.
+ *
+ * Returns the object the window globals used to be: closeAllMenus/setMenu/menus (NavUX),
+ * switches (stSwitches), extras (SettingsExtras) and setInboxCount. Nothing is written to
+ * window; ctx.events carries the same calls between modules.
+ */
+export function mountNavUx(root, ctx) {
+  const shared = {};
+
+  initSearchAndHover(root, ctx, shared);
+  initSettingsGrid(root, ctx, shared);
+  initPrimaryMenu(root, ctx, shared);
+  wireSearchToHost(root);
+
+  const { events } = ctx;
+  events.on('nav:menus-close', () => shared.closeAllMenus?.());
+  events.on('nav:set-menu', (d) => { if (d?.key) shared.setMenu?.(d.key, d.items || []); });
+  events.on('nav:switch-set', (d) => { if (d?.key) shared.switches?.set(d.key, !!d.value); });
+  events.on('nav:extra-set', (d) => { if (d?.id) shared.extras?.set(d.id, !!d.value); });
+  events.on('nav:inbox-count', (d) => shared.setInboxCount?.(typeof d === 'number' ? d : (d?.count ?? 0)));
+
+  return shared;
+}

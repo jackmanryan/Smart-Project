@@ -1,3 +1,11 @@
+/*
+ * The Alt+Click hot-button editor, in its own shadow root under #hb-config-host.
+ *
+ * Kept verbatim from the legacy build, including the `:root` token block below: inside a
+ * shadow root `:root` matches nothing, so those tokens have never applied and every var()
+ * that uses them falls back. Rewriting it to `:host` would silently restyle the editor,
+ * so it is left alone here and stays a separate decision.
+ */
     /* ========= Hot-Button Editor (innerHTML) ========= */
     /* ---- Tokens ---- */
     :root {
