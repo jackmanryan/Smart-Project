@@ -141,7 +141,7 @@ function clampPolling(log) {
 function ensureFavicon(dom) {
   if (dom.$('link[rel="icon"]')) return;
   const link = dom.el('link', { rel: 'icon', href: 'data:,' });
-  (document.head || document.documentElement).append(link);
+  dom.onRoot(() => (document.head || document.documentElement).append(link));
 }
 
 /**

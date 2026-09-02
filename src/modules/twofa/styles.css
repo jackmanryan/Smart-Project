@@ -1,0 +1,9 @@
+/*
+ * The one piece of chrome this module owns: the launcher on the verify_2fa page.
+ * The legacy script set `btn.style.marginLeft = '8px'` inline; the rule lives here so
+ * the module ships no style strings. The button is deliberately unstyled otherwise —
+ * it inherits the extranet's own button look, exactly as it did before.
+ */
+#strip2faFetchBtn {
+  margin-left: 8px;
+}

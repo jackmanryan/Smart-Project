@@ -55,9 +55,12 @@ export function createRuntime({ bundle, version }) {
       const registry = createRegistry(ctx);
       const report = registry.run(modules);
 
+      // `started` only holds the document-start stage at this point; end and idle
+      // modules begin later. Report what is scheduled, so the banner is not a lie.
+      const scheduled = Object.values(report.planned).reduce((a, b) => a + b, 0);
       log.info(
-        `${bundle} v${version} — ${report.started.length} module(s) on ${ctx.page.id || 'dashboard'}` +
-          (report.failed.length ? `, ${report.failed.length} failed` : ''),
+        `${bundle} v${version} — ${scheduled} module(s) on ${ctx.page.id || 'dashboard'} ` +
+          `(start ${report.planned.start}, end ${report.planned.end}, idle ${report.planned.idle})`,
       );
       log.debug('skipped:', report.skipped);
       return report;

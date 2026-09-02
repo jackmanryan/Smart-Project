@@ -66,14 +66,19 @@ export function createRegistry(ctx) {
         queue[stage].push(mod);
       }
 
+      const planned = Object.fromEntries(STAGES.map((s) => [s, queue[s].length]));
+
       for (const stage of STAGES) {
         if (!queue[stage].length) continue;
         atStage(stage, () => {
           for (const mod of queue[stage]) startModule(mod);
+          // Stages run at different times, so report each as it actually happens
+          // rather than pretending the synchronous count is the whole story.
+          log.debug(`${stage}: started ${queue[stage].length}`, queue[stage].map((m) => m.id));
         });
       }
 
-      return { started, skipped, failed };
+      return { planned, started, skipped, failed };
     },
 
     report() {

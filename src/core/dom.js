@@ -50,6 +50,24 @@ export function throttle(fn, ms = 120) {
   };
 }
 
+/**
+ * Run fn once <html> exists.
+ *
+ * A document-start module can be evaluated before the parser has created the root
+ * element, so `document.documentElement` is null and appending to it throws. Anything
+ * that inserts a node at document-start goes through here.
+ */
+export function onRoot(fn) {
+  if (document.documentElement) return fn();
+  let tries = 0;
+  const tick = () => {
+    if (document.documentElement) return fn();
+    if (++tries > 1000) return undefined;
+    return setTimeout(tick, 0);
+  };
+  return tick();
+}
+
 /** Run fn once the DOM is parsed; immediately if it already is. */
 export function onReady(fn) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });

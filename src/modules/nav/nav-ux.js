@@ -393,7 +393,11 @@ function initSearchAndHover(root, ctx, shared) {
       document.body.appendChild(host);
       const shadow = host.attachShadow({ mode: 'open' });
       ctx.style.addToShadow(shadow, hotbuttonEditorCss, { id: 'nav-hotbutton-editor' });
-      shadow.insertAdjacentHTML('beforeend', hotbuttonEditorHtml);
+      // A ShadowRoot is a DocumentFragment: it has no insertAdjacentHTML. Parse the
+      // markup in a template and move the nodes across instead.
+      const tpl = document.createElement('template');
+      tpl.innerHTML = hotbuttonEditorHtml;
+      shadow.append(tpl.content);
       const ui = {
         host, shadow,
         backdrop: shadow.querySelector('.backdrop'),

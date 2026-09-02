@@ -168,7 +168,7 @@ function createOverlay(ctx) {
 
   const lockStyle = dom.el('style', { 'data-sc-style': 'loader-lock' });
   lockStyle.textContent = lockCss;
-  const lock = () => (document.head || document.documentElement).append(lockStyle);
+  const lock = () => dom.onRoot(() => (document.head || document.documentElement).append(lockStyle));
   const unlock = () => lockStyle.remove();
 
   // Top layer, best available: a manual popover, else a modal <dialog>, else just a
@@ -195,6 +195,12 @@ function createOverlay(ctx) {
   }
 
   function attach() {
+    // document-start can beat the parser to <html>; onRoot defers until it exists.
+    if (!document.documentElement) return dom.onRoot(attach);
+    return attachNow();
+  }
+
+  function attachNow() {
     if (supportsPopover) {
       host.setAttribute('popover', 'manual');
       document.documentElement.append(host);
@@ -223,6 +229,7 @@ function createOverlay(ctx) {
   }
 
   function show() {
+    if (!document.documentElement) return;
     if (usingPopover) {
       if (!host.isConnected) document.documentElement.append(host);
       openPopover();
@@ -264,6 +271,7 @@ function createOverlay(ctx) {
    */
   function reassert() {
     if (!active) return;
+    if (!document.documentElement) return;
     if (usingPopover) {
       if (!host.isConnected) document.documentElement.append(host);
       let open = false;

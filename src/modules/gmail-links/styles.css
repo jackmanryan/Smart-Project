@@ -1,0 +1,80 @@
+/*
+ * Gmail autolink chips — ported from legacy/userscripts/gmail-quote-search.user.js.
+ *
+ * The legacy sheet was a template literal injected by injectBubbleCSS(); nothing was
+ * interpolated into it, so the rules below are the same declarations with the
+ * indentation tidied. The selector stays `a[data-legacy-number="1"]` because that is
+ * the attribute the linker still stamps on every chip.
+ */
+
+/* Blend-in chips */
+a[data-legacy-number="1"]{
+  display:inline-block;
+  padding:0.06em 0.44em;                 /* compact in list rows */
+  margin-inline:2px;
+  border-radius:9999px;
+  font-weight:600;
+  line-height:1.25;
+  white-space:nowrap;
+  text-decoration:none !important;
+  color:#eef3ff !important;              /* soft white */
+  /* darker, desaturated blue; subtle gradient & very low shadow */
+  background:
+    linear-gradient(180deg, hsl(225 28% 30%) 0%, hsl(225 30% 24%) 100%);
+  border:1px solid hsl(225 22% 22% / 0.9);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset,
+              0 1px 2px rgba(0,0,0,0.10);
+  transition: filter .12s ease, box-shadow .12s ease;
+  vertical-align: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quieter hover */
+a[data-legacy-number="1"]:hover{
+  filter: brightness(1.04) saturate(1.02);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset,
+              0 2px 3px rgba(0,0,0,0.14);
+}
+
+a[data-legacy-number="1"]:active{
+  filter: brightness(0.98);
+}
+
+a[data-legacy-number="1"]:focus-visible{
+  outline:2px solid hsl(225 70% 75% / 0.8);
+  outline-offset:2px;
+}
+
+/* Make chips even tighter in list view (thread rows) */
+tr.zA a[data-legacy-number="1"], .ae4 a[data-legacy-number="1"]{
+  padding:0.02em 0.38em;
+  font-weight:600;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  a[data-legacy-number="1"]{ transition:none; }
+}
+
+/* High-contrast / forced colors fallback */
+@media (forced-colors: active){
+  a[data-legacy-number="1"]{
+    background:ButtonFace; color:ButtonText !important;
+    border:1px solid CanvasText;
+  }
+  a[data-legacy-number="1"]:focus-visible{
+    outline:2px solid Highlight;
+  }
+}
+
+/* Light mode tune (keeps the same vibe, just lighter) */
+@media (prefers-color-scheme: light){
+  a[data-legacy-number="1"]{
+    color:#0b1a3f !important;
+    background: linear-gradient(180deg, hsl(225 55% 92%) 0%, hsl(225 50% 85%) 100%);
+    border:1px solid hsl(225 35% 72%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.7) inset,
+                0 1px 1px rgba(0,0,0,0.05);
+  }
+  a[data-legacy-number="1"]:focus-visible{ outline-color:hsl(225 70% 55% / 0.9); }
+}
