@@ -11,7 +11,7 @@ Source of truth for the inventory: the `ACTIVE_SCRIPTS.zip` Tampermonkey export 
 1. **This repo is public.** `jackmanryan/Smart-Project` has `visibility: public`. It already contains the ExtraNav navbar source (HTML, CSS, 2,776 lines of JS) targeting the company extranet, plus Google Apps Script for a customer database. Flip it to private before committing anything else. A scan of every commit in history for key, token, and password patterns found nothing beyond CSS "design tokens" and vendored jQuery, so no secret rotation is needed.
 2. **Tampermonkey cannot log in to GitHub.** `@updateURL` and `@downloadURL` are plain unauthenticated fetches. There is no header, cookie, or token support, and `raw.githubusercontent.com` answers `404` for private files. "Private repo plus auto-update" therefore needs one of the delivery paths in section 3. The recommended one needs no hosting at all.
 3. **The live ExtraNav script depends on this repo through jsDelivr.** It fetches `ExtraNav.html`, `ExtraNav.css`, and `nav-ux.js` from `cdn.jsdelivr.net/gh/jackmanryan/Smart-Project@6a85cca…`. jsDelivr keeps commit-pinned files in permanent storage even if the repo is deleted or made private, so flipping to private will not break the navbar. But that URL can never be updated again, and the three files are frozen at a November 2025 commit. Phase 3 inlines them into the bundle and removes the dependency.
-4. **The shared helper API lives in the wrong script.** `window.SCX` is defined inside ExtraClaims, which only matches `?p=orders-view`. Twelve other scripts reference SCX on every page, so each carries its own fallback copy. This is the single biggest source of duplication.
+4. **The scripts are less coupled than they look.** `window.SCX` is built inside ExtraClaims and `window.SCORD` inside the SC FAB, both guarded as globals — but a call-site scan shows nothing outside those two files ever calls `SCX.*` or `SCORD.*`. The apparent cross-references were CSS class prefixes (`scx-btn`, `scx-panel`). Both therefore become module-local libraries (`orders/lib/order-data.js`, `lib/orders-api.js`), not core services. Eleven globals are still assigned across the set and all of them can go.
 5. **Twenty scripts each run their own `MutationObserver` on the page.** Two scripts (TabName and TurboKit) independently monkey-patch `fetch` and `XMLHttpRequest` at `document-start`. Nine scripts repeat the same `quotes_editor` exclude list. Four scripts implement theme detection separately.
 6. **Tampermonkey stores `GM_setValue` data per script.** Extranet 2FA uses it as a cross-tab channel between the extranet page and Gmail, so both halves must stay in the same installed script after consolidation.
 7. **A few headers are wider than they should be.** Gmail Quote Search matches `https://*.google.com/*` (all of Google). TurboKit declares `@connect *`. ExtraNav's Tampermonkey options carry hand-added excludes for chatgpt.com, github.com, primevideo.com and Google, which is a symptom of the `/*` match being too broad for a `document-start` script.
@@ -96,15 +96,15 @@ Line counts are from the export. "Scope" is the effective page scope after `@mat
 | 1 | ExtraNav - NAVBAR MAIN STYLE | 1,295 | start | all extranet, excl. quotes_editor, quotepayment | addStyle, xmlhttpRequest | jsDelivr files from this repo | `modules/nav` (inline HTML/CSS/nav-ux) |
 | 2 | Message Center | 1,581 | idle | `?p=messagecenter` | addStyle | — | `modules/messages` |
 | 3 | Hamilton The Hamster (and Lizard) | 1,180 | start | all extranet | addStyle, get/setValue, get/saveTab | — | `modules/loader` (emits `hamilton:loading`) |
-| 4 | ExtraRight | 889 | end | orders-view | setClipboard | SCX | `modules/orders/context-menu` |
-| 5 | Adaptive Table Filters + Column Menu | 837 | idle | all extranet | addStyle | SCX (151 refs), DataTables | `modules/tables/filters` |
+| 4 | ExtraRight | 889 | end | orders-view | setClipboard | order-data helpers | `modules/orders/context-menu` |
+| 5 | Adaptive Table Filters + Column Menu | 837 | idle | all extranet | addStyle | DataTables | `modules/tables/filters` |
 | 6 | Bubble Text | 746 | idle | all extranet | addStyle | ExtraNav switches, theme | `modules/tables/bubbles` |
 | 7 | SideDock | 555 | idle | all, excl. quotes_editor | addStyle | ExtraNav, Message Center (46 refs) | `modules/dock` |
-| 8 | ExtraClaims | 545 | idle | orders-view | none | defines `window.SCX` | helpers → `core/`; claim composer → `modules/orders/claims` |
+| 8 | ExtraClaims | 545 | idle | orders-view | none | defines `window.SCX` (used only here) | helpers → `modules/orders/lib/order-data.js`; composer → `modules/orders/claims` |
 | 9 | SC TurboKit | 528 | start | all extranet | xmlhttpRequest, `@connect *` | patches fetch/XHR | `core/net-tap` + `modules/perf` |
 | 10 | Legacy Form (Consolidated & Hardened) | 521 | start | all, excl. quotes_editor | none | ExtraNav shadow host, Hamilton | `modules/nav/search` |
-| 11 | SC FAB — Message & Sales Viewer | 469 | idle | all extranet | none | defines `window.SCORD` | data client → `core/orders-api`; UI → `modules/fab` |
-| 12 | Order Products Panel | 445 | idle | all, excl. quotes_editor | none (no `use strict`) | SCX | `modules/orders/products-panel` |
+| 11 | SC FAB — Message & Sales Viewer | 469 | idle | all extranet | none | defines `window.SCORD` (used only here) | data client → `modules/lib/orders-api.js`; UI → `modules/fab` |
+| 12 | Order Products Panel | 445 | idle | all, excl. quotes_editor | none (no `use strict`) | — | `modules/orders/products-panel` |
 | 13 | Extranet 2FA | 360 | idle | `?p=verify_2fa` + mail.google.com | get/setValue, addValueChangeListener, saveTab | cross-tab via GM storage | `sc-gmail-bridge` bundle, `modules/twofa` |
 | 14 | fileBUBBLE | 350 | idle | orders-view | none | ExtraNav | `modules/orders/radial-menu` |
 | 15 | Order Info Panels | 329 | default | all, excl. review, quotes_editor | none | — | `modules/orders/info-panels` |
@@ -145,8 +145,6 @@ sc-extranet-tools/
 │   │   ├── style.js        addStyle for light DOM and shadow roots; CSS files imported as text
 │   │   ├── theme.js        data-theme + ui:theme, single source
 │   │   ├── settings.js     namespaced store over localStorage/GM storage, key migration table
-│   │   ├── orders-api.js   SCORD data client
-│   │   ├── scx.js          the helper surface formerly built inside ExtraClaims
 │   │   └── log.js          prefixed console + per-module error boundary
 │   ├── modules/            one folder per feature, index.js + styles.css
 │   │   ├── hygiene/  loader/  perf/  tab-title/  nav/  dock/  messages/
@@ -173,7 +171,7 @@ export default {
 ```
 
 Why two bundles instead of one or seven:
-- One `document-start` extranet bundle guarantees load order, which fixes the SCX-in-ExtraClaims problem permanently and lets `core/` own the single observer and single network tap.
+- One `document-start` extranet bundle guarantees load order and lets `core/` own the single observer and the single network tap, which is what removes the real duplication.
 - The Gmail bridge must be its own installed script because 2FA's two halves share per-script GM storage, and because Gmail should never load the 13,000-line extranet bundle.
 - Splitting further (nav, orders, tables…) is possible later: it is just more entries in `meta/`. Start with two.
 
@@ -231,15 +229,15 @@ Result: `main` contains `docs/`, `legacy/`, `src/modules/nav/` and the repo scaf
 
 | PR | Ports | Size | Notes |
 |---|---|---|---|
-| 3 | SCX helpers (from ExtraClaims), ExtraClean, Kill custom.css, ExtraSort, TabName | M | Establishes `core/scx` and `core/net-tap` |
+| 3 | ExtraClean, Kill custom.css, ExtraSort, TabName | M | Establishes `core/net-tap` |
 | 4 | SC TurboKit | M | Second subscriber to `net-tap`; prove the two taps compose |
 | 5 | Hamilton loader | M | Emits `hamilton:loading`; drop `HTMLDialogElement` override |
 | 6 | ExtraNav + inlined HTML/CSS/nav-ux | L | Biggest PR. `nav-ux.js` currently runs through `eval` inside a window/document proxy; turn it into a real module that receives the shadow root |
 | 7 | Legacy Form search | M | Mounts into the nav shadow host; uses loader |
 | 8 | SideDock + Tracking Panel + Message Center | L | SideDock embeds Message Center views, so they move together |
 | 9 | Order Info Panels, Order Products Panel, Order Timeline & Overview, Orders Review | M | Pure DOM/layout modules |
-| 10 | ExtraLinks, ExtraRight, ExtraClaims composer, fileBUBBLE, SC FAB | L | SCORD becomes `core/orders-api` |
-| 11 | Adaptive Table Filters, Bubble Text, Copy Buttons | L | Filters has 151 SCX references; validate persistence keys |
+| 10 | ExtraLinks, ExtraRight, ExtraClaims composer, fileBUBBLE, SC FAB | L | SCORD becomes `modules/lib/orders-api.js` |
+| 11 | Adaptive Table Filters, Bubble Text, Copy Buttons | L | Validate the `scx.filters.v3` / `scx.colmenu.v1` persistence keys |
 | 12 | SC Auto Review | S | Keep hash gate; add an explicit "armed" indicator |
 | 13 | `sc-gmail-bridge`: Gmail Quote Search + Extranet 2FA | M | Narrow the Google match; keep the 5-minute freshness window and arm timeout exactly |
 
@@ -281,3 +279,17 @@ Add `release.yml`: on push to `main`, build and publish `dist/*.user.js` to a se
 
 - No behaviour changes to the extranet automation (auto-review, PO send, 2FA submit) beyond keeping their gates. Any change to what they do is a separate, explicitly reviewed PR.
 - No change to how the extranet itself is accessed. The scripts remain browser-side enhancements.
+
+---
+
+## 10. Execution log
+
+Recorded as the plan was carried out, so the doc and the repo do not drift.
+
+| Step | Outcome |
+|---|---|
+| Archive point | Branch `archive/v0-legacy` pins the pre-rebuild tree at `10c99e0`. An annotated tag was intended, but the session's git proxy rejects tag pushes, so a branch ref serves the same purpose. |
+| Repo visibility | **Still public — this is the one step only you can do.** Settings → General → Danger Zone → Change visibility. Nothing in the rebuild depends on it, and ExtraNav keeps working either way, but the plan assumes it. |
+| Apps Script extraction | Moved to `legacy/apps-script/gs` rather than a separate repo. Creating `smart-project-gs` and pushing to it needs a repo that does not exist yet and would not be in this session's GitHub App installation. Extract it with `git subtree split --prefix=legacy/apps-script/gs` once the repo exists. |
+| Branch protection | Not configured: rulesets on a private repo need GitHub Pro. CI reports on every PR but cannot block a direct push. |
+| PR structure | The rebuild lands as phase-separated commits on one branch rather than 14 branches, because this session is scoped to a single working branch. Each commit maps to a phase above. |
