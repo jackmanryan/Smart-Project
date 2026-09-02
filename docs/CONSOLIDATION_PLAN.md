@@ -293,3 +293,32 @@ Recorded as the plan was carried out, so the doc and the repo do not drift.
 | Apps Script extraction | Moved to `legacy/apps-script/gs` rather than a separate repo. Creating `smart-project-gs` and pushing to it needs a repo that does not exist yet and would not be in this session's GitHub App installation. Extract it with `git subtree split --prefix=legacy/apps-script/gs` once the repo exists. |
 | Branch protection | Not configured: rulesets on a private repo need GitHub Pro. CI reports on every PR but cannot block a direct push. |
 | PR structure | The rebuild lands as phase-separated commits on one branch rather than 14 branches, because this session is scoped to a single working branch. Each commit maps to a phase above. |
+
+### Port status
+
+All 26 scripts are ported, both bundles are wired, and `npm run check` is green.
+
+**Verification is incomplete, and this is the main thing outstanding.** The port ran as
+26 agents, each followed by an adversarial parity check against its legacy original. The
+ports finished; every parity check died when the session's agent limit was reached. So no
+module has been independently diffed against the script it replaces.
+
+What *was* verified, by hand:
+
+| Check | Result |
+|---|---|
+| Rule sweep across all 26 modules | No `window.*` assignments, no private `MutationObserver`, no `fetch`/XHR patching, no CSS in JS |
+| Storage keys vs legacy | All 14 load-bearing keys present verbatim |
+| `npm run check` | lint, build and header check green |
+| Headless Chromium load, 6 page scopes + both bundles | Zero console errors |
+
+The browser run found three real defects, all fixed: a `document-start` module appending
+to `document.documentElement` before the parser created it (killed the loader and
+TurboKit), `insertAdjacentHTML` called on a `ShadowRoot`, and a startup banner that
+counted only the document-start stage.
+
+None of that substitutes for a parity diff. Before uninstalling any legacy script, run
+each module side by side with the original on the real site — the checklist in section 7
+is the standard. The riskiest are the ones with the least mechanical ports: `nav`
+(rewritten from an `eval`-through-a-proxy design), `messages`, `tables/filters`, and both
+safety-critical modules, `automation/auto-review` and `twofa`.
