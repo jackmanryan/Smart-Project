@@ -1,0 +1,102 @@
+/*
+ * Bubble Text — ported verbatim from legacy/userscripts/bubble-text.user.js (v1.13.0).
+ *
+ * The two palette blocks key off the `data-theme` attribute that core's theme service
+ * writes on <html>, so light and dark follow the ExtraNav toggle with no JS involved.
+ * `html[data-tm-copy-enabled]` is set by the module from the nav "Copy Buttons" switch
+ * and only changes the cursor — the copy handlers gate themselves.
+ */
+
+:root{
+  --tm-bubble-bg:#1c2230; --tm-bubble-fg:#f2f4f8; --tm-bubble-bd:#2a3242; --tm-bubble-shadow:rgba(0,0,0,.22);
+  --tm-pulse-ink:rgba(255,255,255,.75);
+  /* Purple link-bubble palette (overrideable) */
+  --tm-link-bubble-bg:#E3DFF2; /* bg */
+  --tm-link-bubble-fg:#1c2230; /* text */
+  --tm-link-bubble-bd:#cfc9f1; /* subtle border to match */
+  --tm-bubble-max-w: 92vw;
+}
+[data-theme="light"]{--tm-bubble-bg:#1c2230;--tm-bubble-fg:#f2f4f8;--tm-bubble-bd:#2a3242;}
+[data-theme="dark"]{--tm-bubble-bg:#10151c;--tm-bubble-fg:#e5e9ef;--tm-bubble-bd:#1b2130;--tm-pulse-ink:rgba(255,255,255,.65);}
+
+/* Compact tables */
+#page-wrapper .panel{margin-bottom:12px!important;}
+#page-wrapper .panel-body{padding:10px 12px!important;}
+#page-wrapper .panel-body>*{margin:8px 0;}
+#page-wrapper .panel .table{margin-bottom:0!important;}
+#page-wrapper .panel .table>tbody>tr>td{padding:6px 8px!important;vertical-align:middle!important;}
+
+/* Bubble core */
+.tm-bubble{
+  display:inline-block;padding:3px 10px;background:var(--tm-bubble-bg);color:var(--tm-bubble-fg);
+  border:1px solid var(--tm-bubble-bd);border-radius:12px;font-weight:600;line-height:1.18;
+  white-space:normal; word-break:normal; overflow-wrap:normal; hyphens:none;
+  width:fit-content; max-width:var(--tm-bubble-max-w); box-shadow:0 1px 2px var(--tm-bubble-shadow) inset,0 0 0 1px rgba(255,255,255,.03);
+  position:relative; user-select:text;
+}
+.tm-bubble a{color:inherit;text-decoration:underline;}
+.tm-bubble:empty{display:none;}
+/* List formatting inside bubbles */
+.tm-bubble .tm-list{
+  list-style:disc; margin:.25rem 0 0 1.2rem; padding:0;
+}
+.tm-bubble .tm-list .tm-li{
+  display:list-item; margin:.1rem 0;
+}
+@keyframes tm-bubble-pulse{0%{box-shadow:0 0 0 0 var(--tm-pulse-ink);}100%{box-shadow:0 0 0 16px rgba(255,255,255,0);}}
+.tm-bubble[data-copied="1"]::after{content:"";position:absolute;inset:-2px;border-radius:12px;pointer-events:none;animation:tm-bubble-pulse 520ms ease-out forwards;}
+
+/* High specificity overrides vs table skins */
+#page-wrapper table tbody tr>td>.tm-bubble,
+table.table-striped tbody tr>td>.tm-bubble,
+table.table-bordered tbody tr>td>.tm-bubble{all:unset;}
+#page-wrapper table tbody tr>td>.tm-bubble,
+table.table-striped tbody tr>td>.tm-bubble,
+table.table-bordered tbody tr>td>.tm-bubble{
+  display:inline-block!important;padding:3px 10px!important;background:var(--tm-bubble-bg)!important;color:var(--tm-bubble-fg)!important;
+  border:1px solid var(--tm-bubble-bd)!important;border-radius:12px!important;font-weight:600!important;line-height:1.18!important;
+  white-space:normal!important; word-break:normal!important; overflow-wrap:normal!important; hyphens:none!important;
+  width:fit-content!important; max-width:var(--tm-bubble-max-w)!important;
+  box-shadow:0 1px 2px var(--tm-bubble-shadow) inset,0 0 0 1px rgba(255,255,255,.03)!important; position:relative!important; user-select:text!important;
+}
+#page-wrapper table tbody tr>td>.tm-bubble a{color:currentColor!important;text-decoration:underline;}
+/* Force contrasting ink inside bubbles (even in themed cells like .sorting_1) */
+#page-wrapper table tbody tr>td>.tm-bubble,
+#page-wrapper table tbody tr>td>.tm-bubble .tm-key,
+#page-wrapper table tbody tr>td>.tm-bubble .tm-val,
+#page-wrapper table tbody tr>td>.tm-bubble a{ color:var(--tm-bubble-fg)!important; }
+
+/* Icons inherit but allow inline overrides */
+#page-wrapper table tbody tr>td>.tm-bubble i,
+#page-wrapper table tbody tr>td>.tm-bubble .fa,
+#page-wrapper table tbody tr>td>.tm-bubble .glyphicon{ color:currentColor; }
+
+.tm-bubble .tm-key{opacity:.9;margin-right:.35em;}
+.tm-bubble .tm-val{white-space:nowrap; word-break:keep-all; overflow-wrap:normal; hyphens:none; font-variant-numeric:tabular-nums;}
+
+.tm-bubble input,.tm-bubble select,.tm-bubble textarea{
+  background:transparent!important;color:inherit!important;border:none!important;box-shadow:none!important;outline:none!important;
+  padding:0!important;margin:0!important;font:inherit!important;line-height:inherit!important;
+}
+.tm-bubble textarea{width:100%!important;resize:vertical;}
+.tm-bubble ::placeholder{color:rgba(233,237,242,.65)!important;}
+
+#page-wrapper input.tm-field,#page-wrapper select.tm-field,#page-wrapper textarea.tm-field{
+  background:#151a22!important;color:#fff!important;border:1px solid #2a3460!important;border-radius:12px!important;
+  box-shadow:0 0 0 1px #2a3460!important;padding:6px 10px!important;line-height:1.18!important;
+}
+#page-wrapper textarea.tm-field{resize:vertical;}
+#page-wrapper .tm-field:disabled{opacity:.85;}
+#page-wrapper .tm-field::placeholder{color:rgba(233,237,242,.65)!important;}
+
+html[data-tm-copy-enabled="1"] .tm-bubble{cursor:copy!important;}
+html[data-tm-copy-enabled="0"] .tm-bubble{cursor:text!important;}
+
+/* Purple href/link bubble treatment */
+.tm-bubble--order-link{
+  --tm-bubble-bg: var(--tm-link-bubble-bg);
+  --tm-bubble-fg: var(--tm-link-bubble-fg);
+  --tm-bubble-bd: var(--tm-link-bubble-bd);
+}
+.tm-bubble--order-link a{text-decoration:underline;color:inherit;}
+.tm-bubble--order-link i{opacity:.95;}

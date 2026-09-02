@@ -1,0 +1,128 @@
+/* Adaptive table filters + column menu.
+   Every rule here is the legacy stylesheet verbatim, except for the dark-theme section
+   at the bottom and the `.scx-count` class, which replaces an inline style the legacy
+   script wrote from JS. Class names are load-bearing: the module queries them. */
+
+:root{ --scx-accent:#3b82f6; }
+.scx-col-hidden,.scx-row-hidden,.scx-hidden{ display:none !important; }
+.scx-slot{ display:inline-flex; align-items:center; gap:.25rem; margin-left:.35rem; }
+.scx-anchor{ position:relative; display:inline-block; vertical-align:middle; }
+.scx-btn{
+  position:relative; display:inline-flex; align-items:center; justify-content:center;
+  width:32px; height:32px; border-radius:8px; cursor:pointer; padding:0;
+  border:1px solid rgba(0,0,0,.15); background:#fff; color:#222;
+}
+.scx-btn svg{ width:18px; height:18px; fill:currentColor; }
+.scx-btn:focus{ outline:2px solid #6aa9ff; outline-offset:2px; }
+.scx-btn[data-tip]:hover::after,.scx-btn[data-tip]:focus-visible::after{
+  content:attr(data-tip); position:absolute; bottom:110%; left:50%; transform:translateX(-50%);
+  background:#111; color:#fff; padding:.25rem .5rem; border-radius:.35rem; white-space:nowrap;
+  font-size:.75rem; box-shadow:0 6px 18px rgba(0,0,0,.2); pointer-events:none; z-index:2147483001;
+}
+.scx-btn[data-tip]:hover::before,.scx-btn[data-tip]:focus-visible::before{
+  content:''; position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:#111;
+}
+.scx-panel{
+  position:absolute; right:0; top:110%; z-index:2147483000;
+  min-width:280px; max-width:520px; padding:.6rem .6rem .7rem; border-radius:.6rem;
+  border:1px solid rgba(0,0,0,.15); background:#fff; color:#111;
+  box-shadow:0 12px 32px rgba(0,0,0,.18); display:none;
+}
+.scx-panel.open{ display:block; }
+.scx-head{ display:flex; align-items:center; gap:.5rem; }
+.scx-head h4{ margin:.15rem 0 .35rem; font-size:.92rem; font-weight:600; }
+.scx-actions{ margin-left:auto; display:inline-flex; gap:.35rem; }
+.scx-mini{
+  border:1px solid rgba(0,0,0,.2); background:inherit; padding:.16rem .42rem;
+  border-radius:.35rem; cursor:pointer; font-size:.82rem;
+}
+.scx-mini.danger{ border-color:rgba(220,38,38,.5); color:#b91c1c; }
+.scx-subtle{ opacity:.8; font-size:.78rem; margin:.15rem 0 .35rem; }
+
+.scx-filter-col{ border-top:1px solid rgba(0,0,0,.08); padding-top:.4rem; margin-top:.4rem; }
+.scx-row{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+.scx-flabel{ flex:0 1 auto; min-width:120px; font-size:.9rem; font-weight:600; line-height:1.1; }
+.scx-ftype{ margin-left:auto; font-size:.75rem; opacity:.65; }
+
+.scx-ctrl{ flex:0 0 auto; display:inline-flex; align-items:center; gap:.35rem; margin-left:.35rem; }
+.scx-ctrl .mini{
+  border:1px solid rgba(0,0,0,.2); background:inherit; padding:.18rem .5rem; border-radius:.4rem;
+  cursor:pointer; font-size:.9rem; line-height:1;
+}
+.scx-ctrl .icon{
+  width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid rgba(0,0,0,.2); border-radius:.45rem; cursor:pointer;
+}
+.scx-ctrl .icon svg{ width:16px; height:16px; }
+
+.scx-search{ display:none; width:100%; margin-top:.35rem; }
+.scx-filter-col.show-search .scx-search{ display:block; }
+.scx-filter-col.collapsed .scx-chiplist{ display:none; }
+
+.scx-chiplist{
+  max-height:220px; overflow:auto; border:1px solid rgba(0,0,0,.12);
+  border-radius:.35rem; padding:.25rem; margin-top:.35rem;
+}
+.scx-chip{ display:flex; align-items:center; gap:.35rem; padding:.2rem .35rem; border-radius:.35rem; }
+.scx-chip input{ transform:translateY(1px); accent-color:var(--scx-accent); }
+.scx-count{ opacity:.6; font-size:.75rem; }
+
+.scx-range{ display:flex; flex-direction:column; gap:.35rem; }
+.scx-range .nums{ display:flex; gap:.5rem; }
+.scx-range input[type="number"], .scx-range input[type="date"]{
+  width:100%; padding:.25rem .45rem; border:1px solid rgba(0,0,0,.2); border-radius:.35rem;
+}
+.scx-range .track{ position:relative; height:24px; }
+.scx-range .track input[type="range"]{
+  position:absolute; left:0; right:0; width:100%; margin:0; background:transparent;
+}
+.scx-range .track input[type="range"]::-webkit-slider-runnable-track{
+  height:6px; border-radius:999px; background:linear-gradient(90deg,
+    rgba(127,127,127,.25) var(--lo,0%),
+    var(--scx-accent)     var(--lo,0%),
+    var(--scx-accent)     var(--hi,100%),
+    rgba(127,127,127,.25) var(--hi,100%));
+}
+.scx-range .track input[type="range"]::-moz-range-track{
+  height:6px; border-radius:999px; background:linear-gradient(90deg,
+    rgba(127,127,127,.25) var(--lo,0%),
+    var(--scx-accent)     var(--lo,0%),
+    var(--scx-accent)     var(--hi,100%),
+    rgba(127,127,127,.25) var(--hi,100%));
+}
+.scx-range .track .rlo{ z-index:2; } .scx-range .track .rhi{ z-index:3; }
+
+/* Dark theme.
+   The legacy script keyed dark styling off the OS preference alone, so a user who chose
+   dark with the bundle's own toggle (stored as `ui:theme`, written onto the root as
+   data-theme) got a white panel on a dark page. The same declarations therefore appear
+   twice: once for an explicit choice, once for the OS preference when the user has not
+   made one. Nothing about the light values changed. */
+html[data-theme="dark"] .scx-btn{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.18); }
+html[data-theme="dark"] .scx-panel{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.18); box-shadow:0 12px 32px rgba(0,0,0,.6); }
+html[data-theme="dark"] .scx-btn[data-tip]:hover::after,
+html[data-theme="dark"] .scx-btn[data-tip]:focus-visible::after{ background:#eaeaea; color:#111; }
+html[data-theme="dark"] .scx-btn[data-tip]:hover::before,
+html[data-theme="dark"] .scx-btn[data-tip]:focus-visible::before{ border-top-color:#eaeaea; }
+html[data-theme="dark"] .scx-ctrl .mini,
+html[data-theme="dark"] .scx-ctrl .icon,
+html[data-theme="dark"] .scx-mini{ background:#1f1f1f; border-color:rgba(255,255,255,.18); }
+html[data-theme="dark"] .scx-chiplist{ border-color:rgba(255,255,255,.18); }
+html[data-theme="dark"] .scx-range input[type="number"],
+html[data-theme="dark"] .scx-range input[type="date"]{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.2); }
+
+@media (prefers-color-scheme: dark){
+  html:not([data-theme="light"]) .scx-btn{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.18); }
+  html:not([data-theme="light"]) .scx-panel{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.18); box-shadow:0 12px 32px rgba(0,0,0,.6); }
+  html:not([data-theme="light"]) .scx-btn[data-tip]:hover::after,
+  html:not([data-theme="light"]) .scx-btn[data-tip]:focus-visible::after{ background:#eaeaea; color:#111; }
+  html:not([data-theme="light"]) .scx-btn[data-tip]:hover::before,
+  html:not([data-theme="light"]) .scx-btn[data-tip]:focus-visible::before{ border-top-color:#eaeaea; }
+  html:not([data-theme="light"]) .scx-ctrl .mini,
+  html:not([data-theme="light"]) .scx-ctrl .icon,
+  html:not([data-theme="light"]) .scx-mini{ background:#1f1f1f; border-color:rgba(255,255,255,.18); }
+  html:not([data-theme="light"]) .scx-chiplist{ border-color:rgba(255,255,255,.18); }
+  html:not([data-theme="light"]) .scx-range input[type="number"],
+  html:not([data-theme="light"]) .scx-range input[type="date"]{ background:#1f1f1f; color:#eaeaea; border-color:rgba(255,255,255,.2); }
+}
