@@ -4,7 +4,9 @@
  * the `\9` IE hacks the site's CSS still carries.
  *
  * Ported from legacy/userscripts/extraclean.user.js (v1.3). Everything here is targeted:
- * nothing is removed unless it matches one of the patterns below.
+ * nothing is removed unless it matches one of the patterns below, and nothing the bundle
+ * injected itself is touched at all (ctx.style.owns). A bundle stylesheet that is not
+ * wanted is switched off in the module that adds it, never stripped from here.
  *
  * The DOM-insertion patches are the point of running at document-start — a killed
  * stylesheet must never get the chance to apply, and the observer only sees a node after
@@ -42,6 +44,9 @@ const STYLE_RULE = window.CSSRule ? window.CSSRule.STYLE_RULE : 1;
 
 /** Set once in init(); the removals are chatty, so they go to the debug channel. */
 let log = { debug() {} };
+
+/** Set once in init(): is this <style> one the bundle injected itself? Those are left alone. */
+let ownStyle = () => false;
 
 /* ---------------------------------------------------------- kill decisions */
 
@@ -91,6 +96,7 @@ function sanitizeStyleAttr(el) {
 }
 
 function sanitizeStyleElement(s) {
+  if (ownStyle(s)) return;
   const txt = s.textContent || '';
   const cleaned = sanitizeStyleText(txt);
   if (cleaned !== txt) s.textContent = cleaned;
@@ -112,6 +118,7 @@ function installInsertionPatches() {
         const node = args[0];
         if (node && node.nodeType === 1) {
           if (node.tagName === 'STYLE') {
+            if (ownStyle(node)) return orig.apply(this, args);
             const t = node.textContent || '';
             const s = sanitizeStyleText(t);
             if (t !== s) node.textContent = s;
@@ -160,6 +167,7 @@ function purgeRules() {
   const iconSelTargets = ['.fa', '.fas', '.far', '.fal', '.fab', '.glyphicon'];
   try {
     for (const sheet of Array.from(document.styleSheets)) {
+      if (ownStyle(sheet.ownerNode)) continue; // the bundle's own sheet, not the site's
       let rules;
       try { rules = sheet.cssRules; } catch { continue; } // cross-origin
       if (!rules) continue;
@@ -258,6 +266,7 @@ export default {
     if (ctx.page.is('orders-review') && ctx.page.param('review')) return;
 
     log = ctx.log;
+    ownStyle = ctx.style.owns;
 
     installInsertionPatches();
     ctx.style.add(css, { id: 'hygiene-clean' });

@@ -90,7 +90,7 @@ Then add it to `src/modules/index.js`.
 | `ctx.observe` | `.each(sel, cb)`, `.onChange(cb)`, `.ready(sel)`, `.silently(fn)` |
 | `ctx.route` | `.onChange(cb)`, `.signal()` — SPA navigation, mirrored as `tm:route` |
 | `ctx.net` | `.onResponse(cb)`, `.dedupe(match)`, `.request(url, opts)` |
-| `ctx.style` | `.add(css)`, `.addToShadow(root, css)` |
+| `ctx.style` | `.add(css)`, `.addToShadow(root, css)`, `.owns(node)` — is this `<style>` the bundle's own |
 | `ctx.settings` | `.raw`, `.json`, `.shared`, `.isEnabled(id)`, `.migrate(from, to)` |
 | `ctx.theme` | `.current()`, `.isDark()`, `.set()`, `.toggle()`, `.onChange(cb)` |
 | `ctx.events` | `.on(name, cb)`, `.emit(name, detail)` |
