@@ -2,16 +2,22 @@
  * Orders Review workspace — layout only, on ?p=orders-review&review=… :
  *
  *   1. a "Back to top" button beside Save, wearing Save's own classes;
- *   2. the red "Warning" panels are lifted out of the form into a fixed bottom sheet so
+ *   2. the red "Warning" panels lifted out of the form into a fixed bottom sheet so
  *      they stay on screen while the reviewer scrolls;
  *   3. panel, table and form-control compaction so the review form fits on a screen.
  *
  * Ported from legacy/userscripts/orders-review.user.js (v1.2.1).
  *
- * The legacy MutationObserver over documentElement is one ctx.observe subscription now.
- * The re-scan is not defensive padding: both the warning panels and the compact-panel
- * tagging key off markup `orders.products-panel` writes (`.panel-heading._tm-enhanced`,
- * `.sc-title`), and that lands after this module's first pass.
+ * IMPORTANT — only (1) has ever run on the real site. The legacy `runAll()` called
+ * `buildWarningDrawer()` (legacy line 113), which is defined nowhere in that script, so
+ * it threw a ReferenceError on the first idle pass and aborted the rest of the IIFE.
+ * Everything after that point was dead code: the warning bottom sheet, the re-scan
+ * MutationObserver, the compaction stylesheet and the `.sc-compact-panel` tagging.
+ *
+ * The dead half is clearly what the author intended, so it is ported rather than
+ * dropped — but it is off by default, because turning it on is a visible change to a
+ * page nobody has seen it applied to. `sc.tools.orders.review.full` = "true" enables it.
+ * With the switch off this module does exactly what the installed legacy script did.
  */
 
 import css from './styles.css';
@@ -107,10 +113,22 @@ export default {
 
   init(ctx) {
     // The legacy @match was ?p=orders-review&review=* — the page id is the `pages` array
-    // above, the record parameter is the half it cannot express.
-    if (!ctx.page.param('review')) return;
+    // above, the record parameter is the half it cannot express. Presence, not
+    // truthiness: `&review=` with an empty value matched the legacy pattern too.
+    if (ctx.page.param('review') === null) return;
 
     ctx.style.add(css, { id: STYLE_ID });
+
+    // Back to top is the only part the installed legacy script reached before it threw.
+    addBackToTop(ctx);
+
+    // Everything below was dead in legacy. See the header: opt in to get it.
+    if (ctx.settings.raw.get('sc.tools.orders.review.full') !== 'true') {
+      ctx.log.debug('warning sheet and compaction stay off; they never ran in the legacy script');
+      return;
+    }
+
+    document.documentElement.classList.add('sc-review-full');
 
     const scan = () => {
       addBackToTop(ctx);

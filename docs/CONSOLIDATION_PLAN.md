@@ -296,29 +296,65 @@ Recorded as the plan was carried out, so the doc and the repo do not drift.
 
 ### Port status
 
-All 26 scripts are ported, both bundles are wired, and `npm run check` is green.
+All 26 scripts are ported, both bundles are wired, `npm run check` is green, and every
+module has now been diffed against the legacy script it replaces by an independent
+reviewer that read both files in full.
 
-**Verification is incomplete, and this is the main thing outstanding.** The port ran as
-26 agents, each followed by an adversarial parity check against its legacy original. The
-ports finished; every parity check died when the session's agent limit was reached. So no
-module has been independently diffed against the script it replaces.
+| Verdict | Count |
+|---|---|
+| clean | 9 |
+| minor findings only | 15 |
+| broken | 2 (both fixed) |
 
-What *was* verified, by hand:
+Two blockers, both of them in `src/core/` rather than in a ported module:
+
+1. **De-dup never fired.** `net-tap` applied dedupe rules only on the `fetch` path. The
+   extranet issues its AJAX through jQuery — that is `XMLHttpRequest` — so TurboKit's
+   coalescing of `/ajax/emails/load_email.php`, the feature the legacy script is named
+   for, was a no-op. The XHR path now consults the same rules and aborts a repeat inside
+   the window. Related majors fixed with it: the key ignored jQuery's `_` cache-buster
+   (so every request looked unique), and the 60s `tmCache:` response cache had been
+   dropped without saying so.
+2. **The loading overlay tore itself down.** `events.emit` mirrors certain names onto
+   `window`, and a module that also bridged one of those names received every emit
+   twice; for the loader the second delivery cancelled the overlay it had just been asked
+   to show. Mirrored dispatches are tagged and ignored by `bridge` now, and the loader's
+   teardown is generation-checked so a `show()` during the fade cancels a pending
+   removal.
+
+Three further majors fixed: TabName visited each `<script>` once when the legacy re-scanned
+every batch (the site streams its order JSON, so a script incomplete on first sight never
+yielded the number); Order Info Panels ran at `document-end` when the legacy default was
+`document-idle`; and Orders Review, below.
+
+**One finding is a decision, not a defect.** The legacy Orders Review script calls
+`buildWarningDrawer()` at line 113, which is defined nowhere — so it threw a
+`ReferenceError` on its first pass and everything after it was dead code. On the real
+page that script only ever added the "Back to top" button. The port had silently revived
+the warning bottom sheet, the re-scan observer and a page-wide compaction stylesheet that
+nobody has seen applied. Those are kept — they are clearly what the author intended — but
+**off by default**, behind `sc.tools.orders.review.full`. With the switch off the module
+does exactly what users actually had. Turn it on when someone can look at the result on
+the real site.
+
+The remaining findings are all minor and recorded in the run; none of them change
+behaviour.
+
+### Verification performed
 
 | Check | Result |
 |---|---|
-| Rule sweep across all 26 modules | No `window.*` assignments, no private `MutationObserver`, no `fetch`/XHR patching, no CSS in JS |
+| Independent parity diff, all 26 modules | 2 blockers, 5 majors — all fixed |
+| Rule sweep | No `window.*` assignments, no private `MutationObserver`, no `fetch`/XHR patching, no CSS in JS |
 | Storage keys vs legacy | All 14 load-bearing keys present verbatim |
 | `npm run check` | lint, build and header check green |
-| Headless Chromium load, 6 page scopes + both bundles | Zero console errors |
+| Headless Chromium, 7 page scopes + both bundles | Zero console errors |
 
-The browser run found three real defects, all fixed: a `document-start` module appending
-to `document.documentElement` before the parser created it (killed the loader and
-TurboKit), `insertAdjacentHTML` called on a `ShadowRoot`, and a startup banner that
-counted only the document-start stage.
+The browser run found three more defects earlier, all fixed: a `document-start` module
+appending to `document.documentElement` before the parser created it (this killed the
+loader and TurboKit outright), `insertAdjacentHTML` called on a `ShadowRoot`, and a
+startup banner that counted only the document-start stage.
 
-None of that substitutes for a parity diff. Before uninstalling any legacy script, run
-each module side by side with the original on the real site — the checklist in section 7
-is the standard. The riskiest are the ones with the least mechanical ports: `nav`
-(rewritten from an `eval`-through-a-proxy design), `messages`, `tables/filters`, and both
-safety-critical modules, `automation/auto-review` and `twofa`.
+**Still do a side-by-side pass on the real site before uninstalling the legacy scripts.**
+Static review and a stub page cannot see the extranet's actual markup, and the checklist
+in section 7 is the standard.

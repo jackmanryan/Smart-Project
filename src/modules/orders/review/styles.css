@@ -31,25 +31,30 @@
   margin-bottom: 0 !important;
 }
 
-/* ---------- Panel compaction ---------- */
-#page-wrapper .panel { margin-bottom: 12px !important; }
-#page-wrapper .panel-body { padding: 10px 12px !important; }
+/* ---------- Everything below was dead in the legacy script ----------
+   buildWarningDrawer() threw before any of it was reached, so these rules have
+   never applied on the real page. The module adds .sc-review-full to <html>
+   only when sc.tools.orders.review.full is on, which keeps the default
+   identical to what users actually had. */
+
+.sc-review-full #page-wrapper .panel { margin-bottom: 12px !important; }
+.sc-review-full #page-wrapper .panel-body { padding: 10px 12px !important; }
 
 /* Reduce generic vertical gaps inside panels */
-#page-wrapper .panel-body > * { margin-top: 8px; margin-bottom: 8px; }
-#page-wrapper .panel-body > *:first-child { margin-top: 0; }
-#page-wrapper .panel-body > *:last-child { margin-bottom: 0; }
+.sc-review-full #page-wrapper .panel-body > * { margin-top: 8px; margin-bottom: 8px; }
+.sc-review-full #page-wrapper .panel-body > *:first-child { margin-top: 0; }
+.sc-review-full #page-wrapper .panel-body > *:last-child { margin-bottom: 0; }
 
 /* ---------- Tables inside panels ---------- */
-#page-wrapper .panel .table { margin-bottom: 0 !important; }
-#page-wrapper .panel .table > tbody > tr > td {
+.sc-review-full #page-wrapper .panel .table { margin-bottom: 0 !important; }
+.sc-review-full #page-wrapper .panel .table > tbody > tr > td {
   padding: 6px 8px !important;
   vertical-align: middle !important;
 }
 
 /* ---------- Form controls ---------- */
 /* Kill any aggressive min-heights set by theme */
-#page-wrapper .panel .form-control {
+.sc-review-full #page-wrapper .panel .form-control {
   min-height: 0 !important;
   height: auto !important;
   line-height: 1.3 !important;
@@ -57,29 +62,29 @@
 }
 
 /* Selects should look like a normal control, not a boxy block */
-#page-wrapper select.form-control {
+.sc-review-full #page-wrapper select.form-control {
   height: 36px !important;
 }
 
 /* Textareas: keep useful space but not huge */
-#page-wrapper textarea.form-control {
+.sc-review-full #page-wrapper textarea.form-control {
   min-height: 140px !important;
   resize: vertical !important;
 }
 
 /* The specific "Load template" control often inherits extra spacing */
-#emailTemplate { margin: 0 !important; }
+.sc-review-full #emailTemplate { margin: 0 !important; }
 
 /* ---------- Grid gutters (tighter columns) ---------- */
-#page-wrapper .row { margin-left: -8px; margin-right: -8px; }
-#page-wrapper [class*="col-"] { padding-left: 8px; padding-right: 8px; }
+.sc-review-full #page-wrapper .row { margin-left: -8px; margin-right: -8px; }
+.sc-review-full #page-wrapper [class*="col-"] { padding-left: 8px; padding-right: 8px; }
 
 /* ---------- Dark block fixes ----------
    If the theme assigns big min-heights to editor/well blocks, neutralize them. */
-#page-wrapper .panel .well,
-#page-wrapper .panel .note-editor,
-#page-wrapper .panel .panel-body > div[class*="editor"],
-#page-wrapper .panel .panel-body > .form-group > .note-editor {
+.sc-review-full #page-wrapper .panel .well,
+.sc-review-full #page-wrapper .panel .note-editor,
+.sc-review-full #page-wrapper .panel .panel-body > div[class*="editor"],
+.sc-review-full #page-wrapper .panel .panel-body > .form-group > .note-editor {
   min-height: unset !important;
   height: auto !important;
 }
