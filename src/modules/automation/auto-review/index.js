@@ -20,6 +20,13 @@
  *   https://extranet.strip-curtains.com/?p=orders-review&review=<ID>#autoreview=1&po=<ORDER#>
  *     &copyemail=1&ship=UPS%20Standard&rich=SKU1,SKU2&price=SKU~0.65,SKU~1.31&comment=<text>&dry=1
  *
+ * SOURCING is rule-driven. orders/lib/sourcing.js decides each handling row — PVC and
+ * Polymer Quick Snap to ExtruFlex, hardware to Richmond, GALV whole feet to ExtruFlex and
+ * GALV partial footage to Richmond — and the flip is still verified against the PO table
+ * before the run continues, because the page's updateInventorySource fires an $.ajax whose
+ * result it never checks. A row the rule is unsure about is flagged in `warn`, never guessed.
+ * PRICES come from orders/lib/extruflex.js, the same table the manual review screen uses.
+ *
  * Params (all optional except autoreview=1):
  *   po=         fill #po_number only if it is empty
  *   copyemail=1 copy billing email into shipping email if shipping is empty
@@ -63,6 +70,8 @@
  */
 
 import css from './styles.css';
+import { EFFECTIVE_DATE, LIST_NAME, priceFor, isZeroPriced } from '../../orders/lib/extruflex.js';
+import { classify, RICHMOND } from '../../orders/lib/sourcing.js';
 
 const STYLE_ID = 'automation-auto-review';
 
@@ -85,17 +94,9 @@ const YES_MAX = 5;
 /** If Save does not reload the page, stage B is tried in place after this long. */
 const RELOAD_GRACE_MS = 60000;
 
-// ---------- ExtruFlex 2026 price list (effective 2026-04-13), keyed on extranet SKU substrings ----------
-// Net $/ft for cut strips. Cut charge ($0.09/ft) is a separate PO line and is left alone.
-// Extend as new extranet SKUs are matched. Matching is case-insensitive substring, first hit
-// wins, so keep specific keys first.
-const PRICE_MAP = [
-  ['SC-08-08-RIBBED-LOW-TEMP', 0.69], // Low Temp DuraRib 8" x .072"
-  ['SC-08-.08 - FROSTED', 0.65], //      Standard Frosted (Matte) 8" x .080"
-  ['SC-12IN-0120IN-STANDARD', 1.31], //  Standard Smooth 12" x .120"
-  ['HARD-GALV', 3.0], //                 Bolt-On Galvanized hardware, per ft
-];
-const IGNORE_PRICE = [/cutting charge/i, /^MISCSERVICE/i];
+// The price list and the SKU aliases live in orders/lib/extruflex.js, so the manual
+// review screen and this automation check against the same rows and the same effective
+// date. Extend the list there, not here.
 
 /* ------------------------------------------------------------------ pure helpers */
 
@@ -131,11 +132,15 @@ const parseOverrides = (value) =>
     return [k, parseFloat(v)];
   });
 
-/** First override, then the list price; null when the SKU is unknown. */
-function lookupPrice(sku, overrides) {
-  for (const [k, v] of overrides) if (sku.toUpperCase().includes(k.toUpperCase())) return v;
-  for (const [k, v] of PRICE_MAP) if (sku.toUpperCase().includes(k.toUpperCase())) return v;
-  return null;
+/**
+ * What a PO line should cost. A `price=` override always wins — it is the reviewer
+ * saying they have read the printed list — otherwise the shared price table answers.
+ */
+function lookupPrice(sku, overrides, { unitPrice = null } = {}) {
+  for (const [k, v] of overrides) {
+    if (sku.toUpperCase().includes(k.toUpperCase())) return { kind: 'price', price: v, part: 'override' };
+  }
+  return priceFor({ sku, unitPrice });
 }
 
 /**
@@ -165,6 +170,21 @@ const extruFlexButton = ($$, idPrefix) =>
 function rowSku(sel) {
   const tds = sel.closest('tr').querySelectorAll('td');
   return (tds[2] ? tds[2].innerText : sel.closest('tr').innerText).trim();
+}
+
+/**
+ * One handling row as the sourcing rule wants to see it.
+ *
+ * The footage comes from the row's own #cut_length input — that id repeats per row, so it
+ * is looked up inside the row rather than on the document. GALV lines are the only ones
+ * where it changes the answer, and a missing length makes the rule answer Richmond.
+ */
+function rowInfo(sel) {
+  const tr = sel.closest('tr');
+  const cut = tr.querySelector('#cut_length');
+  const raw = cut ? cut.value : '';
+  const lengthFt = raw !== '' && Number.isFinite(parseFloat(raw)) ? parseFloat(raw) : null;
+  return { sel, sku: rowSku(sel), description: tr.innerText, lengthFt, vendor: sel.value };
 }
 
 /* ------------------------------------------------------------------ the run */
@@ -334,8 +354,10 @@ function createRun(ctx) {
     );
     step('all rows -> ExtruFlex');
 
-    // Richmond rows: every handling row whose text contains one of the substrings (an order
-    // can carry several rows of the same hardware SKU)
+    // Richmond rows. Two sources, in this order:
+    //   1. `rich=` — the reviewer naming SKUs explicitly, which always wins;
+    //   2. the sourcing rule in orders/lib/sourcing.js, unless `norule=1` turns it off.
+    // The rule is what removes the per-row hand-flipping; naming a SKU is the override.
     const flipped = [];
     for (const sku of csv(p.rich)) {
       const sels = $$('select.sourceCombo').filter((s) =>
@@ -343,6 +365,23 @@ function createRun(ctx) {
       );
       if (!sels.length) fail('rich SKU not found in handling table: ' + sku);
       for (const sel of sels) if (!flipped.includes(sel)) flipped.push(sel);
+    }
+
+    if (p.norule !== '1') {
+      const ruled = [];
+      const unsure = [];
+      for (const sel of $$('select.sourceCombo')) {
+        if (flipped.includes(sel)) continue;
+        const info = rowInfo(sel);
+        const verdict = classify(info);
+        if (verdict.vendor !== RICHMOND) continue;
+        flipped.push(sel);
+        ruled.push(`${info.sku.slice(0, 24)} (${verdict.reason})`);
+        if (verdict.uncertain || verdict.needsLength) unsure.push(`${info.sku.slice(0, 24)}: ${verdict.reason}`);
+      }
+      if (ruled.length) step('rule -> Richmond: ' + ruled.join(', '));
+      // Surfaced rather than silent: these are the rows a reviewer should look at.
+      if (unsure.length) state.warn.push('sourcing rule unsure: ' + unsure.join(' | '));
     }
 
     // Expected Richmond PO rows per SKU; the page's updateInventorySource is async and can be
@@ -379,18 +418,27 @@ function createRun(ctx) {
     await sleep(1500);
     jq('#po').show();
 
-    // Price check on ExtruFlex lines
+    // Price check on ExtruFlex lines, against the shared list
+    step(`price list: ${LIST_NAME}, effective ${EFFECTIVE_DATE}`);
     const overrides = parseOverrides(p.price);
     const unmapped = [];
+    const zeroed = [];
     for (const r of poRows($$)) {
       if (r.src !== 'ExtruFlex') continue;
-      if (IGNORE_PRICE.some((re) => re.test(r.sku))) continue;
-      const want = lookupPrice(r.sku, overrides);
       const have = parseFloat(r.unit.value) || 0;
-      if (want == null) {
+      const verdict = lookupPrice(r.sku, overrides, { unitPrice: have });
+
+      if (verdict.kind === 'ignore') continue;
+      // A positive MISCSERVICE line means someone hand-wrote notes onto the PO.
+      if (verdict.kind === 'stop') fail(verdict.reason);
+      if (verdict.kind === 'unknown') {
         unmapped.push(r.sku + '@' + have);
         continue;
       }
+      // A zero on a priced line reaches the vendor as a free item. Never sign that off.
+      if (isZeroPriced(have) && verdict.price > 0) zeroed.push(r.sku);
+
+      const want = verdict.price;
       if (Math.abs(have - want) > 0.0001) {
         r.unit.value = want.toFixed(2);
         window.changeQuantity(r.unit, window.orderid_cp);
@@ -401,6 +449,11 @@ function createRun(ctx) {
         );
         step('price ' + r.sku + ' ' + have + ' -> ' + want);
       } else step('price ok ' + r.sku + ' ' + have);
+    }
+    if (zeroed.length) {
+      // Not overridable by strict=0: a $0.00 line on a PO is always wrong.
+      report({ stage: 'zero_price' });
+      fail('zero-priced ExtruFlex lines: ' + zeroed.join(' | '));
     }
     if (unmapped.length) {
       state.warn.push('no list price for: ' + unmapped.join(' | '));
