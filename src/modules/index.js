@@ -24,6 +24,7 @@ import infoPanels from './orders/info-panels/index.js';
 import productsPanel from './orders/products-panel/index.js';
 import timeline from './orders/timeline/index.js';
 import review from './orders/review/index.js';
+import reviewAssist from './orders/review-assist/index.js';
 import trackingPanel from './orders/tracking-panel/index.js';
 import links from './orders/links/index.js';
 import contextMenu from './orders/context-menu/index.js';
@@ -50,6 +51,7 @@ export default [
   productsPanel,
   timeline,
   review,
+  reviewAssist,
   trackingPanel,
   links,
   contextMenu,
