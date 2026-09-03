@@ -1,0 +1,559 @@
+/*
+ * Message Center overlay — ported verbatim from legacy/userscripts/message-center.user.js.
+ *
+ * The legacy sheet was a template literal, so two sizes were interpolated from its CFG:
+ * CARD_MAX_W (1000px, the .mc-card width) and LEFT_COL_W (320px, the .mc-body left
+ * column). They are literals here; the JS no longer carries them.
+ */
+
+body.mc-no-scroll { overflow:hidden !important; }
+
+/* MAIN MESSAGE CENTER OVERLAY */
+#mc-inline-overlay{
+  --mc-bg-card:#ffffff;
+  --mc-bg-body:#f7f8fb;
+  --mc-pane-bg:#ffffff;
+  --mc-bd:#e5e7eb;
+  --mc-ink:#111827;
+  --mc-muted:#6b7280;
+  --mc-accent:#0B66FF;
+  --mc-chip-bg:#f9fafb;
+  --mc-chip-bd:#e5e7eb;
+  --mc-shadow:0 24px 60px rgba(0,0,0,.28);
+  --mc-radius-card:12px;
+  --mc-radius-block:10px;
+  --mc-font:-apple-system,system-ui,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+
+  position:fixed;
+  inset:0;
+  z-index:2147483646; /* below compose */
+  display:none;
+  font-family:var(--mc-font);
+  color:var(--mc-ink);
+}
+#mc-inline-overlay.mc-open{display:block;}
+
+#mc-inline-overlay .mc-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.25);
+}
+
+#mc-inline-overlay .mc-card{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(1000px,92vw);
+  max-height:80vh;
+  min-height:420px;
+  background:var(--mc-bg-card);
+  border:1px solid var(--mc-bd);
+  border-radius:var(--mc-radius-card);
+  box-shadow:var(--mc-shadow);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* HEADER */
+#mc-inline-overlay .mc-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:nowrap;
+  column-gap:12px;
+  row-gap:8px;
+  padding:12px 16px;
+  background:var(--mc-bg-card);
+  border-bottom:1px solid var(--mc-bd);
+  position:relative;
+  z-index:1;
+  font-size:13px;
+  line-height:1.4;
+}
+#mc-inline-overlay .mc-head-left{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+#mc-inline-overlay .mc-head-row1{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  column-gap:6px;
+  min-width:0;
+}
+#mc-inline-overlay .mc-head-icon{
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  background:#1e40af;
+  flex-shrink:0;
+}
+#mc-inline-overlay .mc-head-title{
+  font-weight:600;
+  color:var(--mc-ink);
+  font-size:13px;
+  line-height:1.4;
+}
+#mc-inline-overlay .mc-order-link{
+  font-size:11px;
+  line-height:1.3;
+  color:var(--mc-accent);
+  text-decoration:underline;
+  max-width:60vw;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#mc-inline-overlay .mc-order-link:hover{
+  color:#000;
+}
+#mc-inline-overlay .mc-close-btn{
+  border:0;
+  background:transparent;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  color:#666;
+  padding:4px 6px;
+  flex-shrink:0;
+}
+#mc-inline-overlay .mc-close-btn:hover{color:#000;}
+
+/* BODY GRID */
+#mc-inline-overlay .mc-body{
+  flex:1 1 auto;
+  min-height:0;
+  padding:16px;
+  background:var(--mc-bg-body);
+
+  display:grid;
+  grid-template-columns:320px 1fr;
+  column-gap:16px;
+  row-gap:16px;
+  max-height:calc(80vh - 58px);
+}
+@media(max-width:800px){
+  #mc-inline-overlay .mc-body{
+    grid-template-columns:1fr;
+    max-height:none;
+  }
+}
+
+/* PANEL WRAPPER STYLE (the minimal white card look from .mc-pane) */
+#mc-inline-overlay .mc-thread-pane,
+#mc-inline-overlay .mc-chat-pane{
+  background:#fff;
+  border:1px solid var(--mc-bd);
+  border-radius:10px;
+  min-height:0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* LEFT PANE HEADER */
+#mc-inline-overlay .mc-pane-head{
+  flex-shrink:0;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:600;
+  border-bottom:1px solid var(--mc-bd);
+  background:#fff;
+  color:var(--mc-ink);
+}
+
+/* LEFT PANE LIST AREA */
+#mc-inline-overlay .mc-threads-list{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:#fff;
+  font-size:12px;
+  line-height:1.4;
+  color:var(--mc-ink);
+  padding:0;
+}
+
+/* THREAD ROW CARD STYLE */
+#mc-inline-overlay .mc-thread-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  column-gap:12px;
+  padding:10px 12px;
+  border-bottom:1px solid var(--mc-bd);
+  background:#fff;
+  cursor:pointer;
+}
+#mc-inline-overlay .mc-thread-row:last-child{
+  border-bottom:none;
+}
+#mc-inline-overlay .mc-thread-row:hover{
+  background:#f9fafb;
+}
+#mc-inline-overlay .mc-thread-main{
+  min-width:0;
+  flex:1 1 auto;
+}
+#mc-inline-overlay .mc-thread-subj{
+  font-weight:600;
+  color:var(--mc-ink);
+  font-size:12px;
+  line-height:1.4;
+  margin-bottom:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#mc-inline-overlay .mc-thread-route{
+  color:var(--mc-muted);
+  font-size:11px;
+  line-height:1.4;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#mc-inline-overlay .mc-thread-side{
+  flex-shrink:0;
+  min-width:max-content;
+  text-align:right;
+  font-size:11px;
+  line-height:1.4;
+  color:var(--mc-muted);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  row-gap:6px;
+}
+#mc-inline-overlay .mc-thread-date{
+  color:var(--mc-muted);
+  font-size:11px;
+  line-height:1.4;
+  white-space:nowrap;
+}
+
+/* skeleton lines for initial loading */
+@keyframes mcShine{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+#mc-inline-overlay .mc-skel-line{
+  background:linear-gradient(90deg,#eee,#f6f6f6,#eee);
+  background-size:200% 100%;
+  animation:mcShine 1s linear infinite;
+  height:10px;
+  border-radius:4px;
+  margin:10px 12px;
+}
+
+/* RIGHT PANE (CHAT) */
+#mc-inline-overlay .mc-chat-head{
+  flex-shrink:0;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:nowrap;
+  gap:12px;
+
+  padding:12px;
+  border-bottom:1px solid var(--mc-bd);
+  background:#fff;
+  font-size:13px;
+  line-height:1.4;
+}
+#mc-inline-overlay .mc-chat-head-main{
+  flex:1 1 auto;
+  min-width:0;
+}
+#mc-inline-overlay .mc-chat-subject{
+  font-weight:700;
+  color:var(--mc-ink);
+  font-size:13px;
+  line-height:1.4;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#mc-inline-overlay .mc-chat-meta{
+  font-size:12px;
+  margin-top:2px;
+  color:var(--mc-muted);
+  word-break:break-word;
+}
+
+/* progress bar during initial scrape */
+#mc-inline-overlay .mc-progress-wrap{
+  height:4px;
+  background:var(--mc-bd);
+  border-radius:9999px;
+  overflow:hidden;
+  margin-top:8px;
+  display:none;
+}
+#mc-inline-overlay .mc-progress-bar{
+  height:100%;
+  background:var(--mc-accent);
+  width:0%;
+  transition:width .2s linear;
+}
+
+/* header actions (Reply/New) */
+#mc-inline-overlay .mc-chat-head-actions{
+  flex-shrink:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:flex-start;
+  max-width:40%;
+}
+#mc-inline-overlay .mc-btn{
+  display:inline-block;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:600;
+  padding:6px 8px;
+  border-radius:6px;
+  border:1px solid var(--mc-accent);
+  background:var(--mc-accent);
+  color:#fff;
+  text-decoration:none;
+  cursor:pointer;
+  white-space:nowrap;
+}
+#mc-inline-overlay .mc-btn:hover{
+  filter:brightness(.95);
+}
+#mc-inline-overlay .mc-btn-secondary{
+  background:#fff;
+  color:var(--mc-accent);
+}
+#mc-inline-overlay .mc-btn-secondary:hover{
+  background:#eef4ff;
+  filter:none;
+}
+#mc-inline-overlay .mc-btn-disabled{
+  opacity:.4;
+  cursor:default;
+  pointer-events:none;
+}
+
+/* chat history */
+#mc-inline-overlay .mc-chat-history{
+  flex:1 1 auto;
+  min-height:0;
+  max-height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:12px;
+  background:#fff;
+
+  font-size:13px;
+  line-height:1.4;
+  color:var(--mc-ink);
+  word-break:break-word;
+  display:grid;
+  row-gap:12px;
+}
+#mc-inline-overlay .mc-bubble{
+  background:var(--mc-chip-bg);
+  border:1px solid var(--mc-chip-bd);
+  border-radius:8px;
+  padding:10px 12px;
+  white-space:pre-wrap;
+  word-break:break-word;
+  font-size:13px;
+  line-height:1.4;
+  color:var(--mc-ink);
+}
+#mc-inline-overlay .mc-bubble-head{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  font-size:12px;
+  color:#374151;
+  margin-bottom:4px;
+}
+#mc-inline-overlay .mc-bubble-from{
+  font-weight:700;
+  color:#111827;
+}
+#mc-inline-overlay .mc-bubble-time{
+  color:#6b7280;
+}
+#mc-inline-overlay .mc-bubble-body{
+  color:#111827;
+  font-size:13px;
+  line-height:1.4;
+}
+#mc-inline-overlay .mc-bubble-loading{
+  background:transparent;
+  border:1px dashed var(--mc-bd);
+  color:#6b7280;
+  text-align:center;
+  font-size:12px;
+  line-height:1.4;
+  padding:24px 12px;
+}
+
+/* ===========================================================
+   COMPOSE OVERLAY  (Reply / Add Conversation) ABOVE main MC
+   =========================================================== */
+#mc-compose-overlay{
+  --mc-bg-card:#fff;
+  --mc-bd:#e5e7eb;
+  --mc-ink:#111827;
+  --mc-muted:#6b7280;
+  --mc-font:-apple-system,system-ui,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+
+  position:fixed;
+  inset:0;
+  z-index:2147483647; /* above message center overlay */
+  display:none;
+  font-family:var(--mc-font);
+  color:var(--mc-ink);
+}
+#mc-compose-overlay.mc-open{display:block;}
+#mc-compose-overlay .mc-compose-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.4);
+}
+#mc-compose-overlay .mc-compose-card{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  border:1px solid var(--mc-bd);
+  border-radius:12px;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+  width:min(700px,90vw);
+  max-height:80vh;
+  min-height:300px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* compose header */
+#mc-compose-overlay .mc-compose-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding:12px 16px;
+  border-bottom:1px solid var(--mc-bd);
+  background:#fff;
+  font-size:13px;
+  line-height:1.4;
+  font-weight:600;
+  color:#111827;
+}
+#mc-compose-overlay .mc-compose-title{
+  font-weight:600;
+  font-size:13px;
+  line-height:1.4;
+}
+#mc-compose-overlay .mc-compose-close{
+  border:0;
+  background:transparent;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+  color:#666;
+  padding:4px 6px;
+}
+#mc-compose-overlay .mc-compose-close:hover{color:#000;}
+
+/* compose body */
+#mc-compose-overlay .mc-compose-body{
+  flex:1 1 auto;
+  min-height:0;
+  overflow:auto;
+  background:#fff;
+  padding:16px;
+  font-size:13px;
+  line-height:1.4;
+  color:#111827;
+}
+
+/* normalize legacy modal markup inside compose overlay */
+#mc-compose-overlay .panel.panel-default{
+  border:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  margin:0 !important;
+}
+#mc-compose-overlay .panel-heading{
+  display:none !important;
+}
+#mc-compose-overlay .panel-body{
+  background:#fff !important;
+  border:0 !important;
+  padding:0 !important;
+  color:#111827 !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+}
+#mc-compose-overlay .form-group{
+  margin-bottom:12px !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+  color:#111827 !important;
+}
+#mc-compose-overlay label{
+  font-weight:600 !important;
+  color:#374151 !important;
+  display:block !important;
+  margin-bottom:4px !important;
+  font-size:12px !important;
+  line-height:1.4 !important;
+}
+#mc-compose-overlay .form-control,
+#mc-compose-overlay textarea.form-control,
+#mc-compose-overlay input.form-control,
+#mc-compose-overlay select.form-control{
+  width:100% !important;
+  max-width:100% !important;
+  display:block !important;
+  border:1px solid #d1d5db !important;
+  border-radius:6px !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+  padding:6px 8px !important;
+  background:#fff !important;
+  color:#111827 !important;
+  box-shadow:none !important;
+}
+#mc-compose-overlay textarea.form-control{
+  min-height:140px !important;
+  height:140px !important;
+  max-height:260px !important;
+  overflow-y:auto !important;
+}
+#mc-compose-overlay #cc_list{
+  border:1px solid #d1d5db !important;
+  border-radius:6px !important;
+  margin-top:6px !important;
+  max-height:140px !important;
+  overflow-y:auto !important;
+  padding-top:8px !important;
+  padding-left:8px !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+}
+#mc-compose-overlay .btn.btn-success{
+  background:#10b981 !important;
+  border:1px solid #059669 !important;
+  border-radius:6px !important;
+  font-size:13px !important;
+  line-height:1.4 !important;
+  font-weight:600 !important;
+  color:#fff !important;
+  padding:6px 10px !important;
+  cursor:pointer;
+}
+#mc-compose-overlay .btn.btn-success:hover{
+  filter:brightness(.95);
+}

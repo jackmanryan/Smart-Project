@@ -1,0 +1,28 @@
+{
+  "name": "SC Extranet Tools",
+  "namespace": "sc.extranet",
+  "version": "1.0.0",
+  "description": "Consolidated extranet enhancements: navigation, order panels, tables, dock, message centre, performance.",
+  "author": "jackmanryan",
+  "match": [
+    "https://extranet.strip-curtains.com/*"
+  ],
+  "exclude": [
+    "https://extranet.strip-curtains.com/?p=quotes_editor*",
+    "https://extranet.strip-curtains.com/quotepayment*"
+  ],
+  "run-at": "document-start",
+  "grant": [
+    "GM_addStyle",
+    "GM_xmlhttpRequest",
+    "GM_setValue",
+    "GM_getValue",
+    "GM_setClipboard",
+    "GM_saveTab",
+    "GM_getTab"
+  ],
+  "connect": [
+    "extranet.strip-curtains.com"
+  ],
+  "noframes": true
+}

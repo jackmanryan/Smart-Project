@@ -1,0 +1,42 @@
+/*
+ * Copy Buttons — ported from legacy/userscripts/copy-buttons.user.js (v1.2).
+ *
+ * The class names are load-bearing beyond this module: tables/bubbles strips
+ * `.tm-copy-wrap` and `.tm-copy-btn` out of the text it copies, and this module strips
+ * them out of its own. Renaming them here silently puts the button's own label into
+ * every copied panel.
+ *
+ * The legacy script injected this only while the switch was on; it is injected once at
+ * start now, which is inert because nothing carries these classes until a button exists.
+ */
+
+.tm-copy-posrel {
+  position: relative !important;
+}
+
+.tm-copy-wrap {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  z-index: 2;
+}
+
+.tm-copy-btn {
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, .25);
+  border-radius: 4px;
+  background: #f7f7f7;
+  user-select: none;
+}
+
+.tm-copy-btn[disabled] {
+  opacity: .6;
+  cursor: default;
+}

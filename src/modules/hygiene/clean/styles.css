@@ -1,0 +1,13 @@
+/* Keep search inputs normal regardless of any remaining site CSS. */
+input[type="search"] {
+  -webkit-appearance: auto !important;
+  appearance: auto !important;
+}
+
+/* The site ships a rule that hides the Toronto packages panel outright; put it back. */
+#Packages-Block-Toronto,
+.panel:has(#Packages-Block-Toronto),
+.panel-heading:has(#Packages-Block-Toronto) {
+  display: initial !important;
+  visibility: initial !important;
+}

@@ -1,0 +1,41 @@
+/*
+ * UPS claim pills.
+ *
+ * The legacy script set these as inline style attributes, so they always won over the
+ * site's own anchor rules. Class selectors are a step down in specificity, hence the
+ * repeated :link/:visited/:hover/:focus states — without them Bootstrap recolours the
+ * pill text on hover, which the inline styles used to prevent.
+ */
+
+.__ups_gmail_injected {
+  margin-left: 8px;
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.__ups_gmail_injected .sc-claim-pill,
+.__ups_gmail_injected .sc-claim-pill:link,
+.__ups_gmail_injected .sc-claim-pill:visited,
+.__ups_gmail_injected .sc-claim-pill:hover,
+.__ups_gmail_injected .sc-claim-pill:focus {
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.__ups_gmail_injected .sc-claim-pill--compose,
+.__ups_gmail_injected .sc-claim-pill--compose:hover,
+.__ups_gmail_injected .sc-claim-pill--compose:focus {
+  background: #0b3d91;
+  border: 1px solid #0b3d91;
+}
+
+.__ups_gmail_injected .sc-claim-pill--search,
+.__ups_gmail_injected .sc-claim-pill--search:hover,
+.__ups_gmail_injected .sc-claim-pill--search:focus {
+  background: #1f2937;
+  border: 1px solid #374151;
+}

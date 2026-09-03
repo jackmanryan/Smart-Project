@@ -1,0 +1,12 @@
+/*
+ * Pass-through policy for the shadow host.
+ *
+ * The host is a full-width fixed strip across the top of the page, so it would swallow
+ * every click in that band. Nothing in the shadow takes pointer events except the menubar
+ * itself, and a submenu only once it is open.
+ */
+:host { pointer-events: none !important; }
+:host > * { pointer-events: none !important; }
+header.menu-top, header.menu-top * { pointer-events: auto !important; }
+.submenu { pointer-events: none !important; }
+.submenu[data-open="true"] { pointer-events: auto !important; }

@@ -1,0 +1,118 @@
+/*
+ * The right-click menu, inside its closed shadow root.
+ *
+ * Verbatim from legacy/userscripts/extraright.user.js, with three additions that were
+ * inline styles in the legacy JS: the Copy Sets flyout box, its list width, and the
+ * .is-open toggles that replaced writing element.style.display from script.
+ */
+
+/* Reset + tokens */
+.cd-root,
+.cd-root *,.cd-root *::before,.cd-root *::after{box-sizing:border-box}
+.cd-root{
+  all:initial;display:block;
+  --ink:#e8edf3;--muted:#b8c3e0;--accent:#9b87f5;
+  --surface-0:#121621;--surface-1:#0e1118;--bd:#1c1f2a;
+  --tb:44px;--ic:22px;
+  --tip-bg:#1a1f30;--tip-bd:#2a3150;--tip-ink:#e8edf3;
+  font:14px/1.5 -apple-system,system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;
+  color:var(--ink);
+}
+
+/* Shell */
+.menu-wrap,.flyout{position:relative;z-index:10}
+.flyout{display:grid;grid-template-rows:1fr;border-radius:18px;overflow:visible}
+.flyout--creator{background:linear-gradient(180deg,var(--surface-1),var(--surface-0));border:1px solid var(--bd);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.body{max-height:60vh;overflow:auto;padding:8px}
+.group{padding:6px}
+.kicker{font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.85;padding:6px 8px}
+.menu{list-style:none;margin:6px 0 0;padding:0}
+
+/* Items */
+.item{position:relative;display:grid;grid-template-columns:24px 1fr auto 18px;align-items:center;gap:10px;min-height:44px;padding:8px 10px;border-radius:10px;cursor:pointer}
+.item:hover{background:rgba(155,135,245,.08)}
+.item.is-active{background:rgba(155,135,245,.16);outline:1px solid rgba(155,135,245,.25)}
+.item.is-active::before{content:"";position:absolute;inset:6px auto 6px 0;width:3px;border-radius:2px;background:var(--accent)}
+.icon{width:18px;height:18px;border-radius:6px;background:currentColor;opacity:.9;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
+.label{font-weight:700;letter-spacing:.01em}
+.meta{font:12px/1 ui-monospace,Menlo,Consolas,monospace;background:var(--tip-bg);border:1px solid var(--tip-bd);border-radius:999px;padding:3px 8px;color:var(--muted)}
+.chev{width:18px;height:18px;display:grid;place-items:center;color:#b7c0d9}
+.chev::before{content:'›'}
+.i-blue{color:#3b82f6}.i-green{color:#22c55e}.i-amber{color:#f59e0b}.i-pink{color:#ec4899}
+
+/* Toolbar (sizeable) */
+.toolbar{display:flex;gap:8px;padding:6px 8px 2px}
+.tbtn{
+  position:relative;
+  width:var(--tb);height:var(--tb);
+  display:grid;place-items:center;
+  border-radius:calc(var(--tb)/3);
+  background:var(--tip-bg);border:1px solid var(--tip-bd);cursor:pointer
+}
+.tbtn:hover{background:#222640}
+.tbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tbtn svg{width:var(--ic);height:var(--ic);display:block;color:var(--muted)}
+.tbtn svg path{fill:currentColor}
+
+/* Tooltips */
+.tbtn[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 10px);left:50%;
+  transform:translateX(-50%) translateY(8px) scale(.98);
+  opacity:0;pointer-events:none;z-index:20;
+  background:var(--tip-bg);color:var(--tip-ink);
+  border:1px solid var(--tip-bd);border-radius:10px;
+  padding:8px 10px;white-space:nowrap;
+  font-size:14px;line-height:1.35;font-weight:700;letter-spacing:.01em;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+  transition:opacity .18s ease-out,transform .28s cubic-bezier(.2,.9,.15,1.5);
+  animation:none
+}
+.tbtn[data-tip]::before{
+  content:"";
+  position:absolute;bottom:calc(100% + 2px);left:50%;
+  transform:translateX(-50%) rotate(45deg);
+  width:10px;height:10px;opacity:0;pointer-events:none;z-index:20;
+  background:var(--tip-bg);
+  border-left:1px solid var(--tip-bd);border-top:1px solid var(--tip-bd);
+  transition:opacity .18s ease-out
+}
+.tbtn:is(:hover,:focus-visible)::after{
+  opacity:1;transform:translateX(-50%) translateY(0) scale(1);
+  animation:tip-bounce-up .28s cubic-bezier(.2,.9,.15,1.5) both
+}
+.tbtn:is(:hover,:focus-visible)::before{opacity:1}
+
+@keyframes tip-bounce-up{
+  0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(.98)}
+  60%{opacity:1;transform:translateX(-50%) translateY(-2px) scale(1)}
+  100%{transform:translateX(-50%) translateY(0)}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  .tbtn[data-tip]::after,.tbtn[data-tip]::before{
+    transition:none;animation:none;transform:translateX(-50%) translateY(0)!important
+  }
+}
+
+/* Let the flyout allow overflow, but clip only the scrollable body */
+.flyout > .body{
+  overflow: auto;
+  border-radius: 18px;
+  clip-path: inset(0 round 18px);
+}
+
+/* Toolbar sits above the clipped region, so its tooltips can escape */
+.flyout > .toolbar{ position: relative; z-index: 20; padding: 6px 8px 2px; }
+
+/* Ensure tooltip bubbles render on top */
+.tbtn[data-tip]::before,
+.tbtn[data-tip]::after{ z-index: 30; }
+
+/* Copy Sets flyout */
+.has-sub{ position: relative; }
+#copysets-flyout{ position: fixed; display: none; z-index: 2147483647; }
+#copysets-flyout.is-open{ display: block; }
+#copysets-flyout .menu .item .icon{ color:#22c55e; }
+#copysets-list{ min-width: 360px; }

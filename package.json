@@ -1,0 +1,19 @@
+{
+  "name": "sc-extranet-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Consolidated userscripts for the strip-curtains extranet",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "lint": "eslint src build.mjs tools",
+    "check:headers": "node tools/check-headers.mjs",
+    "check": "npm run lint && npm test && npm run build && npm run check:headers",
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "eslint": "^9.17.0"
+  }
+}

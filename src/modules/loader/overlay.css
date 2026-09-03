@@ -1,0 +1,31 @@
+/*
+ * Chrome for the overlay's shadow root: a flat backdrop that fades out, with the animal
+ * centred on it. `all: initial` on the host is what keeps the site's own CSS — which is
+ * still loading while this is on screen — from reaching in.
+ *
+ * The colour and the fade duration are also read from JS (BACKDROP_COLOR, FADE_MS in
+ * index.js): the colour travels in the cross-document handoff payload and the duration
+ * times the removal, so the two pairs have to stay in step.
+ */
+
+:host { all: initial; }
+*, *::before, *::after { box-sizing: border-box; }
+
+#backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #EAE8F2;
+  opacity: 1;
+  transition: opacity 200ms ease;
+  will-change: opacity;
+}
+
+#content {
+  display: grid;
+  place-items: center;
+}
+
+.hidden { opacity: 0; }

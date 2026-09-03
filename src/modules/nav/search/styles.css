@@ -1,0 +1,188 @@
+/*
+ * Legacy Form search — the box that sits in the ExtraNav header, plus the fallback
+ * overlay used when the nav never shows up. Injected into the nav's shadow root in the
+ * first case and into the document in the second.
+ */
+
+.tmx-slot {
+  display: flex;
+  align-items: center;
+  min-width: 260px;
+  width: min(470px, 32vw);
+  /* the loading bar is placed against the slot */
+  position: relative;
+}
+
+/* Fallback placement: no ExtraNav header to sit in, so pin it to the top right. */
+.tmx-slot.overlay {
+  position: fixed;
+  top: 10px;
+  right: 12px;
+  z-index: 2147483646;
+}
+
+.tmx-slot.flex-right { margin-left: auto; }
+.tmx-slot.abs-right { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); }
+
+.tmx-search {
+  --field-bg: #0f1420; --text-0: #e6ebf4; --text-1: #b7c0d4;
+  --surface-0: #141828; --surface-1: #1a2140; --border-0: #2a3460;
+  --submenu-bg: #1b2133; --submenu-sep: #2c3244; --bg-0: #0e1324;
+  --accent-1: #5353ff; --ink-1: #90a0ff;
+  --btn-h: 40px; --r-0: 10px; --menu-w: 240px; --search-size: 20px; --search-gap: 12px;
+  font-family: inherit;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: .1px;
+}
+
+.tmx-search .group { position: relative; width: 100%; }
+
+.tmx-search .input {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-radius: var(--r-0);
+  background: var(--field-bg);
+  color: var(--text-0);
+  padding-inline: 12px calc(var(--search-size) + var(--search-gap) + 8px);
+  box-shadow: 0 0 0 1px var(--border-0), 0 0 0 2px var(--bg-0);
+}
+.tmx-search .input::placeholder { color: var(--text-1); font-weight: 600; }
+.tmx-search .input:hover { box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 3px var(--bg-0); }
+.tmx-search .input:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-1), 0 0 0 4px var(--bg-0); }
+
+.tmx-search .search-trigger {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: calc(var(--search-size) + var(--search-gap) + 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: var(--text-0);
+  cursor: pointer;
+}
+.tmx-search .search-trigger svg { width: var(--search-size); height: var(--search-size); }
+.tmx-search .search-trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-1);
+  border-radius: var(--r-0);
+}
+
+.tmx-search .submenu[data-submenu] {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: var(--menu-w);
+  background: var(--submenu-bg);
+  border: 1px solid var(--border-0);
+  border-radius: var(--r-0);
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity .16s ease, transform .16s ease, visibility .16s step-end;
+  color: #fff;
+  z-index: 10000;
+  box-shadow: 0 0 0 1px var(--bg-0) inset;
+}
+.tmx-search .search-trigger[aria-expanded="true"] + .submenu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+
+.tmx-search .list {
+  list-style: none;
+  padding: 0 6px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tmx-search .element {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--submenu-sep);
+}
+.tmx-search .element:last-child { border-bottom: 0; }
+.tmx-search .element:hover { background: rgba(255, 255, 255, 0.06); }
+.tmx-search .element label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; }
+.tmx-search .opt-text { color: #fff; font-weight: 600; line-height: 1.25; }
+
+.tmx-search input[type="radio"] {
+  appearance: none;
+  inline-size: 1.5em;
+  block-size: 1.5em;
+  border-radius: 50%;
+  background: var(--submenu-bg);
+  margin: 0;
+  position: relative;
+  transition: transform .1s ease-out, box-shadow .1s ease-out, background .1s ease-out;
+  box-shadow: 0 0 0 0.15em var(--surface-0), 0 0 0 0.30em var(--bg-0), 0 0 0 0.45em var(--surface-0);
+}
+.tmx-search input[type="radio"]::before {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  inline-size: .75em;
+  block-size: .75em;
+  border-radius: 50%;
+  background: var(--bg-0);
+  box-shadow: 0 0 0 1px var(--surface-0);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform .1s ease-out, background .1s ease-out;
+}
+.tmx-search input[type="radio"]:checked::before {
+  transform: translate(-50%, -50%) scale(1);
+  background: var(--accent-1);
+}
+.tmx-search input[type="radio"]:focus-visible { outline: 2px dashed var(--ink-1); outline-offset: .2em; }
+
+/* Loading bar: shown while the fast path is fetching, hidden the rest of the time. */
+.tmx-slot .loading-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -2px;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.tmx-slot[data-loading="1"] .loading-bar { opacity: 1; }
+.tmx-slot[data-loading="1"] .input { cursor: progress; opacity: .9; }
+.tmx-slot .loading-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  background: linear-gradient(90deg, rgba(99, 102, 241, .9), rgba(59, 130, 246, .9));
+  animation: tmx-indet 1.05s infinite ease;
+}
+
+@keyframes tmx-indet {
+  0% { transform: translateX(-35%) scaleX(.35); }
+  50% { transform: translateX(20%) scaleX(.65); }
+  100% { transform: translateX(100%) scaleX(.35); }
+}
+
+/* Host-page width hint: the site's own results form is too narrow to read. */
+form[action="https://extranet.strip-curtains.com/?p=search"] { width: 700px !important; }

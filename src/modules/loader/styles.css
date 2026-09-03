@@ -1,0 +1,10 @@
+/*
+ * Scroll lock, held in the document only while the overlay is up.
+ *
+ * This one cannot go through ctx.style.add: that injection is permanent and, at
+ * document-start, is deferred until there is a <head> to put it in. The lock has to
+ * exist from the first frame and has to come off again when the overlay leaves, so the
+ * module owns the <style> element and adds/removes it. The CSS still lives here.
+ */
+
+html, body { overflow: hidden !important; }

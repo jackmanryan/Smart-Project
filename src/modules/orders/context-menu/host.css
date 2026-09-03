@@ -1,0 +1,6 @@
+/*
+ * The shadow host itself, in the light DOM. left/top are written from script because
+ * they follow the pointer; everything constant lives here.
+ */
+#extranet-ctx-host{ position: fixed; z-index: 2147483647; left: 0; top: 0; display: none; }
+#extranet-ctx-host.is-open{ display: block; }

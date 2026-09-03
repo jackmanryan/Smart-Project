@@ -1,0 +1,193 @@
+/*
+ * SideDock — the right-hand drawer.
+ *
+ * Lifted verbatim from legacy/userscripts/sidedock.user.js (the GM_addStyle template
+ * literal), with `#${DRAWER_ID}` written out as `#sc-right-drawer`. The two Message
+ * Center sections below overlap on purpose: the second one re-states the table rules and
+ * wins where they differ (Reply column centring, colgroup widths). They are kept in the
+ * original order so the cascade resolves exactly as it did before.
+ */
+
+/* Drawer */
+#sc-right-drawer {
+  --drawer-w: 1100px;
+  --rail-w: 52px;
+  --sc-outline: rgba(75, 63, 132, .28);
+  --panel-bg: rgba(255, 255, 255, .92);
+  position: fixed;
+  top: 100px;
+  right: 0;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: var(--rail-w);
+  transition: width .25s ease;
+  z-index: 2147483000;
+}
+#sc-right-drawer:not(.collapsed) { width: calc(var(--drawer-w) + var(--rail-w)); }
+
+#sc-right-drawer .sc-drawer-body {
+  width: 0;
+  overflow: hidden;
+  transition: width .25s ease;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+#sc-right-drawer:not(.collapsed) .sc-drawer-body { width: var(--drawer-w); }
+#sc-right-drawer .sc-drawer-inner { height: 100%; overflow: auto; padding: 10px; background: transparent !important; }
+#sc-right-drawer .sc-host[hidden] { display: none !important; }
+
+/* Panel + header */
+#sc-right-drawer .sc-drawer-panel {
+  margin: 0;
+  max-width: 100%;
+  border: 1px solid var(--sc-outline) !important;
+  border-radius: 10px !important;
+  background: var(--panel-bg) !important;
+  box-shadow: none !important;
+}
+#sc-right-drawer .sc-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--sc-outline);
+  font-weight: 600;
+}
+#sc-right-drawer .sc-panel-title { font-size: 13px; }
+#sc-right-drawer .sc-panel-actions > * { margin-left: 8px; }
+
+/* Panel body */
+#sc-right-drawer .sc-drawer-panel > .panel-body {
+  max-height: calc(80vh - 20px - 34px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px;
+  background: rgba(138, 138, 138, .92) !important;
+}
+
+/* Message Center table (scoped) */
+#sc-right-drawer #MessageCenter-Block .table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: transparent !important;
+  border: 0 !important;
+}
+/* hide sticky clones */
+#sc-right-drawer #MessageCenter-Block .table thead:not(:first-of-type) { display: none !important; }
+
+#sc-right-drawer #MessageCenter-Block .table thead th.mc-h {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+#sc-right-drawer #MessageCenter-Block .table thead th,
+#sc-right-drawer #MessageCenter-Block .table tbody td {
+  padding: 6px 8px !important;
+  line-height: 1.2;
+  vertical-align: middle;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+/* Columns */
+#sc-right-drawer #MessageCenter-Block .table .mc-col-reply { width: 1%; text-align: left; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-date { width: 18ch; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-from,
+#sc-right-drawer #MessageCenter-Block .table .mc-col-to,
+#sc-right-drawer #MessageCenter-Block .table .mc-col-cc { width: 18ch; overflow: hidden; text-overflow: ellipsis; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-subject { min-width: 0; width: auto; white-space: normal; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-subject a {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+/* Rows / interactions */
+#sc-right-drawer #MessageCenter-Block .table tr.mc-row { cursor: pointer; }
+#sc-right-drawer #MessageCenter-Block .table tr.mc-row.mc-row-hover { background: rgba(0, 0, 0, .035); }
+
+/* Detail row */
+#sc-right-drawer #MessageCenter-Block .table td[colspan] { padding: 0 !important; }
+#sc-right-drawer #MessageCenter-Block .panel-collapse > .panel-body { height: 360px; overflow: auto; }
+
+/* Compact reply button inside drawer */
+#sc-right-drawer #MessageCenter-Block .table .btn.btn-success { padding: 2px 8px; font-size: 12px; }
+
+/* Rail */
+#sc-right-drawer .sc-rail { width: var(--rail-w); display: flex; flex-direction: column; gap: 6px; }
+#sc-right-drawer .sc-rail-tab {
+  flex: 1 1 0;
+  border: 0;
+  margin: 0;
+  padding: 6px 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-weight: 700;
+  color: #fff;
+  background: #4b3f84;
+  border-radius: 12px 0 0 12px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: inset 2px 0 0 #f36c3d, 0 2px 8px rgba(0, 0, 0, .18);
+}
+#sc-right-drawer .sc-rail-tab.active { filter: brightness(1.06); }
+
+/* Table layout + consistent box model */
+#sc-right-drawer #MessageCenter-Block .table {
+  width: 100% !important;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+/* Column widths (apply to both header/body via <colgroup>) */
+#sc-right-drawer #MessageCenter-Block .table col.mc-col-reply { width: 9ch; }
+#sc-right-drawer #MessageCenter-Block .table col.mc-col-date { width: 18ch; }
+#sc-right-drawer #MessageCenter-Block .table col.mc-col-from,
+#sc-right-drawer #MessageCenter-Block .table col.mc-col-to,
+#sc-right-drawer #MessageCenter-Block .table col.mc-col-cc { width: 18ch; }
+/* Subject takes the remaining width; no fixed width on subject col */
+
+/* Header + cell padding and centering of headers */
+#sc-right-drawer #MessageCenter-Block .table thead th,
+#sc-right-drawer #MessageCenter-Block .table tbody td {
+  padding: 6px 8px !important;
+  line-height: 1.2;
+  vertical-align: middle;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+#sc-right-drawer #MessageCenter-Block .table thead th { text-align: center; font-size: 12px; font-weight: 600; }
+
+/* Center the Reply column (buttons) */
+#sc-right-drawer #MessageCenter-Block .table .mc-col-reply { text-align: center; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-reply .btn { display: inline-block; margin: 0 auto; }
+
+/* Subject text: clip nicely while left-aligned content-wise */
+#sc-right-drawer #MessageCenter-Block .table .mc-col-subject { min-width: 0; }
+#sc-right-drawer #MessageCenter-Block .table .mc-col-subject a {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+/* Hover + detail rows */
+#sc-right-drawer #MessageCenter-Block .table tr.mc-row { cursor: pointer; }
+#sc-right-drawer #MessageCenter-Block .table tr.mc-row.mc-row-hover { background: rgba(0, 0, 0, .035); }
+#sc-right-drawer #MessageCenter-Block .table td[colspan] { padding: 0 !important; }
+#sc-right-drawer #MessageCenter-Block .panel-collapse > .panel-body { height: 360px; overflow: auto; }
+
+/* Ensure only the first THEAD is visible if the site injects a sticky clone */
+#sc-right-drawer #MessageCenter-Block .table thead:not(:first-of-type) { display: none !important; }

@@ -1,0 +1,54 @@
+._tm-enhanced {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+._tm-title {
+  display: inline-block;
+}
+
+._tm-header-right,
+._tm-right {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  text-align: right;
+}
+
+._tm-right h4,
+._tm-right h5 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+h1.page-header._tm-enhanced {
+  gap: 14px;
+}
+
+._tm-header-right .btn,
+._tm-header-right a.btn {
+  float: none !important;
+  margin: 0 !important;
+}
+
+._tm-header-right .btn i {
+  margin-right: 4px;
+}
+
+/* status badge pill */
+._tm-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none !important;
+  vertical-align: baseline;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+}

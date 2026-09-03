@@ -1,0 +1,39 @@
+<div class="hb-shell">
+    <div class="backdrop" part="backdrop"></div>
+
+    <section class="panel hb-panel" role="dialog" aria-modal="false" aria-labelledby="hb-title">
+        <h2 id="hb-title">Hot Button</h2>
+
+        <div class="preview hb-preview" aria-describedby="hb-hints">
+            <div class="box" id="hb-icon"></div>
+            <div id="hb-hints">
+
+                <div class="hint hb-hint">Paste a full &lt;svg&gt;…&lt;/svg&gt;</div>
+                <div class="hint hb-hint">You can get icons <a href="https://iconstack.io/" target="_blank"
+                        rel="noopener noreferrer">here</a></div>
+                <div class="hint hb-hint">Double-click an icon to copy, paste below, then set link + label.</div>
+            </div>
+        </div>
+
+        <div class="fields hb-fields">
+            <div class="row hb-row">
+                <textarea id="hb-svg" class="boxline hb-line" rows="1" wrap="off" spellcheck="false"
+                    placeholder="SVG: &lt;svg&gt;…&lt;/svg&gt;"></textarea>
+            </div>
+
+            <div class="row hb-row">
+                <input id="hb-link" class="boxline hb-line" type="url" placeholder="Link: https://example.com/page" />
+            </div>
+
+            <div class="row hb-row">
+                <input id="hb-label" class="boxline hb-line" type="text" placeholder="LABEL: Icons" />
+            </div>
+        </div>
+        <div class="actions hb-actions">
+            <button id="hb-cancel" type="button">Cancel (Esc)</button>
+            <button id="hb-clear" type="button">Clear</button>
+            <button id="hb-save"  type="button">Save</button>
+        </div>
+
+    </section>
+</div>

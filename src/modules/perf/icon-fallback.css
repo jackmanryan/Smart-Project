@@ -1,0 +1,7 @@
+/*
+ * Only injected when no icon webfont is loaded — see maybeDropIconFont() in index.js.
+ * Kept verbatim from the legacy script, unquoted family names and all.
+ */
+.glyphicon {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+}

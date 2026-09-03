@@ -1,0 +1,21 @@
+{
+  "name": "SC Gmail Bridge",
+  "namespace": "sc.gmail",
+  "version": "1.0.0",
+  "description": "Gmail-side helpers: autolink legacy/invoice/order tokens, and the extranet 2FA relay.",
+  "author": "jackmanryan",
+  "match": [
+    "https://mail.google.com/*",
+    "https://extranet.strip-curtains.com/?p=verify_2fa*"
+  ],
+  "exclude": [],
+  "run-at": "document-idle",
+  "grant": [
+    "GM_setValue",
+    "GM_getValue",
+    "GM_addValueChangeListener",
+    "GM_saveTab"
+  ],
+  "connect": [],
+  "noframes": true
+}

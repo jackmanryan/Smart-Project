@@ -1,0 +1,84 @@
+/*
+ * Auto Review status readout.
+ *
+ * The badge keeps the legacy look exactly — bottom-left, black on green/yellow/red
+ * monospace — only its inline cssText moved here and its state colour is now an
+ * attribute. The armed pill above it is new: it says out loud that this page is being
+ * driven, so nobody starts clicking the same form by hand.
+ */
+
+#sc-autoreview-dock {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 520px;
+}
+
+/* The JSON status contract. Nothing but the JSON goes in this element. */
+#sc-autoreview {
+  max-width: 520px;
+  font: 12px/1.3 monospace;
+  background: #111;
+  color: #ff0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  opacity: 0.92;
+}
+
+#sc-autoreview[data-state='done'] { color: #0f0; }
+#sc-autoreview[data-state='error'] { color: #f66; }
+
+/* Armed indicator — informational, never a gate. */
+#sc-autoreview-armed {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffb020;
+  background: #1a1206;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 5px 10px;
+  opacity: 0.95;
+}
+
+#sc-autoreview-armed::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: sc-autoreview-pulse 1.2s ease-in-out infinite;
+}
+
+#sc-autoreview-armed[data-state='done'] {
+  color: #0f0;
+  background: #04220f;
+}
+
+#sc-autoreview-armed[data-state='error'] {
+  color: #f66;
+  background: #2a0a0a;
+}
+
+#sc-autoreview-armed[data-state='done']::before,
+#sc-autoreview-armed[data-state='error']::before {
+  animation: none;
+}
+
+@keyframes sc-autoreview-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #sc-autoreview-armed::before { animation: none; }
+}
