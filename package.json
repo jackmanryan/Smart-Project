@@ -9,7 +9,8 @@
     "watch": "node build.mjs --watch",
     "lint": "eslint src build.mjs tools",
     "check:headers": "node tools/check-headers.mjs",
-    "check": "npm run lint && npm run build && npm run check:headers"
+    "check": "npm run lint && npm test && npm run build && npm run check:headers",
+    "test": "node --test test/*.test.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

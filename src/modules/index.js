@@ -35,6 +35,7 @@ import filters from './tables/filters/index.js';
 import bubbles from './tables/bubbles/index.js';
 import copyButtons from './tables/copy-buttons/index.js';
 import autoReview from './automation/auto-review/index.js';
+import rereviewQueue from './automation/rereview-queue/index.js';
 
 export default [
   clean,
@@ -62,4 +63,5 @@ export default [
   bubbles,
   copyButtons,
   autoReview,
+  rereviewQueue,
 ];

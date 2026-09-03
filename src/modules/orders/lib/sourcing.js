@@ -33,6 +33,9 @@ const PVC = /\bPVC\b|\bSC-\d|RIBBED|SMOOTH|FROSTED|SCREENFLEX|DURARIB/i;
 
 /** True when a length is a whole number of feet, within a hair of rounding. */
 export function isWholeFeet(lengthFt) {
+  // Number('') is 0, which is a whole number — but a blank length is not a length, and
+  // answering "whole feet" for one would route an unmeasured GALV line to ExtruFlex.
+  if (lengthFt == null || String(lengthFt).trim() === '') return false;
   const n = Number(lengthFt);
   if (!Number.isFinite(n)) return false;
   return Math.abs(n - Math.round(n)) < 0.001;

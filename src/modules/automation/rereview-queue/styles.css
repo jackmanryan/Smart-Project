@@ -1,0 +1,121 @@
+/*
+ * Rereview batch queue.
+ *
+ * Sits bottom-left, opposite review-assist, and stays a small pill until opened so it
+ * costs nothing on pages that are not part of a batch.
+ */
+
+#sc-rereview-queue {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 2147482000;
+  width: max-content;
+  max-width: 360px;
+  font: 12px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1c1a2b;
+}
+
+#sc-rereview-queue .sc-rq-toggle {
+  font: inherit;
+  font-weight: 600;
+  padding: 5px 11px;
+  border: 1px solid #c9c5d6;
+  border-radius: 14px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(20, 18, 34, 0.15);
+}
+#sc-rereview-queue .sc-rq-toggle:focus-visible { outline: 2px solid #4a4659; outline-offset: 2px; }
+#sc-rereview-queue .sc-rq-count { font-variant-numeric: tabular-nums; color: #6b6780; }
+
+#sc-rereview-queue .sc-rq-body { display: none; }
+#sc-rereview-queue.sc-rq-open .sc-rq-body {
+  display: block;
+  width: 360px;
+  margin-top: 8px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #c9c5d6;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(20, 18, 34, 0.18);
+}
+
+#sc-rereview-queue .sc-rq-list {
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+#sc-rereview-queue .sc-rq-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px;
+  border-bottom: 1px solid #f1eff6;
+}
+#sc-rereview-queue .sc-rq-row:last-child { border-bottom: none; }
+#sc-rereview-queue .sc-rq-here { background: #f4f1fb; border-radius: 4px; }
+
+#sc-rereview-queue .sc-rq-inv { font-variant-numeric: tabular-nums; font-weight: 600; }
+#sc-rereview-queue .sc-rq-status { font-size: 11px; color: #6b6780; }
+#sc-rereview-queue .sc-rq-po_sent .sc-rq-status { color: #2e7d4f; }
+#sc-rereview-queue .sc-rq-skipped .sc-rq-status { color: #b8770f; }
+
+#sc-rereview-queue .sc-rq-notes {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: #6b6780;
+  padding-bottom: 2px;
+}
+
+#sc-rereview-queue .sc-rq-btn,
+#sc-rereview-queue .sc-rq-sel {
+  font: inherit;
+  font-size: 11px;
+  padding: 2px 7px;
+  border: 1px solid #b7b3c6;
+  border-radius: 3px;
+  background: #f7f6fa;
+  color: inherit;
+  cursor: pointer;
+}
+#sc-rereview-queue .sc-rq-btn:hover { background: #efedf5; }
+#sc-rereview-queue .sc-rq-danger { border-color: #d8a49c; color: #8e2b20; }
+
+#sc-rereview-queue .sc-rq-paste {
+  width: 100%;
+  font: inherit;
+  padding: 5px 6px;
+  border: 1px solid #b7b3c6;
+  border-radius: 3px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+#sc-rereview-queue .sc-rq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  #sc-rereview-queue:not([data-theme='light']) { color: #ecebf3; }
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-toggle,
+  #sc-rereview-queue:not([data-theme='light']).sc-rq-open .sc-rq-body {
+    background: #1f1d2b;
+    border-color: #3a3648;
+  }
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-row { border-bottom-color: #2a2736; }
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-here { background: #2a2540; }
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-btn,
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-sel,
+  #sc-rereview-queue:not([data-theme='light']) .sc-rq-paste {
+    background: #262434;
+    border-color: #4a4659;
+    color: inherit;
+  }
+}

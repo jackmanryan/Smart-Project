@@ -192,8 +192,15 @@ export default {
 
     ctx.style.add(css, { id: STYLE_ID });
 
-    const { panel, add } = createPanel(ctx);
+    const { panel, add: addRow } = createPanel(ctx);
     const pending = new Set();
+
+    // Anything worth carrying into the end-of-batch reply also goes to the queue, which
+    // keeps the per-invoice notes. Plain information stays local to the panel.
+    const add = (level, text, action = null) => {
+      if (level === 'warn' || level === 'bad') ctx.events.emit('rereview:finding', { level, text });
+      return addRow(level, text, action);
+    };
 
     const mount = () => {
       if (!document.body || document.getElementById(PANEL_ID)) return;
