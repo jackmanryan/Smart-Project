@@ -28,7 +28,12 @@ export function createEvents(log) {
       }
       if (MIRRORED.has(name)) {
         try {
-          window.dispatchEvent(new CustomEvent(name, { detail }));
+          const event = new CustomEvent(name, { detail });
+          // Marked so bridge() can tell our own mirror apart from a genuine outside
+          // dispatch. Without this a module that both emits and bridges the same
+          // mirrored name receives every emit twice.
+          event.__scMirrored = true;
+          window.dispatchEvent(event);
         } catch { /* dispatch is best effort */ }
       }
     },
@@ -36,6 +41,8 @@ export function createEvents(log) {
     /** Listen to a window event as if it were one of ours. */
     bridge(name) {
       window.addEventListener(name, (e) => {
+        // Our own mirror already ran the local subscribers.
+        if (e.__scMirrored) return;
         for (const cb of subs.get(name) || []) {
           try {
             cb(e.detail ?? null);

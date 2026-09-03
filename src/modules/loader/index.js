@@ -182,6 +182,9 @@ function createOverlay(ctx) {
   /** True until the overlay has been faded out once; gates the top-layer re-assert. */
   let active = true;
 
+  /** Bumped by every show() and hide(); a pending teardown whose generation is stale is dropped. */
+  let teardown = 0;
+
   function openPopover() {
     try {
       host.showPopover?.();
@@ -230,6 +233,7 @@ function createOverlay(ctx) {
 
   function show() {
     if (!document.documentElement) return;
+    teardown += 1; // cancels any removal still pending from a hide() mid-fade
     if (usingPopover) {
       if (!host.isConnected) document.documentElement.append(host);
       openPopover();
@@ -248,7 +252,11 @@ function createOverlay(ctx) {
     active = false;
     events.emit('hamilton:loading', { state: 'stop', source: SOURCE });
     backdrop.classList.add('hidden');
+    const generation = ++teardown;
     await dom.sleep(FADE_MS);
+    // A show() during the fade bumps `teardown`, which cancels this removal. Without
+    // this the overlay is torn out from under whoever just asked for it.
+    if (generation !== teardown) return;
     if (usingDialog) {
       try {
         dialogEl?.close?.();
@@ -465,6 +473,8 @@ function installBridge(ctx, overlay, forcedAtBoot) {
   );
 
   // Direct requests from other modules: { state: 'start' | 'stop' }.
+  // Core mirrors this name onto window already and ignores its own dispatch when
+  // bridging, so this only picks up genuine outside dispatches.
   ctx.events.bridge('hamilton:loading');
   ctx.events.on('hamilton:loading', (detail) => {
     const d = detail || {};

@@ -111,11 +111,33 @@ const EMAIL_ENDPOINT_PATH = '/ajax/emails/load_email.php';
 /** Anything polling faster than this is clamped to it. */
 const POLL_MIN_MS = 30000;
 
-const isEmailEndpoint = (urlLike) => {
+/** Identical requests inside this window are collapsed. */
+const DEDUP_WINDOW_MS = 5000;
+
+/** How long a cached response body stays servable. */
+const CACHE_TTL_MS = 60000;
+
+/** sessionStorage prefix, kept from the legacy script so a warm cache survives the port. */
+const CACHE_PREFIX = 'tmCache:';
+
+/**
+ * The identity of an email-endpoint request, or null for anything else.
+ *
+ * jQuery is configured with cache:false site-wide, so every call carries a fresh `_`
+ * cache-buster. Keying on the raw URL would therefore make every request unique and the
+ * de-dup a no-op, which is why the buster is dropped and the rest sorted — exactly what
+ * the legacy normalizeKey did.
+ */
+const emailRequestKey = (urlLike, method) => {
   try {
-    return new URL(urlLike, location.href).pathname === EMAIL_ENDPOINT_PATH;
+    const u = new URL(urlLike, location.href);
+    if (u.pathname !== EMAIL_ENDPOINT_PATH) return null;
+    u.searchParams.delete('_');
+    const pairs = Array.from(u.searchParams.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const query = pairs.map(([k, v]) => `${k}=${v}`).join('&');
+    return `${u.origin}${u.pathname}${query ? `?${query}` : ''}|${method || 'GET'}`;
   } catch {
-    return false;
+    return null;
   }
 };
 
@@ -384,7 +406,11 @@ export default {
 
     // B) Polling clamp, request dedup, CLS and lazy-load.
     clampPolling(ctx.log);
-    net.dedupe((url) => isEmailEndpoint(url));
+    net.dedupe({
+      key: emailRequestKey,
+      windowMs: DEDUP_WINDOW_MS,
+      cache: { ttlMs: CACHE_TTL_MS, prefix: CACHE_PREFIX },
+    });
     style.add(css, { id: 'perf-turbokit' });
     ensureFavicon(dom);
     markLazy(observe);

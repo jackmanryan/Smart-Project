@@ -298,7 +298,10 @@ function createNormaliser(ctx) {
 export default {
   id: 'orders.info-panels',
   title: 'Order info panels',
-  runAt: 'end',
+  // The legacy script declared no @run-at, so Tampermonkey ran it at its default,
+  // document-idle. Matching that keeps the panels' first pass in the same frame it
+  // used to land in.
+  runAt: 'idle',
   pages: [], // the legacy @match was the whole extranet
   enabledByDefault: true,
 
@@ -316,8 +319,8 @@ export default {
     // Legacy fallback: with no order card on the page, every table gets one pass.
     if (!found.length) panels.sweep(document);
 
-    // The legacy script read .panel once at document-end; keep watching so a card the
-    // site re-renders later is normalised too.
+    // The legacy script read .panel once on its single idle pass; keep watching so a
+    // card the site re-renders later is normalised too.
     ctx.observe.each('.panel', (panel) => {
       if (panels.isOrderInfoCard(panel)) panels.addCard(panel);
     });

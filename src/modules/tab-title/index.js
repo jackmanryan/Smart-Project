@@ -109,14 +109,22 @@ export default {
       while (stops.length) stops.pop()();
     };
 
-    // 1) Inline <script> tags — those in the document now and any added later.
-    stops.push(
-      observe.each('script', (script) => {
-        if (locked) return;
+    // 1) Inline <script> tags. This re-reads every script on each batch rather than
+    //    visiting each node once: the site streams its order JSON, so a script whose
+    //    body was incomplete when the node first appeared only yields the number on a
+    //    later pass. The legacy script re-scanned document.scripts the same way.
+    const scanScripts = () => {
+      if (locked) return;
+      for (const script of document.scripts) {
         const hit = sageFromScript(script.textContent || '');
-        if (hit) setTitle(hit);
-      }),
-    );
+        if (hit) {
+          setTitle(hit);
+          return;
+        }
+      }
+    };
+    scanScripts();
+    stops.push(observe.onChange(scanScripts));
 
     // 2) Everything the page fetches. The legacy script installed its own fetch and
     //    XMLHttpRequest wrappers here; the bundle taps the network once for everyone.
